@@ -1,16 +1,28 @@
 import React from "react";
-import { Routes, Route } from "react-router-dom";
 import { PhoneFrame, TabBar } from "./components/index.jsx";
 import { Home, Explore, Guide, Calendar, Profile } from "./pages/index.jsx";
+import Auth from "./pages/Auth.jsx";
+import { supabase } from "./lib/supabase.js";
 
 const App = () => {
   const [activeTab, setActiveTab] = React.useState("home");
+  const [session, setSession] = React.useState(null);
+  const [loading, setLoading] = React.useState(true);
 
-  const handleTabChange = (id) => {
-    setActiveTab(id);
-  };
+  React.useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+      setLoading(false);
+    });
 
-  // Map tab ids to components
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session);
+      setLoading(false);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
   const pages = { home: Home, explore: Explore, guide: Guide, calendar: Calendar, profile: Profile };
   const ActivePage = pages[activeTab];
 
@@ -24,8 +36,14 @@ const App = () => {
         Venu — Interactive Prototype
       </div>
       <PhoneFrame>
-        <ActivePage />
-        <TabBar activeTab={activeTab} onTabChange={handleTabChange} />
+        {loading ? null : session ? (
+          <>
+            <ActivePage />
+            <TabBar activeTab={activeTab} onTabChange={setActiveTab} />
+          </>
+        ) : (
+          <Auth />
+        )}
       </PhoneFrame>
     </div>
   );
