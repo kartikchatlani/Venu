@@ -1,21 +1,19 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { colors, fonts } from "../theme.jsx";
 import { Screen, SectionHeader, Divider, HScroll, Chip, TagPill, WishlistButton } from "../components/index.jsx";
 import { genres, promotedEvent, festivals, mapVenues } from "../data/index.jsx";
 import { useAustinEvents } from "../hooks/useAustinEvents.js";
-import { useSavedEvents } from "../hooks/useSavedEvents.js";
 
 const EventImage = ({ src, width, height, style = {} }) => {
   if (!src) return <div style={{ width, height, background: `linear-gradient(135deg, ${colors.warmGray}, ${colors.border})`, flexShrink: 0, ...style }} />;
   return <img src={src} alt="" style={{ width, height, objectFit: "cover", flexShrink: 0, ...style }} />;
 };
 
-const Explore = () => {
+const Explore = ({ wishlistIds, toggleWishlist, onSelectEvent }) => {
   const [activeGenre, setActiveGenre] = useState("All");
   const [viewMode, setViewMode] = useState("discover");
   const [selectedPin, setSelectedPin] = useState(null);
   const { tonightShows, weekendShows, loading, error } = useAustinEvents();
-  const { savedIds, toggleSave } = useSavedEvents();
 
   const filteredTonight = activeGenre === "All"
     ? tonightShows
@@ -91,7 +89,7 @@ const Explore = () => {
           ) : filteredTonight.length === 0 ? (
             <p style={{ fontSize: 12, color: colors.faded, fontStyle: "italic", marginBottom: 14 }}>No shows tonight matching that genre.</p>
           ) : filteredTonight.map((s) => (
-            <div key={s.id} style={{ display: "flex", gap: 14, alignItems: "center", padding: "12px 14px", background: colors.white, borderRadius: 14, marginBottom: 10, boxShadow: "0 1px 4px rgba(28,25,21,0.04)", border: "1px solid rgba(28,25,21,0.04)" }}>
+            <div key={s.id} onClick={() => onSelectEvent(s)} style={{ display: "flex", gap: 14, alignItems: "center", padding: "12px 14px", background: colors.white, borderRadius: 14, marginBottom: 10, boxShadow: "0 1px 4px rgba(28,25,21,0.04)", border: "1px solid rgba(28,25,21,0.04)", cursor: "pointer" }}>
               <EventImage src={s.img} width={52} height={52} style={{ borderRadius: 12 }} />
               <div style={{ flex: 1 }}>
                 <p style={{ fontSize: 14, fontWeight: 700, color: colors.ink, marginBottom: 2 }}>{s.artist}</p>
@@ -100,7 +98,7 @@ const Explore = () => {
               </div>
               <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 6, flexShrink: 0 }}>
                 <span style={{ fontSize: 13, fontWeight: 700, color: colors.ink }}>{s.price || "TBA"}</span>
-                <WishlistButton active={savedIds.has(s.id)} onClick={() => toggleSave(s)} />
+                <WishlistButton active={wishlistIds.has(s.id)} onClick={(e) => { e.stopPropagation(); toggleWishlist(s); }} />
               </div>
             </div>
           ))}
@@ -116,7 +114,7 @@ const Explore = () => {
           ) : (
             <HScroll gap={14}>
               {filteredWeekend.map((w) => (
-                <div key={w.id} style={{ minWidth: 240, background: colors.white, borderRadius: 16, overflow: "hidden", flexShrink: 0, boxShadow: "0 2px 8px rgba(28,25,21,0.06)", border: "1px solid rgba(28,25,21,0.04)" }}>
+                <div key={w.id} onClick={() => onSelectEvent(w)} style={{ minWidth: 240, background: colors.white, borderRadius: 16, overflow: "hidden", flexShrink: 0, boxShadow: "0 2px 8px rgba(28,25,21,0.06)", border: "1px solid rgba(28,25,21,0.04)", cursor: "pointer" }}>
                   <EventImage src={w.img} width={240} height={120} style={{ display: "block" }} />
                   <div style={{ padding: 14 }}>
                     <p style={{ fontSize: 14, fontWeight: 700, color: colors.ink, marginBottom: 3 }}>{w.artist}</p>
@@ -125,7 +123,7 @@ const Explore = () => {
                       <TagPill>{w.genre}</TagPill>
                       <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                         <span style={{ fontSize: 13, fontWeight: 700, color: colors.ink }}>{w.price || "TBA"}</span>
-                        <WishlistButton active={savedIds.has(w.id)} onClick={() => toggleSave(w)} />
+                        <WishlistButton active={wishlistIds.has(w.id)} onClick={(e) => { e.stopPropagation(); toggleWishlist(w); }} />
                       </div>
                     </div>
                   </div>

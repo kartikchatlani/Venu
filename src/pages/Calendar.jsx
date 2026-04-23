@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { colors, fonts } from "../theme.jsx";
 import { Screen } from "../components/index.jsx";
-import { useSavedEvents } from "../hooks/useSavedEvents.js";
 
 const WEEKDAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
@@ -24,8 +23,7 @@ const EventImage = ({ src, size }) => {
   return <img src={src} alt="" style={{ width: size, height: size, borderRadius: 10, objectFit: "cover", flexShrink: 0 }} />;
 };
 
-const Calendar = () => {
-  const { savedEvents, loading } = useSavedEvents();
+const Calendar = ({ savedEvents = [], savedLoading: loading = false, toggleWishlist, toggleGoing }) => {
   const [filter, setFilter] = useState("all");
   const [selectedDay, setSelectedDay] = useState(null);
 
@@ -50,15 +48,23 @@ const Calendar = () => {
     .filter((e) => e.parsed)
     .sort((a, b) => a.date?.localeCompare(b.date));
 
-  // Days in current month that have events
-  const daysWithEvents = new Set(
-    eventsWithDates
-      .filter((e) => e.parsed.year === currentYear && e.parsed.monthNum === currentMonth)
-      .map((e) => e.parsed.day)
+  const thisMonthEvents = eventsWithDates.filter(
+    (e) => e.parsed.year === currentYear && e.parsed.monthNum === currentMonth
+  );
+
+  // Separate going vs wishlist dots on the calendar grid
+  const daysWithGoing = new Set(
+    thisMonthEvents.filter((e) => e.status === "going").map((e) => e.parsed.day)
+  );
+  const daysWithWishlist = new Set(
+    thisMonthEvents.filter((e) => e.status !== "going").map((e) => e.parsed.day)
   );
 
   // Event list filtered by tab
-  const listEvents = filter === "all" || filter === "wish" ? eventsWithDates : [];
+  const listEvents =
+    filter === "going" ? eventsWithDates.filter((e) => e.status === "going")
+    : filter === "wish" ? eventsWithDates.filter((e) => e.status !== "going")
+    : eventsWithDates;
 
   // Detect conflicts (same date, multiple events)
   const conflicts = eventsWithDates.reduce((acc, e) => {
@@ -67,24 +73,23 @@ const Calendar = () => {
   }, {});
   const conflictDates = Object.entries(conflicts).filter(([, count]) => count > 1).map(([date]) => date);
 
-  const wishCount = savedEvents.length;
+  const goingCount = eventsWithDates.filter((e) => e.status === "going").length;
+  const wishCount = eventsWithDates.filter((e) => e.status !== "going").length;
 
   const filters = [
     { id: "all", label: "All", count: savedEvents.length },
+    { id: "going", label: "Going", count: goingCount },
     { id: "wish", label: "Wishlist", count: wishCount },
   ];
 
   return (
     <Screen>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 4 }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 16 }}>
         <h1 style={{ fontFamily: fonts.display, fontSize: 28, fontWeight: 800, color: colors.ink, fontStyle: "italic", lineHeight: 1 }}>Calendar</h1>
         <div style={{ display: "flex", alignItems: "center", gap: 6, background: colors.warmGray, padding: "5px 12px", borderRadius: 20, border: `1px solid ${colors.border}`, fontSize: 12, fontWeight: 600, color: colors.ink }}>
           {monthName} {currentYear}
         </div>
       </div>
-      <p style={{ fontSize: 13, color: colors.brownMid, marginBottom: 20 }}>
-        {loading ? "Loading your shows..." : `${wishCount} show${wishCount !== 1 ? "s" : ""} saved`}
-      </p>
 
       {/* Month Nav */}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 18 }}>
@@ -109,7 +114,8 @@ const Calendar = () => {
           {Array.from({ length: monthStart }).map((_, i) => <div key={`empty-${i}`} />)}
           {Array.from({ length: monthDays }).map((_, i) => {
             const d = i + 1;
-            const hasEvent = daysWithEvents.has(d);
+            const hasGoing = daysWithGoing.has(d);
+            const hasWishlist = daysWithWishlist.has(d);
             const isToday = d === now.getDate() && currentMonth === now.getMonth() && currentYear === now.getFullYear();
             const isSelected = selectedDay === d;
             return (
@@ -123,7 +129,8 @@ const Calendar = () => {
               }}>
                 <span>{d}</span>
                 <div style={{ height: 6 }}>
-                  {hasEvent && <div style={{ width: 6, height: 6, borderRadius: "50%", border: `1.5px solid ${colors.amber}` }} />}
+                  {hasGoing && <div style={{ width: 6, height: 6, borderRadius: "50%", background: colors.amber }} />}
+                  {!hasGoing && hasWishlist && <div style={{ width: 6, height: 6, borderRadius: "50%", border: `1.5px solid ${colors.amber}` }} />}
                 </div>
               </div>
             );
@@ -134,10 +141,10 @@ const Calendar = () => {
       {/* Legend */}
       <div style={{ display: "flex", gap: 18, justifyContent: "center", marginBottom: 22 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 6, fontFamily: fonts.mono, fontSize: 9, letterSpacing: 1, textTransform: "uppercase", color: colors.brownMid }}>
-          <div style={{ width: 8, height: 8, borderRadius: "50%", border: `1.5px solid ${colors.amber}` }} />Wishlist
+          <div style={{ width: 8, height: 8, borderRadius: "50%", background: colors.amber }} />Going
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 6, fontFamily: fonts.mono, fontSize: 9, letterSpacing: 1, textTransform: "uppercase", color: colors.brownMid }}>
-          <div style={{ width: 8, height: 8, borderRadius: "50%", background: colors.amber, opacity: 0.6 }} />Today
+          <div style={{ width: 8, height: 8, borderRadius: "50%", border: `1.5px solid ${colors.amber}` }} />Wishlist
         </div>
       </div>
 
@@ -179,6 +186,9 @@ const Calendar = () => {
       ) : listEvents.map((e, i) => {
         const prev = listEvents[i - 1];
         const showDate = !prev || prev.date !== e.date;
+        // Supabase rows use event_id; toggle functions expect event.id
+        const normalized = { ...e, id: e.event_id, ticketUrl: e.ticket_url };
+        const removeEvent = () => e.status === "going" ? toggleGoing(normalized) : toggleWishlist(normalized);
         return (
           <React.Fragment key={e.id}>
             {showDate && (
@@ -197,10 +207,18 @@ const Calendar = () => {
                 <p style={{ fontSize: 14, fontWeight: 700, color: colors.ink, marginBottom: 2 }}>{e.artist}</p>
                 <p style={{ fontSize: 11, color: colors.brownMid, marginBottom: 4 }}>{e.venue} · {e.time}</p>
                 <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                  <span style={{ fontFamily: fonts.mono, fontSize: 8, fontWeight: 600, letterSpacing: 1, textTransform: "uppercase", padding: "3px 8px", borderRadius: 20, background: colors.warmGray, color: colors.brownMid }}>♡ Wishlist</span>
+                  {e.status === "going"
+                    ? <span style={{ fontFamily: fonts.mono, fontSize: 8, fontWeight: 600, letterSpacing: 1, textTransform: "uppercase", padding: "3px 8px", borderRadius: 20, background: colors.ink, color: colors.gold }}>✓ Going</span>
+                    : <span style={{ fontFamily: fonts.mono, fontSize: 8, fontWeight: 600, letterSpacing: 1, textTransform: "uppercase", padding: "3px 8px", borderRadius: 20, background: colors.warmGray, color: colors.brownMid }}>♡ Wishlist</span>
+                  }
                   {e.price && <span style={{ fontSize: 12, fontWeight: 700, color: colors.ink }}>{e.price}</span>}
                 </div>
               </div>
+              <button onClick={removeEvent} style={{ flexShrink: 0, width: 28, height: 28, borderRadius: "50%", border: `1px solid ${colors.border}`, background: colors.warmGray, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke={colors.brownMid} strokeWidth="2.5">
+                  <path d="M18 6L6 18M6 6l12 12" />
+                </svg>
+              </button>
             </div>
           </React.Fragment>
         );

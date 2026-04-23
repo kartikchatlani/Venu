@@ -1,13 +1,18 @@
 import React from "react";
 import { PhoneFrame, TabBar } from "./components/index.jsx";
+import { EventBottomSheet } from "./components/EventBottomSheet.jsx";
 import { Home, Explore, Guide, Calendar, Profile } from "./pages/index.jsx";
 import Auth from "./pages/Auth.jsx";
 import { supabase } from "./lib/supabase.js";
+import { useSavedEvents } from "./hooks/useSavedEvents.js";
 
 const App = () => {
   const [activeTab, setActiveTab] = React.useState("home");
   const [session, setSession] = React.useState(null);
   const [loading, setLoading] = React.useState(true);
+  const [selectedEvent, setSelectedEvent] = React.useState(null);
+
+  const { savedEvents, wishlistIds, goingIds, toggleWishlist, toggleGoing, loading: savedLoading } = useSavedEvents();
 
   React.useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -38,8 +43,24 @@ const App = () => {
       <PhoneFrame>
         {loading ? null : session ? (
           <>
-            <ActivePage />
-            <TabBar activeTab={activeTab} onTabChange={setActiveTab} />
+            <ActivePage
+              savedEvents={savedEvents}
+              wishlistIds={wishlistIds}
+              goingIds={goingIds}
+              toggleWishlist={toggleWishlist}
+              toggleGoing={toggleGoing}
+              savedLoading={savedLoading}
+              onSelectEvent={setSelectedEvent}
+            />
+            <TabBar activeTab={activeTab} onTabChange={(tab) => { setSelectedEvent(null); setActiveTab(tab); }} />
+            <EventBottomSheet
+              event={selectedEvent}
+              onClose={() => setSelectedEvent(null)}
+              wishlistIds={wishlistIds}
+              goingIds={goingIds}
+              toggleWishlist={toggleWishlist}
+              toggleGoing={toggleGoing}
+            />
           </>
         ) : (
           <Auth />
