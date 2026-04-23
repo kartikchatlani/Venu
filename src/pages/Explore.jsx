@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { colors, fonts } from "../theme.jsx";
 import { Screen, SectionHeader, Divider, HScroll, Chip, TagPill, WishlistButton } from "../components/index.jsx";
+import { EventCard } from "../components/Cards";
 import { genres, promotedEvent, festivals, mapVenues } from "../data/index.jsx";
 import { useAustinEvents } from "../hooks/useAustinEvents.js";
 
@@ -114,20 +115,7 @@ const Explore = ({ wishlistIds, toggleWishlist, onSelectEvent }) => {
           ) : (
             <HScroll gap={14}>
               {filteredWeekend.map((w) => (
-                <div key={w.id} onClick={() => onSelectEvent(w)} style={{ minWidth: 240, background: colors.white, borderRadius: 16, overflow: "hidden", flexShrink: 0, boxShadow: "0 2px 8px rgba(28,25,21,0.06)", border: "1px solid rgba(28,25,21,0.04)", cursor: "pointer" }}>
-                  <EventImage src={w.img} width={240} height={120} style={{ display: "block" }} />
-                  <div style={{ padding: 14 }}>
-                    <p style={{ fontSize: 14, fontWeight: 700, color: colors.ink, marginBottom: 3 }}>{w.artist}</p>
-                    <p style={{ fontSize: 11, color: colors.brownMid, marginBottom: 8 }}>{w.venue} · {w.date}</p>
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                      <TagPill>{w.genre}</TagPill>
-                      <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                        <span style={{ fontSize: 13, fontWeight: 700, color: colors.ink }}>{w.price || "TBA"}</span>
-                        <WishlistButton active={wishlistIds.has(w.id)} onClick={(e) => { e.stopPropagation(); toggleWishlist(w); }} />
-                      </div>
-                    </div>
-                  </div>
-                </div>
+                <EventCard key={w.id} event={w} onSelectEvent={onSelectEvent} wishlistIds={wishlistIds} toggleWishlist={toggleWishlist} />
               ))}
             </HScroll>
           )}

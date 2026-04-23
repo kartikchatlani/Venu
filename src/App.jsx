@@ -1,6 +1,6 @@
 import React from "react";
 import { PhoneFrame, TabBar } from "./components/index.jsx";
-import { EventBottomSheet } from "./components/EventBottomSheet.jsx";
+import { EventBottomSheet } from "./components/Cards/EventBottomSheet.jsx";
 import { Home, Explore, Guide, Calendar, Profile } from "./pages/index.jsx";
 import Auth from "./pages/Auth.jsx";
 import { supabase } from "./lib/supabase.js";

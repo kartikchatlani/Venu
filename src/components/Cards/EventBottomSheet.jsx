@@ -1,5 +1,5 @@
 import React from "react";
-import { colors, fonts } from "../theme.jsx";
+import { colors, fonts } from "../../theme.jsx";
 
 const parseEventDate = (dateStr) => {
   if (!dateStr) return null;
