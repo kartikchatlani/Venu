@@ -10,7 +10,7 @@ export const fetchSavedEvents = async () => {
   return data;
 };
 
-export const saveEvent = async (event) => {
+export const saveEvent = async (event, status = "wishlist") => {
   const { data: { user } } = await supabase.auth.getUser();
   const { error } = await supabase.from("saved_events").insert({
     user_id: user.id,
@@ -23,7 +23,18 @@ export const saveEvent = async (event) => {
     genre: event.genre,
     ticket_url: event.ticketUrl,
     img: event.img,
+    status,
   });
+  if (error) throw error;
+};
+
+export const updateEventStatus = async (eventId, status) => {
+  const { data: { user } } = await supabase.auth.getUser();
+  const { error } = await supabase
+    .from("saved_events")
+    .update({ status })
+    .eq("user_id", user.id)
+    .eq("event_id", eventId);
   if (error) throw error;
 };
 
