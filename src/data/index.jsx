@@ -186,10 +186,24 @@ export const userProfile = {
   handle: "@alexrivera",
   location: "Austin, TX",
   bio: '"Chasing the perfect setlist. If the bass shakes the floor, I\'m there."',
-  following: 247,
-  followers: 183,
+  friends: 24,
   reviews: 34,
 };
+
+export const friendsList = [
+  { initials: "AK", name: "Alex Kim", color: "#81B29A", textColor: "#fff", status: "Going to Toro y Moi · Apr 18" },
+  { initials: "MR", name: "Maya Rodriguez", color: "#E07A5F", textColor: "#fff", status: "Wishlisted 3 shows this week" },
+  { initials: "SL", name: "Sofia Lane", color: "#F2CC8F", textColor: "#1C1915", status: "Rated Khruangbin 5★" },
+  { initials: "JP", name: "Jordan Park", color: "#5C4F3D", textColor: "#fff", status: "12 mutual shows" },
+  { initials: "NC", name: "Nico Castillo", color: "#81B29A", textColor: "#fff", status: "Going to Floating Points · Apr 25" },
+  { initials: "RS", name: "Riley Sato", color: "#C17F4A", textColor: "#fff", status: "Added 2 new reviews" },
+];
+
+export const friendSearchResults = [
+  { initials: "MR", name: "Maya Rodriguez", color: "#E07A5F", textColor: "#fff", username: "@mayarod", mutual: "8 mutual friends" },
+  { initials: "MC", name: "Maya Chen", color: "#81B29A", textColor: "#fff", username: "@mchen", mutual: "2 mutual friends" },
+  { initials: "MA", name: "Maya Abdallah", color: "#F2CC8F", textColor: "#1C1915", username: "@maya.a", mutual: "In Austin" },
+];
 
 export const passportStats = { shows: 18, venues: 11, festivals: 3, badges: 6 };
 
