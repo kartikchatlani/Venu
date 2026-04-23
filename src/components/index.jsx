@@ -44,7 +44,8 @@ export const StatusBar = () => (
 // ============================================================
 export const Screen = ({ children }) => (
   <div style={{
-    height: "calc(100% - 80px)", overflowY: "auto", overflowX: "hidden",
+    position: "absolute", top: 0, left: 0, right: 0, bottom: 0,
+    overflowY: "auto", overflowX: "hidden",
     padding: "48px 20px 100px", background: colors.cream, scrollbarWidth: "none",
   }}>
     {children}

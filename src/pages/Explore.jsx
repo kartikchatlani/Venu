@@ -1,12 +1,29 @@
 import React, { useState } from "react";
 import { colors, fonts } from "../theme.jsx";
-import { Screen, SectionHeader, Divider, HScroll, Chip, TagPill, MatchScore } from "../components/index.jsx";
-import { genres, promotedEvent, tonightShows, weekendShows, festivals, mapVenues } from "../data/index.jsx";
+import { Screen, SectionHeader, Divider, HScroll, Chip, TagPill, WishlistButton } from "../components/index.jsx";
+import { genres, promotedEvent, festivals, mapVenues } from "../data/index.jsx";
+import { useAustinEvents } from "../hooks/useAustinEvents.js";
+import { useSavedEvents } from "../hooks/useSavedEvents.js";
+
+const EventImage = ({ src, width, height, style = {} }) => {
+  if (!src) return <div style={{ width, height, background: `linear-gradient(135deg, ${colors.warmGray}, ${colors.border})`, flexShrink: 0, ...style }} />;
+  return <img src={src} alt="" style={{ width, height, objectFit: "cover", flexShrink: 0, ...style }} />;
+};
 
 const Explore = () => {
   const [activeGenre, setActiveGenre] = useState("All");
   const [viewMode, setViewMode] = useState("discover");
   const [selectedPin, setSelectedPin] = useState(null);
+  const { tonightShows, weekendShows, loading, error } = useAustinEvents();
+  const { savedIds, toggleSave } = useSavedEvents();
+
+  const filteredTonight = activeGenre === "All"
+    ? tonightShows
+    : tonightShows.filter((s) => s.genre?.toLowerCase().includes(activeGenre.toLowerCase()));
+
+  const filteredWeekend = activeGenre === "All"
+    ? weekendShows
+    : weekendShows.filter((s) => s.genre?.toLowerCase().includes(activeGenre.toLowerCase()));
 
   return (
     <Screen>
@@ -67,19 +84,24 @@ const Explore = () => {
 
           {/* Tonight */}
           <SectionHeader title="Tonight in Austin" link="See All" />
-          <p style={{ fontSize: 12, color: colors.brownMid, fontStyle: "italic", marginBottom: 14 }}>Curated for your taste · 3 shows match</p>
-          {tonightShows.map((s) => (
+          {loading ? (
+            <p style={{ fontSize: 12, color: colors.faded, fontStyle: "italic", marginBottom: 14 }}>Loading shows...</p>
+          ) : error ? (
+            <p style={{ fontSize: 12, color: colors.terracotta, marginBottom: 14 }}>{error}</p>
+          ) : filteredTonight.length === 0 ? (
+            <p style={{ fontSize: 12, color: colors.faded, fontStyle: "italic", marginBottom: 14 }}>No shows tonight matching that genre.</p>
+          ) : filteredTonight.map((s) => (
             <div key={s.id} style={{ display: "flex", gap: 14, alignItems: "center", padding: "12px 14px", background: colors.white, borderRadius: 14, marginBottom: 10, boxShadow: "0 1px 4px rgba(28,25,21,0.04)", border: "1px solid rgba(28,25,21,0.04)" }}>
-              <img src={s.img} alt="" style={{ width: 52, height: 52, borderRadius: 12, objectFit: "cover", flexShrink: 0 }} />
+              <EventImage src={s.img} width={52} height={52} style={{ borderRadius: 12 }} />
               <div style={{ flex: 1 }}>
                 <p style={{ fontSize: 14, fontWeight: 700, color: colors.ink, marginBottom: 2 }}>{s.artist}</p>
                 <p style={{ fontSize: 11, color: colors.brownMid, marginBottom: 4 }}>{s.venue} · {s.time}</p>
-                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                  <TagPill>{s.genre}</TagPill>
-                  <span style={{ fontFamily: fonts.mono, fontSize: 10, fontWeight: 600, color: colors.amber }}>♫ {s.match}%</span>
-                </div>
+                <TagPill>{s.genre}</TagPill>
               </div>
-              <span style={{ fontSize: 13, fontWeight: 700, color: colors.ink, flexShrink: 0 }}>{s.price}</span>
+              <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 6, flexShrink: 0 }}>
+                <span style={{ fontSize: 13, fontWeight: 700, color: colors.ink }}>{s.price || "TBA"}</span>
+                <WishlistButton active={savedIds.has(s.id)} onClick={() => toggleSave(s)} />
+              </div>
             </div>
           ))}
 
@@ -87,22 +109,30 @@ const Explore = () => {
 
           {/* Weekend */}
           <SectionHeader title="This Weekend" link="All Events" />
-          <HScroll gap={14}>
-            {weekendShows.map((w) => (
-              <div key={w.id} style={{ minWidth: 240, background: colors.white, borderRadius: 16, overflow: "hidden", flexShrink: 0, boxShadow: "0 2px 8px rgba(28,25,21,0.06)", border: "1px solid rgba(28,25,21,0.04)", position: "relative" }}>
-                <img src={w.img} alt="" style={{ width: 240, height: 120, objectFit: "cover", display: "block" }} />
-                <span style={{ position: "absolute", top: 10, right: 10, fontFamily: fonts.mono, fontSize: 9, fontWeight: 600, color: colors.cream, background: "rgba(28,25,21,0.7)", backdropFilter: "blur(8px)", padding: "4px 10px", borderRadius: 20 }}>{w.venuUsers} Venu users going</span>
-                <div style={{ padding: 14 }}>
-                  <p style={{ fontSize: 14, fontWeight: 700, color: colors.ink, marginBottom: 3 }}>{w.artist}</p>
-                  <p style={{ fontSize: 11, color: colors.brownMid, marginBottom: 8 }}>{w.venue} · {w.date}</p>
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                    <TagPill>{w.genre}</TagPill>
-                    <span style={{ fontSize: 13, fontWeight: 700, color: colors.ink }}>{w.price}</span>
+          {loading ? (
+            <p style={{ fontSize: 12, color: colors.faded, fontStyle: "italic", marginBottom: 14 }}>Loading shows...</p>
+          ) : filteredWeekend.length === 0 ? (
+            <p style={{ fontSize: 12, color: colors.faded, fontStyle: "italic", marginBottom: 14 }}>No weekend shows found.</p>
+          ) : (
+            <HScroll gap={14}>
+              {filteredWeekend.map((w) => (
+                <div key={w.id} style={{ minWidth: 240, background: colors.white, borderRadius: 16, overflow: "hidden", flexShrink: 0, boxShadow: "0 2px 8px rgba(28,25,21,0.06)", border: "1px solid rgba(28,25,21,0.04)" }}>
+                  <EventImage src={w.img} width={240} height={120} style={{ display: "block" }} />
+                  <div style={{ padding: 14 }}>
+                    <p style={{ fontSize: 14, fontWeight: 700, color: colors.ink, marginBottom: 3 }}>{w.artist}</p>
+                    <p style={{ fontSize: 11, color: colors.brownMid, marginBottom: 8 }}>{w.venue} · {w.date}</p>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                      <TagPill>{w.genre}</TagPill>
+                      <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                        <span style={{ fontSize: 13, fontWeight: 700, color: colors.ink }}>{w.price || "TBA"}</span>
+                        <WishlistButton active={savedIds.has(w.id)} onClick={() => toggleSave(w)} />
+                      </div>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
-          </HScroll>
+              ))}
+            </HScroll>
+          )}
 
           <Divider />
 
