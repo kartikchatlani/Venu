@@ -1,4 +1,41 @@
 // ============================================================
+// NOTIFICATIONS DATA
+// ============================================================
+
+export const notifications = [
+  {
+    id: 1, type: "reminder", unread: true, time: "1h ago",
+    title: "Show tomorrow",
+    body: "Khruangbin at Stubb's BBQ · 8 PM",
+  },
+  {
+    id: 2, type: "friend", unread: true, time: "2h ago",
+    title: "Maya is going",
+    body: "Maya bought tickets to ACL Weekend 1",
+  },
+  {
+    id: 3, type: "presale", unread: true, time: "4h ago",
+    title: "Presale alert",
+    body: "Tyler, the Creator presale starts tonight · Moody Center",
+  },
+  {
+    id: 4, type: "match", unread: false, time: "Yesterday",
+    title: "New 94% match",
+    body: "Floating Points at The Parish · May 2",
+  },
+  {
+    id: 5, type: "friend", unread: false, time: "Yesterday",
+    title: "Jordan wishlisted an event",
+    body: "Floating Points at The Parish · May 2",
+  },
+  {
+    id: 6, type: "reminder", unread: false, time: "2 days ago",
+    title: "This week: Toro y Moi",
+    body: "You're going · Mohawk · Fri Apr 18 · 9 PM",
+  },
+];
+
+// ============================================================
 // HOME PAGE DATA
 // ============================================================
 

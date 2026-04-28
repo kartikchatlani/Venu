@@ -206,8 +206,112 @@ const FriendsView = ({ onClose, onAddFriends }) => {
   );
 };
 
-const Profile = () => {
-  const [view, setView] = useState("profile"); // "profile" | "friends" | "addFriends"
+const ReviewsView = ({ reviews, onClose, onEdit, onDelete, editingIndex, editArtist, setEditArtist, editStars, setEditStars, editText, setEditText, onSaveEdit, onCancelEdit }) => (
+  <>
+    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 18 }}>
+      <h2 style={{ fontFamily: fonts.display, fontSize: 24, fontWeight: 800, fontStyle: "italic", color: colors.ink, lineHeight: 1 }}>Reviews</h2>
+      <button onClick={onClose} style={{ background: "none", border: "none", cursor: "pointer", fontSize: 14, fontWeight: 600, color: colors.brownMid, fontFamily: fonts.body }}>← Back</button>
+    </div>
+    {reviews.length === 0 ? (
+      <p style={{ fontSize: 12, color: colors.faded, fontStyle: "italic", textAlign: "center", marginTop: 30 }}>No reviews yet. Write your first one from your profile!</p>
+    ) : reviews.map((r, i) => (
+      <div key={i} style={{ background: colors.white, borderRadius: 14, padding: 14, boxShadow: "0 1px 4px rgba(28,25,21,0.04)", border: `1px solid ${editingIndex === i ? colors.amber : "rgba(28,25,21,0.04)"}`, marginBottom: 10 }}>
+        {editingIndex === i ? (
+          <>
+            <input value={editArtist} onChange={(e) => setEditArtist(e.target.value)} style={{ width: "100%", padding: "8px 10px", borderRadius: 8, border: `1.5px solid ${colors.border}`, fontFamily: fonts.body, fontSize: 13, color: colors.ink, outline: "none", marginBottom: 10, boxSizing: "border-box", background: colors.cream }} />
+            <div style={{ display: "flex", gap: 6, marginBottom: 10 }}>
+              {[1,2,3,4,5].map((n) => (
+                <span key={n} onClick={() => setEditStars(n)} style={{ fontSize: 22, cursor: "pointer", color: n <= editStars ? colors.amber : colors.border, lineHeight: 1 }}>★</span>
+              ))}
+            </div>
+            <textarea value={editText} onChange={(e) => setEditText(e.target.value)} rows={3} style={{ width: "100%", padding: "8px 10px", borderRadius: 8, border: `1.5px solid ${colors.border}`, fontFamily: fonts.body, fontSize: 13, color: colors.ink, outline: "none", resize: "none", marginBottom: 10, boxSizing: "border-box", background: colors.cream, lineHeight: 1.5 }} />
+            <div style={{ display: "flex", gap: 8 }}>
+              <button onClick={onCancelEdit} style={{ flex: 1, padding: "8px 0", borderRadius: 8, border: `1px solid ${colors.border}`, background: colors.warmGray, fontFamily: fonts.body, fontSize: 12, fontWeight: 600, color: colors.brownMid, cursor: "pointer" }}>Cancel</button>
+              <button onClick={onSaveEdit} style={{ flex: 2, padding: "8px 0", borderRadius: 8, border: "none", background: colors.ink, fontFamily: fonts.body, fontSize: 12, fontWeight: 600, color: colors.gold, cursor: "pointer" }}>Save Changes</button>
+            </div>
+          </>
+        ) : (
+          <>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 6 }}>
+              <p style={{ fontSize: 14, fontWeight: 700, color: colors.ink, flex: 1 }}>{r.artist}</p>
+              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                <span style={{ fontSize: 12, color: colors.amber, letterSpacing: 1 }}>{r.stars}</span>
+                <button onClick={() => onEdit(i)} style={{ background: "none", border: "none", cursor: "pointer", padding: 2, color: colors.brownMid }}>
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                </button>
+                <button onClick={() => onDelete(i)} style={{ background: "none", border: "none", cursor: "pointer", padding: 2, color: colors.terracotta }}>
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg>
+                </button>
+              </div>
+            </div>
+            <p style={{ fontSize: 11, color: colors.brownMid, marginBottom: 6 }}>{r.date}</p>
+            {r.text && <p style={{ fontSize: 12, color: colors.olive, lineHeight: 1.5, fontStyle: "italic", marginBottom: r.photos?.length ? 10 : 0 }}>{r.text}</p>}
+            {r.photos?.length > 0 && (
+              <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginTop: 8 }}>
+                {r.photos.map((p, j) => <img key={j} src={p.url} alt="" style={{ width: 64, height: 64, borderRadius: 8, objectFit: "cover", border: `1px solid ${colors.border}` }} />)}
+              </div>
+            )}
+          </>
+        )}
+      </div>
+    ))}
+  </>
+);
+
+const Profile = ({ session, savedEvents = [] }) => {
+  const [view, setView] = useState("profile"); // "profile" | "friends" | "addFriends" | "reviews"
+  const [showReviewForm, setShowReviewForm] = useState(false);
+  const [reviewArtist, setReviewArtist] = useState("");
+  const [reviewStars, setReviewStars] = useState(0);
+  const [reviewText, setReviewText] = useState("");
+  const [reviewPhotos, setReviewPhotos] = useState([]);
+  const [localReviews, setLocalReviews] = useState(recentReviews);
+  const [editingIndex, setEditingIndex] = useState(null);
+  const [editArtist, setEditArtist] = useState("");
+  const [editStars, setEditStars] = useState(0);
+  const [editText, setEditText] = useState("");
+
+  const submitReview = () => {
+    if (!reviewArtist.trim() || reviewStars === 0) return;
+    const stars = "★".repeat(reviewStars) + "☆".repeat(5 - reviewStars);
+    const today = new Date().toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+    setLocalReviews((prev) => [{ artist: reviewArtist.trim(), stars, date: today, text: reviewText.trim(), photos: reviewPhotos }, ...prev]);
+    setReviewArtist("");
+    setReviewStars(0);
+    setReviewText("");
+    setReviewPhotos([]);
+    setShowReviewForm(false);
+  };
+
+  const startEdit = (i) => {
+    const r = localReviews[i];
+    setEditArtist(r.artist);
+    setEditStars(r.stars.split("").filter((c) => c === "★").length);
+    setEditText(r.text || "");
+    setEditingIndex(i);
+  };
+
+  const saveEdit = () => {
+    if (!editArtist.trim() || editStars === 0) return;
+    const stars = "★".repeat(editStars) + "☆".repeat(5 - editStars);
+    setLocalReviews((prev) => prev.map((r, i) => i === editingIndex ? { ...r, artist: editArtist.trim(), stars, text: editText.trim() } : r));
+    setEditingIndex(null);
+  };
+
+  const deleteReview = (i) => setLocalReviews((prev) => prev.filter((_, j) => j !== i));
+
+  const email = session?.user?.email ?? "";
+  const userHandle = "@" + (email.split("@")[0] || "you");
+  const userInitial = email[0]?.toUpperCase() ?? "?";
+
+  const goingEvents = savedEvents.filter((e) => e.status === "going");
+  const uniqueVenues = new Set(goingEvents.map((e) => e.venue).filter(Boolean)).size;
+  const livePassportStats = {
+    shows: goingEvents.length,
+    venues: uniqueVenues || passportStats.venues,
+    festivals: passportStats.festivals,
+    badges: passportStats.badges,
+  };
 
   if (view === "addFriends") {
     return (
@@ -221,6 +325,25 @@ const Profile = () => {
     return (
       <Screen>
         <FriendsView onClose={() => setView("profile")} onAddFriends={() => setView("addFriends")} />
+      </Screen>
+    );
+  }
+
+  if (view === "reviews") {
+    return (
+      <Screen>
+        <ReviewsView
+          reviews={localReviews}
+          onClose={() => { setView("profile"); setEditingIndex(null); }}
+          onEdit={startEdit}
+          onDelete={deleteReview}
+          editingIndex={editingIndex}
+          editArtist={editArtist} setEditArtist={setEditArtist}
+          editStars={editStars} setEditStars={setEditStars}
+          editText={editText} setEditText={setEditText}
+          onSaveEdit={saveEdit}
+          onCancelEdit={() => setEditingIndex(null)}
+        />
       </Screen>
     );
   }
@@ -241,11 +364,11 @@ const Profile = () => {
         <div style={{ display: "flex", gap: 16, alignItems: "center", marginBottom: 18, position: "relative" }}>
           <div style={{ width: 68, height: 68, borderRadius: "50%", background: `linear-gradient(135deg, ${colors.amber}, ${colors.gold})`, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: fonts.display, fontSize: 28, fontWeight: 800, color: colors.ink, fontStyle: "italic", flexShrink: 0, position: "relative" }}>
             <div style={{ position: "absolute", inset: -3, borderRadius: "50%", border: "2px solid rgba(242,204,143,0.3)" }} />
-            A
+            {userInitial}
           </div>
           <div>
             <p style={{ fontFamily: fonts.display, fontSize: 22, fontWeight: 700, color: colors.cream, fontStyle: "italic", marginBottom: 2 }}>{userProfile.name}</p>
-            <p style={{ fontFamily: fonts.mono, fontSize: 11, color: colors.amber, marginBottom: 6 }}>{userProfile.handle}</p>
+            <p style={{ fontFamily: fonts.mono, fontSize: 11, color: colors.amber, marginBottom: 6 }}>{userHandle}</p>
             <p style={{ fontSize: 12, color: "#999", display: "flex", alignItems: "center", gap: 4 }}>
               <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#999" strokeWidth="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
               {userProfile.location}
@@ -261,10 +384,10 @@ const Profile = () => {
             <p style={{ fontFamily: fonts.mono, fontSize: 8, letterSpacing: 1.5, textTransform: "uppercase", color: "#777" }}>Friends</p>
           </button>
           <div style={{ width: 1, background: "rgba(255,255,255,0.1)", margin: "6px 0" }} />
-          <div style={{ flex: 1, textAlign: "center", padding: "8px 0" }}>
-            <p style={{ fontFamily: fonts.display, fontSize: 22, fontWeight: 800, color: colors.gold, fontStyle: "italic", lineHeight: 1, marginBottom: 4 }}>{userProfile.reviews}</p>
+          <button onClick={() => setView("reviews")} style={{ flex: 1, textAlign: "center", background: "none", border: "none", cursor: "pointer", padding: "8px 0", borderRadius: 10 }}>
+            <p style={{ fontFamily: fonts.display, fontSize: 22, fontWeight: 800, color: colors.gold, fontStyle: "italic", lineHeight: 1, marginBottom: 4 }}>{localReviews.length}</p>
             <p style={{ fontFamily: fonts.mono, fontSize: 8, letterSpacing: 1.5, textTransform: "uppercase", color: "#777" }}>Reviews</p>
-          </div>
+          </button>
         </div>
 
         <button style={{ display: "block", width: "100%", padding: 10, background: "rgba(242,204,143,0.1)", border: "1px solid rgba(242,204,143,0.15)", borderRadius: 10, color: colors.gold, fontFamily: fonts.body, fontSize: 12, fontWeight: 600, textAlign: "center", cursor: "pointer", position: "relative" }}>
@@ -285,7 +408,7 @@ const Profile = () => {
           </div>
         </div>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 8, marginBottom: 18 }}>
-          {Object.entries(passportStats).map(([key, val]) => (
+          {Object.entries(livePassportStats).map(([key, val]) => (
             <div key={key} style={{ textAlign: "center", background: colors.cream, borderRadius: 12, padding: "12px 4px" }}>
               <p style={{ fontFamily: fonts.display, fontSize: 24, fontWeight: 800, color: colors.ink, fontStyle: "italic", lineHeight: 1 }}>{val}</p>
               <p style={{ fontFamily: fonts.mono, fontSize: 7, letterSpacing: 1, textTransform: "uppercase", color: colors.brownMid, marginTop: 4 }}>{key}</p>
@@ -365,14 +488,14 @@ const Profile = () => {
 
       <Divider />
 
-      {/* Photo Albums */}
-      <SectionHeader title="Photo Albums" link="All Albums" />
+      {/* Albums */}
+      <SectionHeader title="Photos & Videos" link="All Albums" />
       <HScroll gap={12} style={{ marginBottom: 8 }}>
         {photoAlbums.map((a, i) => (
           <div key={i} style={{ minWidth: 170, background: colors.white, borderRadius: 14, overflow: "hidden", flexShrink: 0, boxShadow: "0 2px 8px rgba(28,25,21,0.05)", border: "1px solid rgba(28,25,21,0.04)" }}>
             <div style={{ width: 170, height: 110, position: "relative" }}>
               <img src={a.img} alt="" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
-              <span style={{ position: "absolute", bottom: 8, right: 8, fontFamily: fonts.mono, fontSize: 9, fontWeight: 600, color: colors.cream, background: "rgba(28,25,21,0.7)", backdropFilter: "blur(8px)", padding: "3px 8px", borderRadius: 20 }}>📸 {a.count} photos</span>
+              <span style={{ position: "absolute", bottom: 8, right: 8, fontFamily: fonts.mono, fontSize: 9, fontWeight: 600, color: colors.cream, background: "rgba(28,25,21,0.7)", backdropFilter: "blur(8px)", padding: "3px 8px", borderRadius: 20 }}>🎞 {a.count} items</span>
             </div>
             <div style={{ padding: 12 }}>
               <p style={{ fontSize: 13, fontWeight: 700, color: colors.ink, marginBottom: 2 }}>{a.title}</p>
@@ -380,20 +503,137 @@ const Profile = () => {
             </div>
           </div>
         ))}
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 8, minWidth: 80, flexShrink: 0, cursor: "pointer" }}>
+          <div style={{ width: 52, height: 52, borderRadius: "50%", background: colors.warmGray, border: `1.5px dashed ${colors.border}`, display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={colors.brownMid} strokeWidth="2"><path d="M12 5v14M5 12h14"/></svg>
+          </div>
+          <span style={{ fontFamily: fonts.mono, fontSize: 8, letterSpacing: 1, textTransform: "uppercase", color: colors.brownMid, textAlign: "center" }}>New Album</span>
+        </div>
       </HScroll>
 
       <Divider />
 
       {/* Reviews */}
-      <SectionHeader title="Recent Reviews" link={`All ${userProfile.reviews}`} />
-      {recentReviews.map((r, i) => (
-        <div key={i} style={{ background: colors.white, borderRadius: 14, padding: 14, boxShadow: "0 1px 4px rgba(28,25,21,0.04)", border: "1px solid rgba(28,25,21,0.04)", marginBottom: 10 }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 6 }}>
-            <p style={{ fontSize: 14, fontWeight: 700, color: colors.ink }}>{r.artist}</p>
-            <span style={{ fontSize: 12, color: colors.amber, letterSpacing: 1 }}>{r.stars}</span>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
+        <p style={{ fontFamily: fonts.display, fontSize: 18, fontWeight: 700, fontStyle: "italic", color: colors.ink }}>Reviews</p>
+        {!showReviewForm && (
+          <button onClick={() => setShowReviewForm(true)} style={{ display: "flex", alignItems: "center", gap: 5, background: colors.ink, color: colors.gold, border: "none", fontFamily: fonts.body, fontSize: 11, fontWeight: 600, padding: "6px 12px", borderRadius: 20, cursor: "pointer" }}>
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M12 5v14M5 12h14"/></svg>
+            Write a Review
+          </button>
+        )}
+      </div>
+
+      {showReviewForm && (
+        <div style={{ background: colors.white, borderRadius: 14, padding: 16, boxShadow: "0 2px 10px rgba(28,25,21,0.06)", border: `1.5px solid ${colors.amber}`, marginBottom: 14 }}>
+          <p style={{ fontFamily: fonts.display, fontSize: 15, fontWeight: 700, fontStyle: "italic", color: colors.ink, marginBottom: 14 }}>Write a Review</p>
+
+          {/* Artist input */}
+          <input
+            value={reviewArtist}
+            onChange={(e) => setReviewArtist(e.target.value)}
+            placeholder="Artist · Venue (e.g. Khruangbin @ Stubb's)"
+            style={{ width: "100%", padding: "10px 12px", borderRadius: 10, border: `1.5px solid ${colors.border}`, fontFamily: fonts.body, fontSize: 13, color: colors.ink, outline: "none", marginBottom: 12, boxSizing: "border-box", background: colors.cream }}
+          />
+
+          {/* Star rating */}
+          <div style={{ display: "flex", gap: 6, marginBottom: 12 }}>
+            {[1, 2, 3, 4, 5].map((n) => (
+              <span key={n} onClick={() => setReviewStars(n)} style={{ fontSize: 22, cursor: "pointer", color: n <= reviewStars ? colors.amber : colors.border, lineHeight: 1 }}>★</span>
+            ))}
+            {reviewStars > 0 && (
+              <span style={{ fontFamily: fonts.mono, fontSize: 9, color: colors.brownMid, alignSelf: "center", marginLeft: 4, textTransform: "uppercase", letterSpacing: 1 }}>
+                {["", "Poor", "Fair", "Good", "Great", "Perfect"][reviewStars]}
+              </span>
+            )}
           </div>
-          <p style={{ fontSize: 11, color: colors.brownMid, marginBottom: 6 }}>{r.date}</p>
-          <p style={{ fontSize: 12, color: colors.olive, lineHeight: 1.5, fontStyle: "italic" }}>{r.text}</p>
+
+          {/* Review text */}
+          <textarea
+            value={reviewText}
+            onChange={(e) => setReviewText(e.target.value)}
+            placeholder="What made it memorable? Sound, setlist, energy..."
+            rows={3}
+            style={{ width: "100%", padding: "10px 12px", borderRadius: 10, border: `1.5px solid ${colors.border}`, fontFamily: fonts.body, fontSize: 13, color: colors.ink, outline: "none", resize: "none", marginBottom: 14, boxSizing: "border-box", background: colors.cream, lineHeight: 1.5 }}
+          />
+
+          {/* Photo upload */}
+          <div style={{ marginBottom: 14 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
+              {reviewPhotos.map((p, i) => (
+                <div key={i} style={{ position: "relative", flexShrink: 0 }}>
+                  <img src={p.url} alt="" style={{ width: 56, height: 56, borderRadius: 10, objectFit: "cover", border: `1px solid ${colors.border}` }} />
+                  <button onClick={() => setReviewPhotos((prev) => prev.filter((_, j) => j !== i))} style={{ position: "absolute", top: -6, right: -6, width: 18, height: 18, borderRadius: "50%", background: colors.ink, border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                    <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke={colors.cream} strokeWidth="3"><path d="M18 6L6 18M6 6l12 12"/></svg>
+                  </button>
+                </div>
+              ))}
+              <label style={{ width: 56, height: 56, borderRadius: 10, border: `1.5px dashed ${colors.border}`, background: colors.cream, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", cursor: "pointer", gap: 3, flexShrink: 0 }}>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={colors.brownMid} strokeWidth="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+                <span style={{ fontFamily: fonts.mono, fontSize: 7, letterSpacing: 1, textTransform: "uppercase", color: colors.brownMid }}>Add</span>
+                <input type="file" accept="image/*" multiple style={{ display: "none" }} onChange={(e) => {
+                  const files = Array.from(e.target.files);
+                  files.forEach((file) => {
+                    const url = URL.createObjectURL(file);
+                    setReviewPhotos((prev) => [...prev, { url, name: file.name }]);
+                  });
+                  e.target.value = "";
+                }} />
+              </label>
+            </div>
+          </div>
+
+          {/* Actions */}
+          <div style={{ display: "flex", gap: 8 }}>
+            <button onClick={() => { setShowReviewForm(false); setReviewArtist(""); setReviewStars(0); setReviewText(""); setReviewPhotos([]); }} style={{ flex: 1, padding: "9px 0", borderRadius: 10, border: `1px solid ${colors.border}`, background: colors.warmGray, fontFamily: fonts.body, fontSize: 12, fontWeight: 600, color: colors.brownMid, cursor: "pointer" }}>
+              Cancel
+            </button>
+            <button onClick={submitReview} style={{ flex: 2, padding: "9px 0", borderRadius: 10, border: "none", background: reviewArtist.trim() && reviewStars > 0 ? colors.ink : colors.faded, fontFamily: fonts.body, fontSize: 12, fontWeight: 600, color: colors.gold, cursor: reviewArtist.trim() && reviewStars > 0 ? "pointer" : "not-allowed" }}>
+              Post Review
+            </button>
+          </div>
+        </div>
+      )}
+
+      {localReviews.map((r, i) => (
+        <div key={i} style={{ background: colors.white, borderRadius: 14, padding: 14, boxShadow: "0 1px 4px rgba(28,25,21,0.04)", border: `1px solid ${editingIndex === i ? colors.amber : "rgba(28,25,21,0.04)"}`, marginBottom: 10 }}>
+          {editingIndex === i ? (
+            <>
+              <input value={editArtist} onChange={(e) => setEditArtist(e.target.value)} style={{ width: "100%", padding: "8px 10px", borderRadius: 8, border: `1.5px solid ${colors.border}`, fontFamily: fonts.body, fontSize: 13, color: colors.ink, outline: "none", marginBottom: 10, boxSizing: "border-box", background: colors.cream }} />
+              <div style={{ display: "flex", gap: 6, marginBottom: 10 }}>
+                {[1,2,3,4,5].map((n) => (
+                  <span key={n} onClick={() => setEditStars(n)} style={{ fontSize: 22, cursor: "pointer", color: n <= editStars ? colors.amber : colors.border, lineHeight: 1 }}>★</span>
+                ))}
+              </div>
+              <textarea value={editText} onChange={(e) => setEditText(e.target.value)} rows={3} style={{ width: "100%", padding: "8px 10px", borderRadius: 8, border: `1.5px solid ${colors.border}`, fontFamily: fonts.body, fontSize: 13, color: colors.ink, outline: "none", resize: "none", marginBottom: 10, boxSizing: "border-box", background: colors.cream, lineHeight: 1.5 }} />
+              <div style={{ display: "flex", gap: 8 }}>
+                <button onClick={() => setEditingIndex(null)} style={{ flex: 1, padding: "8px 0", borderRadius: 8, border: `1px solid ${colors.border}`, background: colors.warmGray, fontFamily: fonts.body, fontSize: 12, fontWeight: 600, color: colors.brownMid, cursor: "pointer" }}>Cancel</button>
+                <button onClick={saveEdit} style={{ flex: 2, padding: "8px 0", borderRadius: 8, border: "none", background: colors.ink, fontFamily: fonts.body, fontSize: 12, fontWeight: 600, color: colors.gold, cursor: "pointer" }}>Save Changes</button>
+              </div>
+            </>
+          ) : (
+            <>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 6 }}>
+                <p style={{ fontSize: 14, fontWeight: 700, color: colors.ink, flex: 1 }}>{r.artist}</p>
+                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  <span style={{ fontSize: 12, color: colors.amber, letterSpacing: 1 }}>{r.stars}</span>
+                  <button onClick={() => startEdit(i)} style={{ background: "none", border: "none", cursor: "pointer", padding: 2, color: colors.brownMid }}>
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                  </button>
+                  <button onClick={() => deleteReview(i)} style={{ background: "none", border: "none", cursor: "pointer", padding: 2, color: colors.terracotta }}>
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg>
+                  </button>
+                </div>
+              </div>
+              <p style={{ fontSize: 11, color: colors.brownMid, marginBottom: 6 }}>{r.date}</p>
+              {r.text && <p style={{ fontSize: 12, color: colors.olive, lineHeight: 1.5, fontStyle: "italic", marginBottom: r.photos?.length ? 10 : 0 }}>{r.text}</p>}
+              {r.photos?.length > 0 && (
+                <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginTop: 8 }}>
+                  {r.photos.map((p, j) => <img key={j} src={p.url} alt="" style={{ width: 64, height: 64, borderRadius: 8, objectFit: "cover", border: `1px solid ${colors.border}` }} />)}
+                </div>
+              )}
+            </>
+          )}
         </div>
       ))}
 

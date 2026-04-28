@@ -1,6 +1,7 @@
 import React from "react";
 import { PhoneFrame, TabBar } from "./components/index.jsx";
 import { EventBottomSheet } from "./components/EventBottomSheet.jsx";
+import { NotificationsPanel } from "./components/NotificationsPanel.jsx";
 import { Home, Explore, Guide, Calendar, Profile } from "./pages/index.jsx";
 import Auth from "./pages/Auth.jsx";
 import { supabase } from "./lib/supabase.js";
@@ -11,6 +12,7 @@ const App = () => {
   const [session, setSession] = React.useState(null);
   const [loading, setLoading] = React.useState(true);
   const [selectedEvent, setSelectedEvent] = React.useState(null);
+  const [notifsOpen, setNotifsOpen] = React.useState(false);
 
   const { savedEvents, wishlistIds, goingIds, toggleWishlist, toggleGoing, loading: savedLoading } = useSavedEvents();
 
@@ -51,8 +53,11 @@ const App = () => {
               toggleGoing={toggleGoing}
               savedLoading={savedLoading}
               onSelectEvent={setSelectedEvent}
+              onOpenNotifs={() => setNotifsOpen(true)}
+              session={session}
             />
             <TabBar activeTab={activeTab} onTabChange={(tab) => { setSelectedEvent(null); setActiveTab(tab); }} />
+            <NotificationsPanel isOpen={notifsOpen} onClose={() => setNotifsOpen(false)} />
             <EventBottomSheet
               event={selectedEvent}
               onClose={() => setSelectedEvent(null)}
