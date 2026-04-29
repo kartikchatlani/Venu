@@ -79,12 +79,12 @@ export const HScroll = ({ children, gap = 12, style = {} }) => (
 // ============================================================
 // Notification Bell
 // ============================================================
-export const NotifBell = () => (
-  <div style={{ position: "relative" }}>
+export const NotifBell = ({ onClick, hasUnread = true }) => (
+  <div onClick={onClick} style={{ position: "relative", cursor: "pointer" }}>
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={colors.brownMid} strokeWidth="1.5">
       <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0"/>
     </svg>
-    <div style={{ position: "absolute", top: -1, right: -1, width: 7, height: 7, background: colors.amber, borderRadius: "50%", border: `1.5px solid ${colors.cream}` }} />
+    {hasUnread && <div style={{ position: "absolute", top: -1, right: -1, width: 7, height: 7, background: colors.amber, borderRadius: "50%", border: `1.5px solid ${colors.cream}` }} />}
   </div>
 );
 

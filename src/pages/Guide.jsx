@@ -3,7 +3,7 @@ import { colors, fonts } from "../theme.jsx";
 import { Screen, SectionHeader, Divider, HScroll, Chip, NotifBell } from "../components/index.jsx";
 import { guideCategories, featuredArticle, spotlightArticle, signalItems, moreArticles } from "../data/index.jsx";
 
-const Guide = () => {
+const Guide = ({ onOpenNotifs }) => {
   const [activeCat, setActiveCat] = useState("For You");
   const [bookmarked, setBookmarked] = useState({});
 
@@ -11,7 +11,7 @@ const Guide = () => {
     <Screen>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 4 }}>
         <h1 style={{ fontFamily: fonts.display, fontSize: 28, fontWeight: 800, color: colors.ink, fontStyle: "italic", lineHeight: 1 }}>The Guide</h1>
-        <NotifBell />
+        <NotifBell onClick={onOpenNotifs} />
       </div>
       <p style={{ fontSize: 13, color: colors.brownMid, marginBottom: 18 }}>Stories, spotlights & signals for your music life.</p>
 

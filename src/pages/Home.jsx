@@ -1,9 +1,18 @@
 import React, { useState } from "react";
 import { colors, fonts } from "../theme.jsx";
 import { Screen, SectionHeader, Divider, HScroll, NotifBell, UserAvatar, CountdownBadge, FriendRow, TagPill, MatchScore, WishlistButton } from "../components/index.jsx";
-import { bookedShows, perfectMatches, friends, weeklyPicks, soundcheckQuestion } from "../data/index.jsx";
+import { perfectMatches, friends, weeklyPicks, soundcheckQuestion } from "../data/index.jsx";
 
-const Home = () => {
+const getDaysUntil = (dateStr) => {
+  if (!dateStr) return null;
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const event = new Date(dateStr + "T12:00:00");
+  const diff = Math.round((event - today) / (1000 * 60 * 60 * 24));
+  return diff >= 0 ? diff : null;
+};
+
+const Home = ({ savedEvents = [], savedLoading = false, onOpenNotifs }) => {
   const [wishlisted, setWishlisted] = useState({});
   const [scAnswered, setScAnswered] = useState(false);
   const [scCorrect, setScCorrect] = useState(false);
@@ -22,7 +31,7 @@ const Home = () => {
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 4 }}>
         <h1 style={{ fontFamily: fonts.display, fontSize: 32, fontWeight: 800, color: colors.ink, fontStyle: "italic", lineHeight: 1 }}>Venu</h1>
         <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
-          <NotifBell />
+          <NotifBell onClick={onOpenNotifs} />
           <UserAvatar />
         </div>
       </div>
@@ -118,17 +127,37 @@ const Home = () => {
 
       {/* Your Shows */}
       <SectionHeader title="Your Shows" link="View All" />
-      {bookedShows.map((show) => (
-        <div key={show.id} style={{ display: "flex", gap: 14, alignItems: "center", padding: 14, background: colors.white, borderRadius: 16, marginBottom: 10, boxShadow: "0 1px 4px rgba(28,25,21,0.05)", border: "1px solid rgba(28,25,21,0.04)" }}>
-          <CountdownBadge days={show.daysUntil} />
-          <img src={show.img} alt="" style={{ width: 48, height: 48, borderRadius: 10, objectFit: "cover" }} />
-          <div style={{ flex: 1 }}>
-            <p style={{ fontSize: 14, fontWeight: 700, color: colors.ink, marginBottom: 2 }}>{show.artist}</p>
-            <p style={{ fontSize: 11, color: colors.brownMid }}>{show.venue} · {show.day}, {show.date} · {show.time}</p>
-          </div>
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={colors.faded} strokeWidth="1.5"><path d="M9 18l6-6-6-6"/></svg>
-        </div>
-      ))}
+      {savedLoading ? (
+        <p style={{ fontSize: 12, color: colors.faded, fontStyle: "italic", marginBottom: 14 }}>Loading your shows...</p>
+      ) : (() => {
+        const goingShows = savedEvents
+          .filter((e) => e.status === "going")
+          .map((e) => ({ ...e, daysUntil: getDaysUntil(e.date) }))
+          .filter((e) => e.daysUntil !== null)
+          .sort((a, b) => a.daysUntil - b.daysUntil);
+        if (goingShows.length === 0) return (
+          <p style={{ fontSize: 12, color: colors.faded, fontStyle: "italic", marginBottom: 14 }}>No upcoming shows yet. Mark an event as Going in Explore!</p>
+        );
+        return goingShows.map((show) => {
+          const d = new Date(show.date + "T12:00:00");
+          const day = d.toLocaleString("en-US", { weekday: "short" });
+          const dateLabel = d.toLocaleString("en-US", { month: "short", day: "numeric" });
+          return (
+            <div key={show.event_id} style={{ display: "flex", gap: 14, alignItems: "center", padding: 14, background: colors.white, borderRadius: 16, marginBottom: 10, boxShadow: "0 1px 4px rgba(28,25,21,0.05)", border: "1px solid rgba(28,25,21,0.04)" }}>
+              <CountdownBadge days={show.daysUntil} />
+              {show.img
+                ? <img src={show.img} alt="" style={{ width: 48, height: 48, borderRadius: 10, objectFit: "cover" }} />
+                : <div style={{ width: 48, height: 48, borderRadius: 10, background: `linear-gradient(135deg, ${colors.warmGray}, ${colors.border})`, flexShrink: 0 }} />
+              }
+              <div style={{ flex: 1 }}>
+                <p style={{ fontSize: 14, fontWeight: 700, color: colors.ink, marginBottom: 2 }}>{show.artist}</p>
+                <p style={{ fontSize: 11, color: colors.brownMid }}>{show.venue} · {day}, {dateLabel} · {show.time}</p>
+              </div>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={colors.faded} strokeWidth="1.5"><path d="M9 18l6-6-6-6"/></svg>
+            </div>
+          );
+        });
+      })()}
 
       {/* Scout Tip */}
       <div style={{ background: colors.warmGray, borderRadius: 14, padding: "14px 16px", display: "flex", alignItems: "center", gap: 14, marginBottom: 24, border: `1px solid ${colors.border}` }}>

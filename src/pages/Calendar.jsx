@@ -52,12 +52,17 @@ const Calendar = ({ savedEvents = [], savedLoading: loading = false, toggleWishl
     (e) => e.parsed.year === currentYear && e.parsed.monthNum === currentMonth
   );
 
-  // Separate going vs wishlist dots on the calendar grid
-  const daysWithGoing = new Set(
-    thisMonthEvents.filter((e) => e.status === "going").map((e) => e.parsed.day)
+  const todayStr = now.toISOString().split("T")[0];
+
+  // Separate going vs wishlist dots on the calendar grid, split by past/upcoming
+  const daysWithUpcomingGoing = new Set(
+    thisMonthEvents.filter((e) => e.status === "going" && e.date >= todayStr).map((e) => e.parsed.day)
   );
-  const daysWithWishlist = new Set(
-    thisMonthEvents.filter((e) => e.status !== "going").map((e) => e.parsed.day)
+  const daysWithPastGoing = new Set(
+    thisMonthEvents.filter((e) => e.status === "going" && e.date < todayStr).map((e) => e.parsed.day)
+  );
+  const daysWithUpcomingWishlist = new Set(
+    thisMonthEvents.filter((e) => e.status !== "going" && e.date >= todayStr).map((e) => e.parsed.day)
   );
 
   // Event list filtered by tab
@@ -73,38 +78,31 @@ const Calendar = ({ savedEvents = [], savedLoading: loading = false, toggleWishl
   }, {});
   const conflictDates = Object.entries(conflicts).filter(([, count]) => count > 1).map(([date]) => date);
 
-  const goingCount = eventsWithDates.filter((e) => e.status === "going").length;
-  const wishCount = eventsWithDates.filter((e) => e.status !== "going").length;
+  const upcomingEvents = eventsWithDates.filter((e) => e.date >= todayStr);
+
+  const goingCount = upcomingEvents.filter((e) => e.status === "going").length;
+  const wishCount = upcomingEvents.filter((e) => e.status !== "going").length;
 
   const filters = [
-    { id: "all", label: "All", count: savedEvents.length },
+    { id: "all", label: "All", count: upcomingEvents.length },
     { id: "going", label: "Going", count: goingCount },
     { id: "wish", label: "Wishlist", count: wishCount },
   ];
 
   return (
     <Screen>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 16 }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
         <h1 style={{ fontFamily: fonts.display, fontSize: 28, fontWeight: 800, color: colors.ink, fontStyle: "italic", lineHeight: 1 }}>Calendar</h1>
-        <div style={{ display: "flex", alignItems: "center", gap: 6, background: colors.warmGray, padding: "5px 12px", borderRadius: 20, border: `1px solid ${colors.border}`, fontSize: 12, fontWeight: 600, color: colors.ink }}>
-          {monthName} {currentYear}
-        </div>
-      </div>
-
-      {/* Month Nav */}
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 18 }}>
-        <span style={{ fontFamily: fonts.display, fontSize: 20, fontWeight: 700, color: colors.ink, fontStyle: "italic" }}>{monthName} {currentYear}</span>
-        <div style={{ display: "flex", gap: 8 }}>
-          {[["←", -1], ["→", 1]].map(([arr, dir]) => (
-            <div key={arr} onClick={() => navigateMonth(dir)} style={{ width: 34, height: 34, borderRadius: 10, border: `1.5px solid ${colors.border}`, background: colors.white, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", fontSize: 14, color: colors.brownMid }}>
-              {arr}
-            </div>
-          ))}
+        <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+          <div onClick={() => navigateMonth(-1)} style={{ width: 28, height: 28, borderRadius: 8, border: `1.5px solid ${colors.border}`, background: colors.white, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", fontSize: 13, color: colors.brownMid }}>←</div>
+          <span style={{ fontFamily: fonts.mono, fontSize: 11, fontWeight: 600, letterSpacing: 1, textTransform: "uppercase", color: colors.ink, minWidth: 88, textAlign: "center" }}>{monthName} {currentYear}</span>
+          <div onClick={() => navigateMonth(1)} style={{ width: 28, height: 28, borderRadius: 8, border: `1.5px solid ${colors.border}`, background: colors.white, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", fontSize: 13, color: colors.brownMid }}>→</div>
         </div>
       </div>
 
       {/* Calendar Grid */}
       <div style={{ background: colors.white, borderRadius: 16, padding: 16, boxShadow: "0 2px 10px rgba(28,25,21,0.05)", border: "1px solid rgba(28,25,21,0.04)", marginBottom: 20 }}>
+        <p style={{ fontFamily: fonts.display, fontSize: 16, fontWeight: 700, fontStyle: "italic", color: colors.ink, marginBottom: 10 }}>{monthName} {currentYear}</p>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", marginBottom: 8 }}>
           {WEEKDAYS.map((w) => (
             <span key={w} style={{ textAlign: "center", fontFamily: fonts.mono, fontSize: 9, letterSpacing: 1, textTransform: "uppercase", color: colors.faded, padding: "4px 0" }}>{w}</span>
@@ -114,8 +112,9 @@ const Calendar = ({ savedEvents = [], savedLoading: loading = false, toggleWishl
           {Array.from({ length: monthStart }).map((_, i) => <div key={`empty-${i}`} />)}
           {Array.from({ length: monthDays }).map((_, i) => {
             const d = i + 1;
-            const hasGoing = daysWithGoing.has(d);
-            const hasWishlist = daysWithWishlist.has(d);
+            const hasUpcomingGoing = daysWithUpcomingGoing.has(d);
+            const hasPastGoing = daysWithPastGoing.has(d);
+            const hasUpcomingWishlist = daysWithUpcomingWishlist.has(d);
             const isToday = d === now.getDate() && currentMonth === now.getMonth() && currentYear === now.getFullYear();
             const isSelected = selectedDay === d;
             return (
@@ -129,8 +128,9 @@ const Calendar = ({ savedEvents = [], savedLoading: loading = false, toggleWishl
               }}>
                 <span>{d}</span>
                 <div style={{ height: 6 }}>
-                  {hasGoing && <div style={{ width: 6, height: 6, borderRadius: "50%", background: colors.amber }} />}
-                  {!hasGoing && hasWishlist && <div style={{ width: 6, height: 6, borderRadius: "50%", border: `1.5px solid ${colors.amber}` }} />}
+                  {hasUpcomingGoing && <div style={{ width: 6, height: 6, borderRadius: "50%", background: colors.amber }} />}
+                  {!hasUpcomingGoing && hasPastGoing && <div style={{ width: 6, height: 6, borderRadius: "50%", background: colors.faded }} />}
+                  {!hasUpcomingGoing && !hasPastGoing && hasUpcomingWishlist && <div style={{ width: 6, height: 6, borderRadius: "50%", border: `1.5px solid ${colors.amber}` }} />}
                 </div>
               </div>
             );
@@ -145,6 +145,9 @@ const Calendar = ({ savedEvents = [], savedLoading: loading = false, toggleWishl
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 6, fontFamily: fonts.mono, fontSize: 9, letterSpacing: 1, textTransform: "uppercase", color: colors.brownMid }}>
           <div style={{ width: 8, height: 8, borderRadius: "50%", border: `1.5px solid ${colors.amber}` }} />Wishlist
+        </div>
+        <div style={{ display: "flex", alignItems: "center", gap: 6, fontFamily: fonts.mono, fontSize: 9, letterSpacing: 1, textTransform: "uppercase", color: colors.brownMid }}>
+          <div style={{ width: 8, height: 8, borderRadius: "50%", background: colors.faded }} />Attended
         </div>
       </div>
 
@@ -183,46 +186,74 @@ const Calendar = ({ savedEvents = [], savedLoading: loading = false, toggleWishl
         <p style={{ fontSize: 12, color: colors.faded, fontStyle: "italic" }}>Loading your saved shows...</p>
       ) : listEvents.length === 0 ? (
         <p style={{ fontSize: 12, color: colors.faded, fontStyle: "italic", textAlign: "center", marginTop: 20 }}>No saved shows yet. Heart an event in Explore to add it here.</p>
-      ) : listEvents.map((e, i) => {
-        const prev = listEvents[i - 1];
-        const showDate = !prev || prev.date !== e.date;
-        // Supabase rows use event_id; toggle functions expect event.id
-        const normalized = { ...e, id: e.event_id, ticketUrl: e.ticket_url };
-        const removeEvent = () => e.status === "going" ? toggleGoing(normalized) : toggleWishlist(normalized);
-        return (
-          <React.Fragment key={e.id}>
-            {showDate && (
-              <p style={{ fontFamily: fonts.mono, fontSize: 10, letterSpacing: 1.5, textTransform: "uppercase", color: colors.amber, marginBottom: 10, marginTop: 4 }}>
-                {e.parsed.weekday}, {e.parsed.monthShort} {e.parsed.day}
-              </p>
-            )}
-            <div style={{ display: "flex", gap: 14, alignItems: "center", padding: 14, background: colors.white, borderRadius: 14, marginBottom: 10, boxShadow: "0 1px 4px rgba(28,25,21,0.04)", border: "1px solid rgba(28,25,21,0.04)", borderLeft: `3px solid ${colors.amber}` }}>
-              <div style={{ width: 48, textAlign: "center", flexShrink: 0 }}>
-                <p style={{ fontFamily: fonts.mono, fontSize: 9, letterSpacing: 1, textTransform: "uppercase", color: colors.amber, marginBottom: 1 }}>{e.parsed.monthShort}</p>
-                <p style={{ fontFamily: fonts.display, fontSize: 24, fontWeight: 800, color: colors.ink, fontStyle: "italic", lineHeight: 1, marginBottom: 1 }}>{e.parsed.day}</p>
-                <p style={{ fontFamily: fonts.mono, fontSize: 8, letterSpacing: 1, textTransform: "uppercase", color: colors.faded }}>{e.parsed.weekday}</p>
-              </div>
-              <EventImage src={e.img} size={48} />
-              <div style={{ flex: 1 }}>
-                <p style={{ fontSize: 14, fontWeight: 700, color: colors.ink, marginBottom: 2 }}>{e.artist}</p>
-                <p style={{ fontSize: 11, color: colors.brownMid, marginBottom: 4 }}>{e.venue} · {e.time}</p>
-                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                  {e.status === "going"
-                    ? <span style={{ fontFamily: fonts.mono, fontSize: 8, fontWeight: 600, letterSpacing: 1, textTransform: "uppercase", padding: "3px 8px", borderRadius: 20, background: colors.ink, color: colors.gold }}>✓ Going</span>
-                    : <span style={{ fontFamily: fonts.mono, fontSize: 8, fontWeight: 600, letterSpacing: 1, textTransform: "uppercase", padding: "3px 8px", borderRadius: 20, background: colors.warmGray, color: colors.brownMid }}>♡ Wishlist</span>
-                  }
-                  {e.price && <span style={{ fontSize: 12, fontWeight: 700, color: colors.ink }}>{e.price}</span>}
+      ) : (() => {
+        const upcoming = listEvents.filter((e) => e.date >= todayStr);
+        const past = listEvents.filter((e) => e.date < todayStr);
+
+        const renderCard = (e, i, list, isPast) => {
+          const prev = list[i - 1];
+          const showDate = !prev || prev.date !== e.date;
+          const normalized = { ...e, id: e.event_id, ticketUrl: e.ticket_url };
+          const removeEvent = () => e.status === "going" ? toggleGoing(normalized) : toggleWishlist(normalized);
+          const accentColor = isPast ? colors.faded : colors.amber;
+          return (
+            <React.Fragment key={e.event_id}>
+              {showDate && (
+                <p style={{ fontFamily: fonts.mono, fontSize: 10, letterSpacing: 1.5, textTransform: "uppercase", color: accentColor, marginBottom: 10, marginTop: 4 }}>
+                  {e.parsed.weekday}, {e.parsed.monthShort} {e.parsed.day}
+                </p>
+              )}
+              <div style={{ display: "flex", gap: 14, alignItems: "center", padding: 14, background: colors.white, borderRadius: 14, marginBottom: 10, boxShadow: "0 1px 4px rgba(28,25,21,0.04)", border: "1px solid rgba(28,25,21,0.04)", borderLeft: `3px solid ${accentColor}`, opacity: isPast ? 0.7 : 1 }}>
+                <div style={{ width: 48, textAlign: "center", flexShrink: 0 }}>
+                  <p style={{ fontFamily: fonts.mono, fontSize: 9, letterSpacing: 1, textTransform: "uppercase", color: accentColor, marginBottom: 1 }}>{e.parsed.monthShort}</p>
+                  <p style={{ fontFamily: fonts.display, fontSize: 24, fontWeight: 800, color: colors.ink, fontStyle: "italic", lineHeight: 1, marginBottom: 1 }}>{e.parsed.day}</p>
+                  <p style={{ fontFamily: fonts.mono, fontSize: 8, letterSpacing: 1, textTransform: "uppercase", color: colors.faded }}>{e.parsed.weekday}</p>
                 </div>
+                <EventImage src={e.img} size={48} />
+                <div style={{ flex: 1 }}>
+                  <p style={{ fontSize: 14, fontWeight: 700, color: colors.ink, marginBottom: 2 }}>{e.artist}</p>
+                  <p style={{ fontSize: 11, color: colors.brownMid, marginBottom: 4 }}>{e.venue} · {e.time}</p>
+                  <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                    {isPast
+                      ? e.status === "going"
+                        ? <span style={{ fontFamily: fonts.mono, fontSize: 8, fontWeight: 600, letterSpacing: 1, textTransform: "uppercase", padding: "3px 8px", borderRadius: 20, background: colors.ink, color: colors.gold }}>✓ Went</span>
+                        : <span style={{ fontFamily: fonts.mono, fontSize: 8, fontWeight: 600, letterSpacing: 1, textTransform: "uppercase", padding: "3px 8px", borderRadius: 20, background: colors.warmGray, color: colors.brownMid }}>Passed</span>
+                      : e.status === "going"
+                        ? <span style={{ fontFamily: fonts.mono, fontSize: 8, fontWeight: 600, letterSpacing: 1, textTransform: "uppercase", padding: "3px 8px", borderRadius: 20, background: colors.ink, color: colors.gold }}>✓ Going</span>
+                        : <span style={{ fontFamily: fonts.mono, fontSize: 8, fontWeight: 600, letterSpacing: 1, textTransform: "uppercase", padding: "3px 8px", borderRadius: 20, background: colors.warmGray, color: colors.brownMid }}>♡ Wishlist</span>
+                    }
+                    {e.price && <span style={{ fontSize: 12, fontWeight: 700, color: colors.ink }}>{e.price}</span>}
+                  </div>
+                </div>
+                <button onClick={removeEvent} style={{ flexShrink: 0, width: 28, height: 28, borderRadius: "50%", border: `1px solid ${colors.border}`, background: colors.warmGray, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke={colors.brownMid} strokeWidth="2.5">
+                    <path d="M18 6L6 18M6 6l12 12" />
+                  </svg>
+                </button>
               </div>
-              <button onClick={removeEvent} style={{ flexShrink: 0, width: 28, height: 28, borderRadius: "50%", border: `1px solid ${colors.border}`, background: colors.warmGray, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke={colors.brownMid} strokeWidth="2.5">
-                  <path d="M18 6L6 18M6 6l12 12" />
-                </svg>
-              </button>
-            </div>
-          </React.Fragment>
+            </React.Fragment>
+          );
+        };
+
+        return (
+          <>
+            {upcoming.length === 0 && past.length > 0 && (
+              <p style={{ fontSize: 12, color: colors.faded, fontStyle: "italic", textAlign: "center", marginBottom: 16 }}>No upcoming shows. Check out Explore to find something!</p>
+            )}
+            {upcoming.map((e, i) => renderCard(e, i, upcoming, false))}
+            {past.length > 0 && (
+              <>
+                <div style={{ display: "flex", alignItems: "center", gap: 10, marginTop: 8, marginBottom: 14 }}>
+                  <div style={{ flex: 1, height: 1, background: colors.border }} />
+                  <span style={{ fontFamily: fonts.mono, fontSize: 9, letterSpacing: 1.5, textTransform: "uppercase", color: colors.faded }}>Past Shows</span>
+                  <div style={{ flex: 1, height: 1, background: colors.border }} />
+                </div>
+                {past.map((e, i) => renderCard(e, i, past, true))}
+              </>
+            )}
+          </>
         );
-      })}
+      })()}
     </Screen>
   );
 };
