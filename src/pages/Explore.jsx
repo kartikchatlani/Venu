@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { colors, fonts } from "../theme.jsx";
 import { Screen, SectionHeader, Divider, HScroll, Chip, TagPill, WishlistButton } from "../components/index.jsx";
+import { VenuMap } from "../components/VenuMap.jsx";
 import { genres, promotedEvent, festivals, mapVenues } from "../data/index.jsx";
 import { useAustinEvents } from "../hooks/useAustinEvents.js";
 
@@ -12,7 +13,7 @@ const EventImage = ({ src, width, height, style = {} }) => {
 const Explore = ({ wishlistIds, toggleWishlist, onSelectEvent }) => {
   const [activeGenre, setActiveGenre] = useState("All");
   const [viewMode, setViewMode] = useState("discover");
-  const [selectedPin, setSelectedPin] = useState(null);
+  const [focusVenueIdx, setFocusVenueIdx] = useState(null);
   const { tonightShows, weekendShows, loading, error } = useAustinEvents();
 
   const filteredTonight = activeGenre === "All"
@@ -49,7 +50,7 @@ const Explore = ({ wishlistIds, toggleWishlist, onSelectEvent }) => {
       {/* View Toggle */}
       <div style={{ display: "flex", background: colors.warmGray, borderRadius: 10, padding: 3, marginBottom: 20 }}>
         {["discover", "map"].map(mode => (
-          <button key={mode} onClick={() => { setViewMode(mode); setSelectedPin(null); }} style={{
+          <button key={mode} onClick={() => setViewMode(mode)} style={{
             flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
             padding: 8, border: "none", background: viewMode === mode ? colors.white : "transparent",
             color: viewMode === mode ? colors.ink : colors.brownMid, fontFamily: fonts.body, fontSize: 12,
@@ -158,39 +159,40 @@ const Explore = ({ wishlistIds, toggleWishlist, onSelectEvent }) => {
         </>
       ) : (
         /* Map View */
-        <div onClick={() => setSelectedPin(null)} style={{ background: colors.warmGray, borderRadius: 16, overflow: "hidden", position: "relative", height: 420, marginBottom: 16, border: `1px solid ${colors.border}` }}>
-          <div style={{ width: "100%", height: "100%", position: "relative", background: `radial-gradient(ellipse at 45% 45%, rgba(193,127,74,0.06) 0%, transparent 60%), linear-gradient(135deg, ${colors.warmGray} 0%, ${colors.border} 100%)` }}>
-            {[20,35,45,58,72,85].map((t,i) => <div key={`h${i}`} style={{ position:"absolute", top:`${t}%`, left: i%2===0 ? "5%" : "10%", width: i%2===0 ? "90%" : "80%", height: 1.5, background: `rgba(28,25,21,${i%2===1 ? 0.1 : 0.06})` }} />)}
-            {[20,35,48,60,75,88].map((l,i) => <div key={`v${i}`} style={{ position:"absolute", left:`${l}%`, top: "10%", width: 1.5, height: "80%", background: `rgba(28,25,21,${i%2===1 ? 0.1 : 0.06})` }} />)}
-            <div style={{ position: "absolute", bottom: "8%", left: "10%", width: "80%", height: "14%", background: "rgba(129,178,154,0.15)", borderRadius: "40% 60% 50% 50%", filter: "blur(4px)" }} />
-            {[{t:"28%",l:"48%",n:"Red River"},{t:"48%",l:"55%",n:"Downtown"},{t:"62%",l:"38%",n:"S. Congress"},{t:"18%",l:"35%",n:"UT Campus"},{t:"72%",l:"22%",n:"Zilker"}].map((a,i) => (
-              <span key={i} style={{ position:"absolute", top:a.t, left:a.l, fontFamily:fonts.mono, fontSize:7, letterSpacing:2, textTransform:"uppercase", color:"rgba(28,25,21,0.2)", pointerEvents:"none" }}>{a.n}</span>
-            ))}
-            {mapVenues.map((v, i) => (
-              <div key={i} style={{ position: "absolute", left: `${v.x}%`, top: `${v.y}%`, transform: "translate(-50%, -100%)", cursor: "pointer", zIndex: 10 }}
-                onClick={(e) => { e.stopPropagation(); setSelectedPin(selectedPin === i ? null : i); }}>
-                <div style={{ width: 14, height: 14, borderRadius: "50%", border: "2px solid #fff", boxShadow: "0 2px 6px rgba(28,25,21,0.2)", background: v.type === "festival" ? colors.terracotta : colors.amber }} />
+        <>
+          <VenuMap
+            venues={mapVenues}
+            tonightShows={tonightShows}
+            wishlistIds={wishlistIds}
+            onToggleWishlist={toggleWishlist}
+            focusVenueIdx={focusVenueIdx}
+          />
+
+          {/* Venue list below map */}
+          <SectionHeader title="Austin Venues" link={null} />
+          <p style={{ fontSize: 12, color: colors.brownMid, fontStyle: "italic", marginBottom: 14 }}>Tap a pin on the map or browse below</p>
+          {mapVenues.map((v, i) => (
+            <div key={i} onClick={() => setFocusVenueIdx(i)} style={{ display: "flex", gap: 14, alignItems: "center", padding: "12px 14px", background: colors.white, borderRadius: 14, marginBottom: 10, boxShadow: "0 1px 4px rgba(28,25,21,0.04)", border: "1px solid rgba(28,25,21,0.04)", cursor: "pointer" }}>
+              <div style={{ width: 40, height: 40, borderRadius: 12, background: v.type === "festival" ? `rgba(224,122,95,0.12)` : `rgba(193,127,74,0.12)`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18, flexShrink: 0 }}>
+                {v.type === "festival" ? "🎪" : "🎸"}
               </div>
-            ))}
-            {selectedPin !== null && (
-              <div onClick={e => e.stopPropagation()} style={{ position: "absolute", left: `${mapVenues[selectedPin].x}%`, top: `${mapVenues[selectedPin].y - 2}%`, transform: "translate(-50%, -100%)", background: colors.white, borderRadius: 12, padding: "10px 14px", boxShadow: "0 4px 16px rgba(28,25,21,0.12)", border: `1px solid ${colors.border}`, zIndex: 20, minWidth: 160, marginTop: -12 }}>
-                <p style={{ fontSize: 13, fontWeight: 700, color: colors.ink, marginBottom: 2 }}>{mapVenues[selectedPin].name}</p>
-                <p style={{ fontSize: 10, color: colors.brownMid }}>{mapVenues[selectedPin].type === "festival" ? "Festival Grounds" : "Live Music Venue"}</p>
-                {mapVenues[selectedPin].tonight && <p style={{ fontFamily: fonts.mono, fontSize: 8, letterSpacing: 1, textTransform: "uppercase", color: colors.amber, marginTop: 4 }}>● Show tonight</p>}
+              <div style={{ flex: 1 }}>
+                <p style={{ fontSize: 14, fontWeight: 700, color: colors.ink, marginBottom: 2 }}>{v.name}</p>
+                <p style={{ fontSize: 11, color: colors.brownMid }}>{v.address} · Cap. {v.capacity}</p>
               </div>
-            )}
-            <div style={{ position: "absolute", top: 12, left: 12, display: "flex", alignItems: "center", gap: 6, background: "rgba(250,246,241,0.92)", backdropFilter: "blur(8px)", padding: "7px 14px", borderRadius: 20, border: `1px solid ${colors.border}`, fontSize: 12, fontWeight: 600, color: colors.ink }}>
-              <div style={{ width: 6, height: 6, borderRadius: "50%", background: colors.sage }} />Austin, TX
+              {(() => {
+                const show = tonightShows.find((s) => {
+                  const vn = v.name.toLowerCase();
+                  const sv = (s.venue || "").toLowerCase();
+                  return sv.includes(vn) || vn.includes(sv);
+                });
+                return show ? (
+                  <span style={{ fontFamily: fonts.mono, fontSize: 8, fontWeight: 600, letterSpacing: 1, textTransform: "uppercase", color: colors.amber, background: "rgba(193,127,74,0.12)", padding: "4px 10px", borderRadius: 20, flexShrink: 0 }}>● Tonight</span>
+                ) : null;
+              })()}
             </div>
-            <div style={{ position: "absolute", bottom: 12, left: 12, display: "flex", gap: 12, background: "rgba(250,246,241,0.9)", backdropFilter: "blur(8px)", padding: "8px 14px", borderRadius: 10, border: `1px solid ${colors.border}` }}>
-              {[{c: colors.amber, n:"Venue"},{c: colors.terracotta, n:"Festival"}].map((l,i) => (
-                <div key={i} style={{ display: "flex", alignItems: "center", gap: 5, fontFamily: fonts.mono, fontSize: 8, letterSpacing: 1, textTransform: "uppercase", color: colors.brownMid }}>
-                  <div style={{ width: 8, height: 8, borderRadius: "50%", background: l.c }} />{l.n}
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
+          ))}
+        </>
       )}
     </Screen>
   );

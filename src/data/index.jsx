@@ -103,18 +103,18 @@ export const festivals = [
 ];
 
 export const mapVenues = [
-  { name: "Stubb's BBQ", x: 52, y: 38, type: "venue", tonight: true },
-  { name: "Mohawk", x: 55, y: 35, type: "venue", tonight: true },
-  { name: "Emo's", x: 57, y: 40, type: "venue", tonight: true },
-  { name: "The Parish", x: 54, y: 42, type: "venue", tonight: false },
-  { name: "ACL Live", x: 48, y: 50, type: "venue", tonight: true },
-  { name: "Cheer Up Charlies", x: 56, y: 37, type: "venue", tonight: false },
-  { name: "Moody Amphitheater", x: 44, y: 55, type: "venue", tonight: false },
-  { name: "Concourse Project", x: 68, y: 62, type: "venue", tonight: true },
-  { name: "Cactus Cafe", x: 42, y: 28, type: "venue", tonight: false },
-  { name: "Continental Club", x: 48, y: 56, type: "venue", tonight: true },
-  { name: "Zilker Park", x: 38, y: 60, type: "festival", tonight: false },
-  { name: "Bass Concert Hall", x: 44, y: 26, type: "venue", tonight: false },
+  { name: "Stubb's BBQ", lat: 30.2686, lng: -97.7326, type: "venue", address: "801 Red River St", capacity: "2,500" },
+  { name: "Mohawk", lat: 30.2688, lng: -97.7331, type: "venue", address: "912 Red River St", capacity: "900" },
+  { name: "Emo's", lat: 30.2588, lng: -97.7372, type: "venue", address: "2015 E Riverside Dr", capacity: "1,200" },
+  { name: "The Parish", lat: 30.2664, lng: -97.7413, type: "venue", address: "214 E 6th St", capacity: "500" },
+  { name: "ACL Live", lat: 30.2653, lng: -97.7471, type: "venue", address: "310 W Willie Nelson Blvd", capacity: "2,750" },
+  { name: "Cheer Up Charlies", lat: 30.2683, lng: -97.7338, type: "venue", address: "900 Red River St", capacity: "400" },
+  { name: "Moody Amphitheater", lat: 30.2727, lng: -97.7474, type: "venue", address: "1401 Trinity St", capacity: "5,000" },
+  { name: "Concourse Project", lat: 30.2383, lng: -97.7122, type: "venue", address: "2200 S Congress Ave", capacity: "2,500" },
+  { name: "Cactus Cafe", lat: 30.2862, lng: -97.7393, type: "venue", address: "2308 Whitis Ave", capacity: "250" },
+  { name: "Continental Club", lat: 30.2507, lng: -97.7520, type: "venue", address: "1315 S Congress Ave", capacity: "200" },
+  { name: "Zilker Park", lat: 30.2669, lng: -97.7731, type: "festival", address: "2100 Barton Springs Rd", capacity: "25,000" },
+  { name: "Bass Concert Hall", lat: 30.2839, lng: -97.7365, type: "venue", address: "2350 Robert Dedman Dr", capacity: "2,900" },
 ];
 
 // ============================================================
