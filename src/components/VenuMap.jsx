@@ -23,13 +23,24 @@ const loadLeaflet = async () => {
   return L;
 };
 
-const createPinSvg = (color) => `
-  <svg width="28" height="36" viewBox="0 0 28 36" xmlns="http://www.w3.org/2000/svg">
+// size: "sm" = default, "lg" = selected/active
+const createPinSvg = (color, dotColor = "white", size = "sm") => {
+  const w = size === "lg" ? 26 : 18;
+  const h = size === "lg" ? 34 : 24;
+  return `<svg width="${w}" height="${h}" viewBox="0 0 28 36" xmlns="http://www.w3.org/2000/svg">
     <circle cx="14" cy="14" r="13" fill="${color}" stroke="white" stroke-width="2.5"/>
     <polygon points="14,34 8,22 20,22" fill="${color}"/>
-    <circle cx="14" cy="14" r="5" fill="white" opacity="0.9"/>
-  </svg>
-`;
+    <circle cx="14" cy="14" r="5" fill="${dotColor}" opacity="0.95"/>
+  </svg>`;
+};
+
+const makeIcon = (leaflet, color, dotColor, size = "sm") => leaflet.divIcon({
+  html: createPinSvg(color, dotColor, size),
+  className: "",
+  iconSize: size === "lg" ? [26, 34] : [18, 24],
+  iconAnchor: size === "lg" ? [13, 34] : [9, 24],
+  popupAnchor: [0, size === "lg" ? -36 : -26],
+});
 
 const POPUP_STYLES = `
   .venu-popup .leaflet-popup-content-wrapper {
@@ -106,10 +117,17 @@ const buildPopupContent = (venue, show, isWishlisted) => {
   return venueSection + showSection + actionsSection;
 };
 
+const pinColors = (venue, shows) => {
+  if (venue.type === "festival") return { color: colors.terracotta, dot: "white" };
+  if (matchShow(venue, shows)) return { color: colors.amber, dot: "white" };
+  return { color: "#B0A090", dot: "white" };
+};
+
 export const VenuMap = ({ venues, tonightShows = [], wishlistIds = new Set(), onToggleWishlist, focusVenueIdx = null }) => {
   const containerRef = useRef(null);
   const mapRef = useRef(null);
   const markersRef = useRef([]);
+  const activeMarkerRef = useRef(null); // currently open popup's marker entry
 
   // Keep refs current so lazy popup build always uses latest data
   const tonightShowsRef = useRef(tonightShows);
@@ -117,16 +135,13 @@ export const VenuMap = ({ venues, tonightShows = [], wishlistIds = new Set(), on
   const onToggleWishlistRef = useRef(onToggleWishlist);
 
   const recolorPins = (leaflet, shows) => {
-    markersRef.current.forEach(({ marker, venue }) => {
-      const hasShow = !!matchShow(venue, shows);
-      const color = venue.type === "festival" ? colors.terracotta : hasShow ? colors.amber : "#B0A090";
-      marker.setIcon(leaflet.divIcon({
-        html: createPinSvg(color),
-        className: "",
-        iconSize: [28, 36],
-        iconAnchor: [14, 36],
-        popupAnchor: [0, -40],
-      }));
+    markersRef.current.forEach((entry) => {
+      const { marker, venue } = entry;
+      const isActive = activeMarkerRef.current === entry;
+      const { color, dot } = pinColors(venue, shows);
+      marker.setIcon(makeIcon(leaflet, color, dot, isActive ? "lg" : "sm"));
+      entry.color = color;
+      entry.dot = dot;
     });
   };
 
@@ -187,28 +202,36 @@ export const VenuMap = ({ venues, tonightShows = [], wishlistIds = new Set(), on
 
       venues.forEach((v) => {
         // Start all venue pins gray — re-colored once tonightShows loads
-        const pinColor = v.type === "festival" ? colors.terracotta : "#B0A090";
-
-        const icon = leaflet.divIcon({
-          html: createPinSvg(pinColor),
-          className: "",
-          iconSize: [28, 36],
-          iconAnchor: [14, 36],
-          popupAnchor: [0, -40],
-        });
-
-        // Create marker with an empty popup — content is built lazily on open
+        // Start gray — recolorPins will update after markers are all placed
+        const entry = { marker: null, venue: v, color: "#B0A090", dot: "white" };
+        const icon = makeIcon(leaflet, "#B0A090", "white", "sm");
         const marker = leaflet.marker([v.lat, v.lng], { icon }).addTo(map);
         const popup = leaflet.popup({ className: "venu-popup", maxWidth: 280 }).setContent("");
         marker.bindPopup(popup);
+        entry.marker = marker;
 
         marker.on("popupopen", () => {
+          // Enlarge this pin, shrink previous active
+          if (activeMarkerRef.current && activeMarkerRef.current !== entry) {
+            const prev = activeMarkerRef.current;
+            prev.marker.setIcon(makeIcon(leaflet, prev.color, prev.dot, "sm"));
+          }
+          activeMarkerRef.current = entry;
+          marker.setIcon(makeIcon(leaflet, entry.color, entry.dot, "lg"));
+
           const show = matchShow(v, tonightShowsRef.current);
           const isWishlisted = show ? wishlistIdsRef.current.has(show.id) : false;
           popup.setContent(buildPopupContent(v, show, isWishlisted));
         });
 
-        markersRef.current.push({ marker, venue: v });
+        marker.on("popupclose", () => {
+          if (activeMarkerRef.current === entry) {
+            activeMarkerRef.current = null;
+            marker.setIcon(makeIcon(leaflet, entry.color, entry.dot, "sm"));
+          }
+        });
+
+        markersRef.current.push(entry);
       });
 
       // Apply correct pin colors using whatever show data has loaded by now

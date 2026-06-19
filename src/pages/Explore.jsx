@@ -1,14 +1,28 @@
 import { useState } from "react";
-import { colors, fonts } from "../theme.jsx";
-import { Screen, SectionHeader, Divider, HScroll, Chip, TagPill, WishlistButton } from "../components/index.jsx";
+import { Screen, HScroll, Chip, WishlistButton } from "../components/index.jsx";
+import { Kicker, MonoMeta } from "../components/marks/index.jsx";
 import { VenuMap } from "../components/VenuMap.jsx";
 import { genres, promotedEvent, festivals, mapVenues } from "../data/index.jsx";
 import { useAustinEvents } from "../hooks/useAustinEvents.js";
 
-const EventImage = ({ src, width, height, style = {} }) => {
-  if (!src) return <div style={{ width, height, background: `linear-gradient(135deg, ${colors.warmGray}, ${colors.border})`, flexShrink: 0, ...style }} />;
-  return <img src={src} alt="" style={{ width, height, objectFit: "cover", flexShrink: 0, ...style }} />;
-};
+const P = "#F4EFE7";
+const A = "#C17F4A";
+const E = "#D94F2A";
+const F = "#8A8278";
+const D = "'Fraunces', Georgia, serif";
+const M = "'JetBrains Mono', monospace";
+const glass = "rgba(244,239,231,0.05)";
+const glassBorder = "rgba(244,239,231,0.10)";
+
+const PlaceholderImg = ({ height = 130 }) => (
+  <div style={{
+    width: "100%", height,
+    background: "repeating-linear-gradient(135deg, #2a221a, #2a221a 10px, #201913 10px, #201913 20px)",
+    position: "relative", flexShrink: 0,
+  }}>
+    <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, transparent 40%, rgba(12,10,8,0.9))" }} />
+  </div>
+);
 
 const Explore = ({ wishlistIds, toggleWishlist, onSelectEvent }) => {
   const [activeGenre, setActiveGenre] = useState("All");
@@ -33,131 +47,264 @@ const Explore = ({ wishlistIds, toggleWishlist, onSelectEvent }) => {
 
   return (
     <Screen>
-      {/* Header */}
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 4 }}>
-        <h1 style={{ fontFamily: fonts.display, fontSize: 28, fontWeight: 800, color: colors.ink, fontStyle: "italic", lineHeight: 1 }}>Explore</h1>
-        <div style={{ display: "flex", alignItems: "center", gap: 6, background: colors.warmGray, padding: "5px 12px", borderRadius: 20, border: `1px solid ${colors.border}` }}>
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke={colors.amber} strokeWidth="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
-          <span style={{ fontSize: 12, fontWeight: 600, color: colors.ink }}>Austin, TX</span>
+      {/* ── Masthead ─────────────────────────────────────────── */}
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 18 }}>
+        <div>
+          <div style={{ fontFamily: D, fontSize: 38, fontWeight: 700, color: P, lineHeight: "38px", letterSpacing: "-0.02em" }}>
+            Explore
+          </div>
+          <div style={{ display: "flex", alignItems: "center", gap: 5, marginTop: 4 }}>
+            <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke={A} strokeWidth="2">
+              <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/>
+              <circle cx="12" cy="10" r="3"/>
+            </svg>
+            <span style={{ fontFamily: M, fontSize: 10, letterSpacing: "0.06em", textTransform: "uppercase", color: A, cursor: "pointer" }}>
+              Austin, TX · Change City
+            </span>
+          </div>
         </div>
       </div>
-      <p style={{ fontSize: 13, color: colors.brownMid, marginBottom: 18 }}>Find your next unforgettable night.</p>
 
-      {/* Search */}
-      <div style={{ position: "relative", marginBottom: 14 }}>
-        <svg style={{ position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)" }} width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={colors.faded} strokeWidth="1.5"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
-        <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search artists, venues, festivals..." style={{ width: "100%", padding: "12px 16px 12px 40px", background: colors.white, border: `1.5px solid ${colors.border}`, borderRadius: 14, fontFamily: fonts.body, fontSize: 14, color: colors.ink, outline: "none" }} />
+      {/* ── Glass search bar ─────────────────────────────────── */}
+      <div style={{
+        display: "flex", alignItems: "center", gap: 10,
+        background: glass, border: `1px solid ${glassBorder}`,
+        borderRadius: 30, padding: "10px 16px", marginBottom: 16,
+      }}>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={F} strokeWidth="1.5">
+          <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
+        </svg>
+        <input
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder="Search artists or venues…"
+          style={{
+            flex: 1, background: "transparent", border: "none",
+            fontFamily: M, fontSize: 12, letterSpacing: "0.04em",
+            color: P, outline: "none",
+          }}
+        />
       </div>
 
-      {/* Genre Chips */}
-      <HScroll gap={8} style={{ marginBottom: 20 }}>
+      {/* ── Genre chips ──────────────────────────────────────── */}
+      <HScroll gap={6} style={{ marginBottom: 18 }}>
         {genres.map(g => <Chip key={g} label={g} active={activeGenre === g} onClick={() => setActiveGenre(g)} />)}
       </HScroll>
 
-      {/* View Toggle */}
-      <div style={{ display: "flex", background: colors.warmGray, borderRadius: 10, padding: 3, marginBottom: 20 }}>
-        {["discover", "map"].map(mode => (
+      {/* ── View toggle ──────────────────────────────────────── */}
+      <div style={{ display: "flex", gap: 4, marginBottom: 24, background: glass, border: `1px solid ${glassBorder}`, borderRadius: 30, padding: "4px" }}>
+        {[["discover", "Discover"], ["map", "Map"]].map(([mode, label]) => (
           <button key={mode} onClick={() => setViewMode(mode)} style={{
-            flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
-            padding: 8, border: "none", background: viewMode === mode ? colors.white : "transparent",
-            color: viewMode === mode ? colors.ink : colors.brownMid, fontFamily: fonts.body, fontSize: 12,
-            fontWeight: 600, borderRadius: 8, cursor: "pointer", boxShadow: viewMode === mode ? "0 1px 4px rgba(28,25,21,0.08)" : "none",
+            flex: 1, padding: "7px 0", border: "none", cursor: "pointer",
+            fontFamily: M, fontSize: 10, fontWeight: 700, letterSpacing: "0.08em",
+            textTransform: "uppercase", borderRadius: 26,
+            background: viewMode === mode ? A : "transparent",
+            color: viewMode === mode ? "#14110F" : F,
+            transition: "all 0.2s ease",
           }}>
-            {mode === "discover" ? "Discover" : "Map"}
+            {label}
           </button>
         ))}
       </div>
 
       {viewMode === "discover" ? (
         <>
-          {/* Promoted */}
-          <div style={{ borderRadius: 16, overflow: "hidden", background: colors.white, boxShadow: "0 2px 12px rgba(28,25,21,0.06)", border: "1px solid rgba(28,25,21,0.04)", marginBottom: 6, position: "relative" }}>
-            <img src={promotedEvent.img} alt="" style={{ width: "100%", height: 150, objectFit: "cover", display: "block" }} />
-            <span style={{ position: "absolute", top: 12, left: 12, fontFamily: fonts.mono, fontSize: 8, fontWeight: 600, letterSpacing: 1.5, textTransform: "uppercase", color: colors.cream, background: "rgba(28,25,21,0.7)", backdropFilter: "blur(8px)", padding: "4px 10px", borderRadius: 20 }}>Promoted</span>
-            <div style={{ padding: 16 }}>
-              <p style={{ fontFamily: fonts.mono, fontSize: 9, letterSpacing: 1.5, textTransform: "uppercase", color: colors.amber, marginBottom: 6 }}>{promotedEvent.venue}</p>
-              <p style={{ fontFamily: fonts.display, fontSize: 20, fontWeight: 700, fontStyle: "italic", color: colors.ink, marginBottom: 4 }}>{promotedEvent.event}</p>
-              <p style={{ fontSize: 12, color: colors.brownMid, marginBottom: 12 }}>{promotedEvent.date} · {promotedEvent.time}</p>
+          {/* ── Promoted card ─────────────────────────────────── */}
+          <div style={{ borderRadius: 18, overflow: "hidden", marginBottom: 4, position: "relative" }}>
+            <PlaceholderImg height={150} />
+            <div style={{ position: "absolute", top: 12, left: 14 }}>
+              <div style={{ display: "inline-flex", alignItems: "center", gap: 5, background: "rgba(193,127,74,0.9)", borderRadius: 20, padding: "4px 10px" }}>
+                <span style={{ fontFamily: M, fontSize: 8, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "#14110F" }}>
+                  Promoted · {promotedEvent.date}
+                </span>
+              </div>
+            </div>
+            <div style={{
+              position: "absolute", bottom: 0, left: 0, right: 0,
+              padding: "18px 16px 16px",
+            }}>
+              <div style={{ fontFamily: D, fontSize: 22, fontWeight: 700, color: P, lineHeight: "26px", marginBottom: 6 }}>
+                {promotedEvent.event}
+              </div>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <span style={{ fontSize: 14, fontWeight: 700, color: colors.ink }}>{promotedEvent.price}</span>
-                <button style={{ background: colors.ink, color: colors.gold, border: "none", fontFamily: fonts.body, fontSize: 12, fontWeight: 600, padding: "8px 18px", borderRadius: 10, cursor: "pointer" }}>Get Tickets →</button>
+                <span style={{ fontFamily: M, fontSize: 9, letterSpacing: "0.06em", textTransform: "uppercase", color: F }}>
+                  {promotedEvent.venue} · {promotedEvent.time}
+                </span>
+                <span style={{ fontFamily: M, fontSize: 11, color: A, fontWeight: 700 }}>{promotedEvent.price}</span>
               </div>
             </div>
           </div>
-          <p style={{ fontFamily: fonts.mono, fontSize: 8, color: colors.faded, letterSpacing: 1, textAlign: "right", marginBottom: 4 }}>SPONSORED</p>
+          <div style={{ fontFamily: M, fontSize: 8, letterSpacing: "0.06em", textTransform: "uppercase", color: F, textAlign: "right", marginBottom: 22 }}>
+            Sponsored
+          </div>
 
-          <Divider />
+          {/* ── Tonight ──────────────────────────────────────── */}
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 14 }}>
+            <div style={{ fontFamily: D, fontSize: 22, fontWeight: 700, color: P }}>Tonight in Austin</div>
+            <span style={{ fontFamily: M, fontSize: 9, letterSpacing: "0.08em", textTransform: "uppercase", color: A, cursor: "pointer" }}>See All →</span>
+          </div>
 
-          {/* Tonight */}
-          <SectionHeader title="Tonight in Austin" link="See All" />
           {loading ? (
-            <p style={{ fontSize: 12, color: colors.faded, fontStyle: "italic", marginBottom: 14 }}>Loading shows...</p>
+            <div style={{ fontFamily: M, fontSize: 10, color: F, letterSpacing: "0.04em", textTransform: "uppercase", marginBottom: 16 }}>
+              Loading shows…
+            </div>
           ) : error ? (
-            <p style={{ fontSize: 12, color: colors.terracotta, marginBottom: 14 }}>{error}</p>
+            <div style={{ fontFamily: M, fontSize: 10, color: E, letterSpacing: "0.04em", textTransform: "uppercase", marginBottom: 16 }}>{error}</div>
           ) : filteredTonight.length === 0 ? (
-            <p style={{ fontSize: 12, color: colors.faded, fontStyle: "italic", marginBottom: 14 }}>No shows tonight matching that genre.</p>
-          ) : filteredTonight.map((s) => (
-            <div key={s.id} onClick={() => onSelectEvent(s)} style={{ display: "flex", gap: 14, alignItems: "center", padding: "12px 14px", background: colors.white, borderRadius: 14, marginBottom: 10, boxShadow: "0 1px 4px rgba(28,25,21,0.04)", border: "1px solid rgba(28,25,21,0.04)", cursor: "pointer" }}>
-              <EventImage src={s.img} width={52} height={52} style={{ borderRadius: 12 }} />
+            <div style={{ fontFamily: M, fontSize: 10, color: F, textTransform: "uppercase", letterSpacing: "0.04em", marginBottom: 16 }}>
+              No shows tonight matching that genre.
+            </div>
+          ) : filteredTonight.map((s, i) => (
+            <div key={s.id} onClick={() => onSelectEvent(s)} style={{
+              display: "flex", alignItems: "center", gap: 12,
+              padding: "12px 14px", marginBottom: 8,
+              background: glass, border: `1px solid ${glassBorder}`,
+              borderRadius: 16, cursor: "pointer",
+            }}>
+              <div style={{
+                width: 52, height: 52, borderRadius: 12, flexShrink: 0, overflow: "hidden", position: "relative",
+                background: "repeating-linear-gradient(135deg, #2a221a, #2a221a 6px, #201913 6px, #201913 12px)",
+              }}>
+                {s.img && <img src={s.img} alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />}
+              </div>
               <div style={{ flex: 1 }}>
-                <p style={{ fontSize: 14, fontWeight: 700, color: colors.ink, marginBottom: 2 }}>{s.artist}</p>
-                <p style={{ fontSize: 11, color: colors.brownMid, marginBottom: 4 }}>{s.venue} · {s.time}</p>
-                <TagPill>{s.genre}</TagPill>
+                <div style={{ fontFamily: D, fontSize: 16, fontWeight: 700, color: P, lineHeight: "20px", marginBottom: 2 }}>
+                  {s.artist}
+                </div>
+                <div style={{ fontFamily: M, fontSize: 9, letterSpacing: "0.06em", textTransform: "uppercase", color: F }}>
+                  {s.venue} · {s.time}
+                </div>
               </div>
               <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 6, flexShrink: 0 }}>
-                <span style={{ fontSize: 13, fontWeight: 700, color: colors.ink }}>{s.price || "TBA"}</span>
-                <WishlistButton active={wishlistIds.has(s.id)} onClick={(e) => { e.stopPropagation(); toggleWishlist(s); }} />
+                <span style={{ fontFamily: M, fontSize: 11, color: A, fontWeight: 700 }}>{s.price || ""}</span>
+                <WishlistButton
+                  active={wishlistIds.has(s.id)}
+                  onClick={(e) => { e.stopPropagation(); toggleWishlist(s); }}
+                />
               </div>
             </div>
           ))}
 
-          <Divider />
+          <div style={{ height: 1, background: glassBorder, margin: "22px 0" }} />
 
-          {/* Weekend */}
-          <SectionHeader title="This Weekend" link="All Events" />
+          {/* ── This Weekend ─────────────────────────────────── */}
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 14 }}>
+            <div style={{ fontFamily: D, fontSize: 22, fontWeight: 700, color: P }}>This Weekend</div>
+            <span style={{ fontFamily: M, fontSize: 9, letterSpacing: "0.08em", textTransform: "uppercase", color: A, cursor: "pointer" }}>All Events →</span>
+          </div>
+
           {loading ? (
-            <p style={{ fontSize: 12, color: colors.faded, fontStyle: "italic", marginBottom: 14 }}>Loading shows...</p>
+            <div style={{ fontFamily: M, fontSize: 10, color: F, textTransform: "uppercase", letterSpacing: "0.04em", marginBottom: 16 }}>Loading shows…</div>
           ) : filteredWeekend.length === 0 ? (
-            <p style={{ fontSize: 12, color: colors.faded, fontStyle: "italic", marginBottom: 14 }}>No weekend shows found.</p>
+            <div style={{ fontFamily: M, fontSize: 10, color: F, textTransform: "uppercase", letterSpacing: "0.04em", marginBottom: 16 }}>No weekend shows found.</div>
           ) : (
-            <HScroll gap={14}>
-              {filteredWeekend.map((w) => (
-                <div key={w.id} onClick={() => onSelectEvent(w)} style={{ minWidth: 240, background: colors.white, borderRadius: 16, overflow: "hidden", flexShrink: 0, boxShadow: "0 2px 8px rgba(28,25,21,0.06)", border: "1px solid rgba(28,25,21,0.04)", cursor: "pointer" }}>
-                  <EventImage src={w.img} width={240} height={120} style={{ display: "block" }} />
-                  <div style={{ padding: 14 }}>
-                    <p style={{ fontSize: 14, fontWeight: 700, color: colors.ink, marginBottom: 3 }}>{w.artist}</p>
-                    <p style={{ fontSize: 11, color: colors.brownMid, marginBottom: 8 }}>{w.venue} · {w.date}</p>
+            <>
+              {filteredWeekend[0] && (
+                <div onClick={() => onSelectEvent(filteredWeekend[0])} style={{
+                  background: glass, border: `1px solid ${glassBorder}`,
+                  borderRadius: 18, overflow: "hidden", marginBottom: 12, cursor: "pointer",
+                }}>
+                  <div style={{ position: "relative", height: 120, background: "repeating-linear-gradient(135deg, #2a221a, #2a221a 10px, #201913 10px, #201913 20px)", overflow: "hidden" }}>
+                    {filteredWeekend[0].img && (
+                      <img src={filteredWeekend[0].img} alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", opacity: 0.85 }} />
+                    )}
+                    <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, transparent 30%, rgba(12,10,8,0.85))" }} />
+                  </div>
+                  <div style={{ padding: "12px 14px 14px" }}>
+                    <div style={{ fontFamily: M, fontSize: 9, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: A, marginBottom: 4 }}>
+                      {filteredWeekend[0].date}
+                    </div>
+                    <div style={{ fontFamily: D, fontSize: 20, fontWeight: 700, color: P, marginBottom: 6 }}>
+                      {filteredWeekend[0].artist}
+                    </div>
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                      <TagPill>{w.genre}</TagPill>
+                      <span style={{ fontFamily: M, fontSize: 9, letterSpacing: "0.06em", textTransform: "uppercase", color: F }}>
+                        {filteredWeekend[0].venue}
+                      </span>
                       <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                        <span style={{ fontSize: 13, fontWeight: 700, color: colors.ink }}>{w.price || "TBA"}</span>
-                        <WishlistButton active={wishlistIds.has(w.id)} onClick={(e) => { e.stopPropagation(); toggleWishlist(w); }} />
+                        <span style={{ fontFamily: M, fontSize: 11, color: A, fontWeight: 700 }}>
+                          {filteredWeekend[0].price || ""}
+                        </span>
+                        <WishlistButton
+                          active={wishlistIds.has(filteredWeekend[0].id)}
+                          onClick={(e) => { e.stopPropagation(); toggleWishlist(filteredWeekend[0]); }}
+                        />
                       </div>
                     </div>
                   </div>
                 </div>
-              ))}
-            </HScroll>
+              )}
+              {filteredWeekend.length > 1 && (
+                <HScroll gap={12} style={{ marginBottom: 4 }}>
+                  {filteredWeekend.slice(1).map((w) => (
+                    <div key={w.id} onClick={() => onSelectEvent(w)} style={{
+                      minWidth: 190, background: glass, border: `1px solid ${glassBorder}`,
+                      borderRadius: 16, overflow: "hidden", flexShrink: 0, cursor: "pointer",
+                    }}>
+                      <div style={{ height: 90, background: "repeating-linear-gradient(135deg, #2a221a, #2a221a 8px, #201913 8px, #201913 16px)", position: "relative", overflow: "hidden" }}>
+                        {w.img && <img src={w.img} alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", opacity: 0.85 }} />}
+                        <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, transparent 30%, rgba(12,10,8,0.8))" }} />
+                      </div>
+                      <div style={{ padding: "10px 12px 12px" }}>
+                        <div style={{ fontFamily: M, fontSize: 8, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: A, marginBottom: 3 }}>{w.date}</div>
+                        <div style={{ fontFamily: D, fontSize: 15, fontWeight: 700, color: P, marginBottom: 4 }}>{w.artist}</div>
+                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                          <span style={{ fontFamily: M, fontSize: 8, color: F, textTransform: "uppercase", letterSpacing: "0.06em" }}>{w.genre}</span>
+                          <span style={{ fontFamily: M, fontSize: 10, color: A, fontWeight: 700 }}>{w.price || ""}</span>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </HScroll>
+              )}
+            </>
           )}
 
-          <Divider />
+          <div style={{ height: 1, background: glassBorder, margin: "22px 0" }} />
 
-          {/* Festivals */}
-          <SectionHeader title="Festivals For You" link="Browse All" />
-          <p style={{ fontSize: 12, color: colors.brownMid, fontStyle: "italic", marginBottom: 14 }}>Based on artists you listen to · Beyond Austin</p>
+          {/* ── Festivals ────────────────────────────────────── */}
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 6 }}>
+            <div style={{ fontFamily: D, fontSize: 22, fontWeight: 700, color: P }}>Festivals For You</div>
+            <span style={{ fontFamily: M, fontSize: 9, letterSpacing: "0.08em", textTransform: "uppercase", color: A, cursor: "pointer" }}>Browse All →</span>
+          </div>
+          <div style={{ fontFamily: M, fontSize: 9, letterSpacing: "0.06em", textTransform: "uppercase", color: F, marginBottom: 18 }}>
+            Based on artists you follow
+          </div>
+
           {festivals.map((f, i) => (
-            <div key={i} style={{ background: colors.ink, borderRadius: 16, overflow: "hidden", marginBottom: 14, position: "relative" }}>
-              <img src={f.img} alt="" style={{ width: "100%", height: 100, objectFit: "cover", display: "block", opacity: 0.5 }} />
-              <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 100, background: "linear-gradient(to bottom, transparent 0%, rgba(28,25,21,0.85) 100%)" }} />
-              <span style={{ position: "absolute", top: 10, right: 12, background: "rgba(242,204,143,0.2)", color: colors.gold, fontFamily: fonts.mono, fontSize: 10, fontWeight: 600, padding: "3px 10px", borderRadius: 20 }}>♫ {f.match}% match</span>
-              <div style={{ padding: "14px 16px 16px" }}>
-                <p style={{ fontFamily: fonts.mono, fontSize: 9, letterSpacing: 1.5, textTransform: "uppercase", color: colors.amber, marginBottom: 4 }}>{f.city}</p>
-                <p style={{ fontFamily: fonts.display, fontSize: 20, fontWeight: 700, fontStyle: "italic", color: colors.cream, marginBottom: 4 }}>{f.name}</p>
-                <p style={{ fontSize: 11, color: "#999", marginBottom: 10 }}>{f.dates}</p>
-                <p style={{ fontFamily: fonts.mono, fontSize: 8, letterSpacing: 1.5, textTransform: "uppercase", color: colors.brownMid, marginBottom: 6 }}>Artists You Follow</p>
+            <div key={i} style={{
+              background: glass, border: `1px solid ${glassBorder}`,
+              borderRadius: 18, overflow: "hidden", marginBottom: 12,
+            }}>
+              <div style={{ position: "relative", height: 90, background: "repeating-linear-gradient(135deg, #2a221a, #2a221a 8px, #201913 8px, #201913 16px)" }}>
+                {f.img && (
+                  <img src={f.img} alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", opacity: 0.7 }} />
+                )}
+                <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to right, rgba(20,17,15,0.88), rgba(20,17,15,0.2) 60%)" }} />
+                <div style={{ position: "absolute", top: 12, left: 14 }}>
+                  <div style={{ fontFamily: M, fontSize: 9, color: A, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 2 }}>{f.city}</div>
+                  <div style={{ fontFamily: D, fontSize: 20, fontWeight: 700, color: P }}>{f.name}</div>
+                </div>
+                <div style={{ position: "absolute", top: 12, right: 12 }}>
+                  <span style={{
+                    fontFamily: M, fontSize: 9, fontWeight: 700, color: A,
+                    background: "rgba(193,127,74,0.15)", border: "1px solid rgba(193,127,74,0.3)",
+                    padding: "3px 8px", borderRadius: 20, letterSpacing: "0.06em",
+                  }}>
+                    ♫ {f.match}%
+                  </span>
+                </div>
+              </div>
+              <div style={{ padding: "12px 16px 14px" }}>
+                <div style={{ fontFamily: M, fontSize: 9, color: F, textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 8 }}>{f.dates}</div>
                 <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
                   {f.matchArtists.map((a, j) => (
-                    <span key={j} style={{ background: "rgba(242,204,143,0.1)", color: colors.gold, fontSize: 11, fontWeight: 500, padding: "4px 10px", borderRadius: 20 }}>{a}</span>
+                    <span key={j} style={{
+                      fontFamily: M, fontSize: 8, fontWeight: 600, letterSpacing: "0.06em",
+                      textTransform: "uppercase", color: F,
+                      border: `1px solid ${glassBorder}`,
+                      padding: "3px 8px", borderRadius: 20,
+                    }}>{a}</span>
                   ))}
                 </div>
               </div>
@@ -165,7 +312,7 @@ const Explore = ({ wishlistIds, toggleWishlist, onSelectEvent }) => {
           ))}
         </>
       ) : (
-        /* Map View */
+        /* ── Map View ──────────────────────────────────────── */
         <>
           <VenuMap
             venues={mapVenues}
@@ -175,17 +322,23 @@ const Explore = ({ wishlistIds, toggleWishlist, onSelectEvent }) => {
             focusVenueIdx={focusVenueIdx}
           />
 
-          {/* Venue list below map */}
-          <SectionHeader title="Austin Venues" link={null} />
-          <p style={{ fontSize: 12, color: colors.brownMid, fontStyle: "italic", marginBottom: 14 }}>Tap a pin on the map or browse below</p>
+          <div style={{ height: 1, background: glassBorder, margin: "18px 0 14px" }} />
+          <div style={{ fontFamily: M, fontSize: 9, color: F, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 14 }}>
+            Tap a venue to navigate the map
+          </div>
+
           {mapVenues.map((v, i) => (
-            <div key={i} onClick={() => setFocusVenueIdx(i)} style={{ display: "flex", gap: 14, alignItems: "center", padding: "12px 14px", background: colors.white, borderRadius: 14, marginBottom: 10, boxShadow: "0 1px 4px rgba(28,25,21,0.04)", border: "1px solid rgba(28,25,21,0.04)", cursor: "pointer" }}>
-              <div style={{ width: 40, height: 40, borderRadius: 12, background: v.type === "festival" ? `rgba(224,122,95,0.12)` : `rgba(193,127,74,0.12)`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18, flexShrink: 0 }}>
+            <div key={i} onClick={() => setFocusVenueIdx(i)} style={{
+              display: "flex", alignItems: "center", gap: 12, padding: "10px 0",
+              borderBottom: i < mapVenues.length - 1 ? `1px solid ${glassBorder}` : "none",
+              cursor: "pointer",
+            }}>
+              <div style={{ width: 32, height: 32, borderRadius: 10, background: glass, border: `1px solid ${glassBorder}`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 15, flexShrink: 0 }}>
                 {v.type === "festival" ? "🎪" : "🎸"}
               </div>
               <div style={{ flex: 1 }}>
-                <p style={{ fontSize: 14, fontWeight: 700, color: colors.ink, marginBottom: 2 }}>{v.name}</p>
-                <p style={{ fontSize: 11, color: colors.brownMid }}>{v.address} · Cap. {v.capacity}</p>
+                <div style={{ fontFamily: D, fontSize: 15, fontWeight: 700, color: P, marginBottom: 1 }}>{v.name}</div>
+                <div style={{ fontFamily: M, fontSize: 9, color: F, textTransform: "uppercase", letterSpacing: "0.06em" }}>{v.address} · Cap. {v.capacity}</div>
               </div>
               {(() => {
                 const show = tonightShows.find((s) => {
@@ -194,7 +347,14 @@ const Explore = ({ wishlistIds, toggleWishlist, onSelectEvent }) => {
                   return sv.includes(vn) || vn.includes(sv);
                 });
                 return show ? (
-                  <span style={{ fontFamily: fonts.mono, fontSize: 8, fontWeight: 600, letterSpacing: 1, textTransform: "uppercase", color: colors.amber, background: "rgba(193,127,74,0.12)", padding: "4px 10px", borderRadius: 20, flexShrink: 0 }}>● Tonight</span>
+                  <span style={{
+                    fontFamily: M, fontSize: 8, fontWeight: 700, letterSpacing: "0.08em",
+                    textTransform: "uppercase", color: A,
+                    border: `1px solid rgba(193,127,74,0.4)`,
+                    padding: "3px 8px", borderRadius: 20, flexShrink: 0,
+                  }}>
+                    Tonight
+                  </span>
                 ) : null;
               })()}
             </div>

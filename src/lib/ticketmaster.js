@@ -20,19 +20,60 @@ const getBestImage = (images) => {
   return preferred?.url || images[0]?.url || null;
 };
 
+// Try to extract support acts from any text string TM gives us.
+// Handles: "Artist: Tour with Opener", "feat. X", "w/ X", "ft. X"
+// Skips:   "An Evening with X" — that describes the headliner, not a support act.
+const extractSupport = (text, headlinerName) => {
+  if (!text) return [];
+  if (/^an? (evening|night) with /i.test(text)) return [];
+  const m = text.match(/\s+(?:with|feat\.?|featuring|w\/|ft\.)\s+(.+)$/i);
+  if (!m) return [];
+  return m[1]
+    .split(/,\s*|\s+and\s+|\s+&\s+/i)
+    .map((s) => s.trim())
+    .filter((s) => s && s.toLowerCase() !== headlinerName?.toLowerCase());
+};
+
+// Try event.name → event.info → event.pleaseNote in order; return first non-empty result.
+const parseSupport = (event, headlinerName) => {
+  const candidates = [event.name, event.info, event.pleaseNote];
+  for (const text of candidates) {
+    const acts = extractSupport(text, headlinerName);
+    if (acts.length > 0) return acts;
+  }
+  return [];
+};
+
 const mapEvent = (event) => {
   const venue = event._embedded?.venues?.[0];
-  const attraction = event._embedded?.attractions?.[0];
+  const attractions = event._embedded?.attractions || [];
+  const headliner = attractions[0];
+  const headlinerName = headliner?.name || event.name;
+
+  // Prefer explicit attractions list (with images); fall back to parsing text fields (no images)
+  const apiOpeners = attractions.slice(1)
+    .filter((a) => a.name)
+    .map((a) => ({ name: a.name, img: getBestImage(a.images) }));
+  const support = apiOpeners.length > 0
+    ? apiOpeners
+    : parseSupport(event, headlinerName).map((name) => ({ name, img: null }));
+
+  // Log so we can see exactly what TM returns for debugging
+  if (import.meta.env.DEV) {
+    console.log(`[TM] "${headlinerName}" | name: "${event.name}" | info: "${event.info}" | pleaseNote: "${event.pleaseNote}" | support: ${JSON.stringify(support)}`);
+  }
+
   return {
     id: event.id,
-    artist: attraction?.name || event.name,
+    artist: headlinerName,
+    support,
     venue: venue?.name || "TBA",
     time: formatTime(event.dates?.start?.localTime),
     date: event.dates?.start?.localDate,
     price: formatPrice(event.priceRanges),
     genre: event.classifications?.[0]?.genre?.name || "Music",
     ticketUrl: event.url,
-    img: getBestImage(attraction?.images || event.images),
+    img: getBestImage(headliner?.images || event.images),
   };
 };
 
