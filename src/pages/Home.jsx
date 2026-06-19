@@ -1,7 +1,14 @@
 import React, { useState } from "react";
-import { colors, fonts } from "../theme.jsx";
-import { Screen, SectionHeader, Divider, HScroll, NotifBell, UserAvatar, CountdownBadge, FriendRow, TagPill, MatchScore, WishlistButton } from "../components/index.jsx";
-import { perfectMatches, friends, weeklyPicks, soundcheckQuestion } from "../data/index.jsx";
+import { Screen, HScroll, NotifBell, WishlistButton } from "../components/index.jsx";
+import { MonoMeta, HairlineRule, TicketStub } from "../components/marks/index.jsx";
+import { perfectMatches, friends, weeklyPicks } from "../data/index.jsx";
+
+const P = "#F4EFE7";   // primary text
+const A = "#C17F4A";   // amber
+const E = "#D94F2A";   // ember
+const F = "#8A8278";   // faded
+const D = "'Fraunces', Georgia, serif";
+const M = "'JetBrains Mono', monospace";
 
 const getDaysUntil = (dateStr) => {
   if (!dateStr) return null;
@@ -12,210 +19,307 @@ const getDaysUntil = (dateStr) => {
   return diff >= 0 ? diff : null;
 };
 
-const Home = ({ savedEvents = [], savedLoading = false, onOpenNotifs }) => {
-  const [wishlisted, setWishlisted] = useState({});
-  const [scAnswered, setScAnswered] = useState(false);
-  const [scCorrect, setScCorrect] = useState(false);
-  const [scSelected, setScSelected] = useState(null);
+const TODAY_LABEL = (() => {
+  const d = new Date();
+  const day = d.toLocaleString("en-US", { weekday: "short" }).toUpperCase();
+  const mon = d.toLocaleString("en-US", { month: "short" }).toUpperCase();
+  return `${day} ${mon} ${d.getDate()}`;
+})();
 
-  const handleSoundcheck = (idx) => {
-    if (scAnswered) return;
-    setScAnswered(true);
-    setScSelected(idx);
-    setScCorrect(idx === soundcheckQuestion.correctIndex);
-  };
+const dropItems = [
+  { artist: "Tyler, the Creator", date: "Jun 14", status: "presale" },
+  { artist: "Billie Eilish",       date: "Oct 18", status: "onsale" },
+  { artist: "Floating Points",     date: "Apr 25", status: "onsale" },
+  { artist: "Mdou Moctar",         date: "Apr 1",  status: "presale" },
+  { artist: "Ethel Cain",          date: "May 9",  status: "presale" },
+  { artist: "Caroline Polachek",   date: "Jun 3",  status: "onsale" },
+];
+
+// Waveform: 12 bars with staggered wav animation
+const Waveform = () => (
+  <div style={{ display: "flex", alignItems: "flex-end", gap: 2.5, height: 22 }}>
+    {Array.from({ length: 12 }).map((_, i) => (
+      <div key={i} style={{
+        width: 3, height: "100%", borderRadius: 2,
+        background: `rgba(193,127,74,${0.35 + (i % 3) * 0.15})`,
+        transformOrigin: "bottom",
+        animation: `wav 0.9s ease-in-out infinite`,
+        animationDelay: `${i * 0.07}s`,
+      }} />
+    ))}
+  </div>
+);
+
+const Home = ({ savedEvents = [], savedLoading = false, onOpenNotifs, session }) => {
+  const [wishlisted, setWishlisted] = useState({});
+  const [marqPaused, setMarqPaused] = useState(false);
+
+  const email = session?.user?.email ?? "";
+  const initial = email[0]?.toUpperCase() ?? "A";
+
+  const heroShow = (() => {
+    if (savedLoading) return null;
+    const going = savedEvents
+      .filter((e) => e.status === "going")
+      .map((e) => ({ ...e, daysUntil: getDaysUntil(e.date) }))
+      .filter((e) => e.daysUntil !== null)
+      .sort((a, b) => a.daysUntil - b.daysUntil);
+    return going[0] || null;
+  })();
+
+  const upcomingShows = (() => {
+    if (savedLoading) return [];
+    return savedEvents
+      .filter((e) => e.status === "going")
+      .map((e) => ({ ...e, daysUntil: getDaysUntil(e.date) }))
+      .filter((e) => e.daysUntil !== null)
+      .sort((a, b) => a.daysUntil - b.daysUntil)
+      .slice(1, 5);
+  })();
 
   return (
     <Screen>
-      {/* Header */}
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 4 }}>
-        <h1 style={{ fontFamily: fonts.display, fontSize: 32, fontWeight: 800, color: colors.ink, fontStyle: "italic", lineHeight: 1 }}>Venu</h1>
-        <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
+      {/* ── Header ───────────────────────────────────────────── */}
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 18 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+          <div style={{ width: 6, height: 6, borderRadius: "50%", background: E, animation: "pulse 1.4s ease-in-out infinite" }} />
+          <span style={{ fontFamily: M, fontSize: 10, letterSpacing: "0.1em", textTransform: "uppercase", color: F }}>
+            Austin, TX
+          </span>
+        </div>
+        <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
           <NotifBell onClick={onOpenNotifs} />
-          <UserAvatar />
+          <div style={{ width: 30, height: 30, borderRadius: "50%", background: "rgba(193,127,74,0.18)", border: "1.5px solid rgba(193,127,74,0.4)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <span style={{ fontFamily: D, fontSize: 13, fontWeight: 700, color: A }}>{initial}</span>
+          </div>
         </div>
       </div>
-      <p style={{ fontSize: 13, color: colors.brownMid, marginBottom: 22 }}>Saturday, March 28 · Austin, TX</p>
 
-      {/* The Drop */}
-      <div style={{
-        background: `linear-gradient(135deg, ${colors.ink} 0%, ${colors.dark2} 100%)`,
-        borderRadius: 16, padding: 16, marginBottom: 20, position: "relative", overflow: "hidden",
-      }}>
-        <div style={{ position: "absolute", top: -20, right: -20, width: 100, height: 100, background: "radial-gradient(circle, rgba(242,204,143,0.15), transparent 70%)" }} />
-        <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
-          <div style={{ width: 6, height: 6, background: colors.gold, borderRadius: "50%" }} />
-          <span style={{ fontFamily: fonts.mono, fontSize: 9, color: colors.gold, letterSpacing: 2, textTransform: "uppercase" }}>The Drop · Live</span>
+      {/* ── Tonight headline ─────────────────────────────────── */}
+      <div style={{ marginBottom: 20 }}>
+        <div style={{ fontFamily: D, fontSize: 48, fontWeight: 700, color: P, lineHeight: "48px", letterSpacing: "-0.02em" }}>
+          Tonight.
         </div>
-        <p style={{ fontFamily: fonts.display, fontSize: 16, color: colors.cream, fontWeight: 600, fontStyle: "italic", marginBottom: 4, position: "relative" }}>Tyler, the Creator</p>
-        <p style={{ fontSize: 11, color: "#999", marginBottom: 10, position: "relative" }}>Presale code available · Moody Center · Jun 14</p>
-        <button style={{ display: "inline-flex", background: "rgba(242,204,143,0.15)", borderRadius: 8, padding: "6px 12px", border: "none", cursor: "pointer", fontFamily: fonts.body, fontSize: 11, fontWeight: 600, color: colors.gold, position: "relative" }}>View presale →</button>
+        <div style={{ fontFamily: M, fontSize: 10, letterSpacing: "0.06em", textTransform: "uppercase", color: F, marginTop: 8 }}>
+          {weeklyPicks.length + 4} shows within 25 miles · {TODAY_LABEL}
+        </div>
       </div>
 
-      {/* Soundcheck */}
+      {/* ── Hero Card ────────────────────────────────────────── */}
       <div style={{
-        background: colors.white, borderRadius: 16, padding: 18, boxShadow: "0 2px 12px rgba(28,25,21,0.06)",
-        border: "1px solid rgba(28,25,21,0.04)", marginBottom: 20, position: "relative", overflow: "hidden",
+        borderRadius: 22, overflow: "hidden", marginBottom: 26,
+        animation: "breathe 5s ease-in-out infinite",
       }}>
-        <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 3, background: `linear-gradient(90deg, ${colors.amber}, ${colors.gold}, ${colors.amber})` }} />
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            <div style={{ width: 32, height: 32, borderRadius: 10, background: colors.ink, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16 }}>🎵</div>
-            <div>
-              <p style={{ fontFamily: fonts.display, fontSize: 16, fontWeight: 700, color: colors.ink, fontStyle: "italic" }}>Soundcheck</p>
-              <p style={{ fontFamily: fonts.mono, fontSize: 8, letterSpacing: 1, textTransform: "uppercase", color: colors.amber }}>Daily Music Challenge</p>
+        {/* Image area */}
+        <div style={{
+          width: "100%", height: 230, position: "relative",
+          background: "repeating-linear-gradient(135deg, #2a221a, #2a221a 12px, #201913 12px, #201913 24px)",
+        }}>
+          {/* Hero photo — real event image or hardcoded fallback */}
+          <img
+            src={heroShow?.img || "https://images.unsplash.com/photo-1501386761578-eac5c94b800a?w=800&q=80"}
+            alt=""
+            style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}
+          />
+          {/* Radial amber glow */}
+          <div style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse at 30% 70%, rgba(193,127,74,0.22) 0%, transparent 65%)" }} />
+          {/* Bottom gradient */}
+          <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, transparent 35%, rgba(12,10,8,0.96) 100%)" }} />
+
+          {/* Tonight pill */}
+          <div style={{ position: "absolute", top: 14, left: 14 }}>
+            <div style={{ display: "inline-flex", alignItems: "center", gap: 6, background: "rgba(217,79,42,0.88)", borderRadius: 30, padding: "5px 12px" }}>
+              <div style={{ width: 6, height: 6, borderRadius: "50%", background: "#fff", animation: "pulse 1.4s ease-in-out infinite" }} />
+              <span style={{ fontFamily: M, fontSize: 9, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "#fff" }}>
+                Tonight · Doors 8PM
+              </span>
             </div>
           </div>
-          <div style={{ display: "flex", alignItems: "center", gap: 4, background: "rgba(242,204,143,0.15)", padding: "4px 10px", borderRadius: 20 }}>
-            <span style={{ fontSize: 12 }}>🔥</span>
-            <span style={{ fontFamily: fonts.mono, fontSize: 10, fontWeight: 600, color: colors.amber }}>{scCorrect ? "6" : scAnswered ? "0" : "5"}</span>
+
+          {/* Artist name + venue */}
+          <div style={{ position: "absolute", bottom: 14, left: 18, right: 18 }}>
+            <div style={{ fontFamily: D, fontSize: 32, fontWeight: 700, color: P, lineHeight: "36px", marginBottom: 5 }}>
+              {heroShow ? heroShow.artist : "Khruangbin"}
+            </div>
+            <div style={{ fontFamily: M, fontSize: 9, letterSpacing: "0.08em", textTransform: "uppercase", color: F }}>
+              {heroShow ? `${heroShow.venue} · ${heroShow.time}` : "Stubb's Outdoor · 9 PM"}
+            </div>
           </div>
         </div>
 
-        <p style={{ fontSize: 14, fontWeight: 600, color: colors.ink, lineHeight: 1.5, marginBottom: 14 }}>{soundcheckQuestion.question}</p>
-
-        <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 14 }}>
-          {soundcheckQuestion.options.map((opt, i) => {
-            const isCorrect = i === soundcheckQuestion.correctIndex;
-            const isSelected = scSelected === i;
-            let borderColor = colors.border, bg = colors.cream, opacity = 1;
-            if (scAnswered) {
-              if (isCorrect) { borderColor = colors.sage; bg = "rgba(129,178,154,0.1)"; }
-              else if (isSelected) { borderColor = colors.terracotta; bg = "rgba(224,122,95,0.06)"; opacity = 0.6; }
-              else { opacity = 0.4; }
-            }
-            return (
-              <div key={i} onClick={() => handleSoundcheck(i)} style={{
-                display: "flex", alignItems: "center", gap: 10, padding: "12px 14px",
-                background: bg, border: `1.5px solid ${borderColor}`, borderRadius: 12,
-                cursor: scAnswered ? "default" : "pointer", fontSize: 13, fontWeight: 500,
-                color: colors.ink, opacity, transition: "all 0.2s",
-              }}>
-                <div style={{
-                  width: 18, height: 18, borderRadius: "50%", border: `2px solid ${borderColor}`,
-                  background: scAnswered && isCorrect ? colors.sage : scAnswered && isSelected && !isCorrect ? colors.terracotta : "transparent",
-                  display: "flex", alignItems: "center", justifyContent: "center", fontSize: 10, color: "#fff", fontWeight: 700,
-                }}>
-                  {scAnswered && isCorrect && "✓"}
-                  {scAnswered && isSelected && !isCorrect && "✗"}
-                </div>
-                <span>{opt}</span>
-              </div>
-            );
-          })}
-        </div>
-
-        {scAnswered && (
-          <div style={{
-            padding: "12px 14px", borderRadius: 12, marginBottom: 14, fontSize: 13, lineHeight: 1.5,
-            background: scCorrect ? "rgba(129,178,154,0.1)" : "rgba(224,122,95,0.08)",
-            border: `1px solid ${scCorrect ? "rgba(129,178,154,0.2)" : "rgba(224,122,95,0.15)"}`,
-            color: scCorrect ? "#3d7a5a" : "#b35a3f",
+        {/* Card footer */}
+        <div style={{ background: "rgba(20,17,15,0.92)", padding: "14px 18px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+          <button style={{
+            background: A, color: "#14110F", border: "none",
+            borderRadius: 30, padding: "10px 24px",
+            fontFamily: M, fontSize: 10, fontWeight: 700,
+            letterSpacing: "0.06em", textTransform: "uppercase", cursor: "pointer",
           }}>
-            {scCorrect
-              ? <><strong>🎉 Correct!</strong> The Continental Club has been a South Congress landmark since 1955. Your streak is now <strong>6 days</strong>. +1 Passport point.</>
-              : <><strong>Not quite!</strong> It was the <strong>Continental Club</strong> — a South Congress landmark since 1955. Streak reset. Try again tomorrow!</>
-            }
+            Get Tickets
+          </button>
+          <div style={{ display: "flex", gap: 10 }}>
+            <WishlistButton
+              active={wishlisted.hero}
+              onClick={() => setWishlisted(p => ({ ...p, hero: !p.hero }))}
+            />
+            <button style={{
+              width: 32, height: 32, borderRadius: "50%",
+              border: "1px solid rgba(244,239,231,0.15)", background: "transparent",
+              display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer",
+            }}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={F} strokeWidth="1.5">
+                <path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8M16 6l-4-4-4 4M12 2v13"/>
+              </svg>
+            </button>
           </div>
-        )}
-
-        <div style={{ display: "flex", justifyContent: "space-between" }}>
-          <span style={{ fontFamily: fonts.mono, fontSize: 10, color: colors.faded }}>{soundcheckQuestion.stat}</span>
-          <span style={{ fontFamily: fonts.mono, fontSize: 10, color: colors.faded }}>Resets in 14h 22m</span>
         </div>
       </div>
 
-      {/* Your Shows */}
-      <SectionHeader title="Your Shows" link="View All" />
-      {savedLoading ? (
-        <p style={{ fontSize: 12, color: colors.faded, fontStyle: "italic", marginBottom: 14 }}>Loading your shows...</p>
-      ) : (() => {
-        const goingShows = savedEvents
-          .filter((e) => e.status === "going")
-          .map((e) => ({ ...e, daysUntil: getDaysUntil(e.date) }))
-          .filter((e) => e.daysUntil !== null)
-          .sort((a, b) => a.daysUntil - b.daysUntil);
-        if (goingShows.length === 0) return (
-          <p style={{ fontSize: 12, color: colors.faded, fontStyle: "italic", marginBottom: 14 }}>No upcoming shows yet. Mark an event as Going in Explore!</p>
-        );
-        return goingShows.map((show) => {
-          const d = new Date(show.date + "T12:00:00");
-          const day = d.toLocaleString("en-US", { weekday: "short" });
-          const dateLabel = d.toLocaleString("en-US", { month: "short", day: "numeric" });
-          return (
-            <div key={show.event_id} style={{ display: "flex", gap: 14, alignItems: "center", padding: 14, background: colors.white, borderRadius: 16, marginBottom: 10, boxShadow: "0 1px 4px rgba(28,25,21,0.05)", border: "1px solid rgba(28,25,21,0.04)" }}>
-              <CountdownBadge days={show.daysUntil} />
-              {show.img
-                ? <img src={show.img} alt="" style={{ width: 48, height: 48, borderRadius: 10, objectFit: "cover" }} />
-                : <div style={{ width: 48, height: 48, borderRadius: 10, background: `linear-gradient(135deg, ${colors.warmGray}, ${colors.border})`, flexShrink: 0 }} />
-              }
-              <div style={{ flex: 1 }}>
-                <p style={{ fontSize: 14, fontWeight: 700, color: colors.ink, marginBottom: 2 }}>{show.artist}</p>
-                <p style={{ fontSize: 11, color: colors.brownMid }}>{show.venue} · {day}, {dateLabel} · {show.time}</p>
-              </div>
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={colors.faded} strokeWidth="1.5"><path d="M9 18l6-6-6-6"/></svg>
-            </div>
-          );
-        });
-      })()}
-
-      {/* Scout Tip */}
-      <div style={{ background: colors.warmGray, borderRadius: 14, padding: "14px 16px", display: "flex", alignItems: "center", gap: 14, marginBottom: 24, border: `1px solid ${colors.border}` }}>
-        <div style={{ width: 36, height: 36, borderRadius: 10, background: colors.ink, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16, flexShrink: 0 }}>🎯</div>
-        <div>
-          <p style={{ fontSize: 12, fontWeight: 600, color: colors.ink, marginBottom: 2 }}>Scout Tip for Khruangbin</p>
-          <p style={{ fontSize: 11, color: colors.brownMid, lineHeight: 1.4 }}>Stubb's outdoor — best sound from center-left. Doors at 7, opener at 7:45.</p>
-        </div>
+      {/* ── On Your Radar ─────────────────────────────────────── */}
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 14 }}>
+        <div style={{ fontFamily: D, fontSize: 22, fontWeight: 700, color: P }}>On Your Radar</div>
+        <span style={{ fontFamily: M, fontSize: 9, letterSpacing: "0.08em", textTransform: "uppercase", color: A, cursor: "pointer" }}>See All →</span>
       </div>
-
-      <Divider />
-
-      {/* This Week in Austin */}
-      <SectionHeader title="This Week in Austin" link="Full Guide" />
-      <p style={{ fontSize: 12, color: colors.brownMid, marginBottom: 14, fontStyle: "italic" }}>Handpicked by Venu editors · Mar 28 – Apr 4</p>
-      <HScroll gap={14} style={{ marginBottom: 4 }}>
-        {weeklyPicks.map((pick) => (
-          <div key={pick.id} style={{ minWidth: 260, background: colors.white, borderRadius: 16, overflow: "hidden", flexShrink: 0, boxShadow: "0 2px 10px rgba(28,25,21,0.06)", border: "1px solid rgba(28,25,21,0.04)", position: "relative" }}>
-            <img src={pick.img} alt="" style={{ width: 260, height: 120, objectFit: "cover", display: "block" }} />
-            <span style={{ position: "absolute", top: 10, left: 10, fontFamily: fonts.mono, fontSize: 9, fontWeight: 600, letterSpacing: 1.5, textTransform: "uppercase", color: colors.cream, background: "rgba(28,25,21,0.75)", backdropFilter: "blur(8px)", padding: "4px 10px", borderRadius: 20 }}>{pick.label}</span>
-            <div style={{ padding: "14px 16px 16px" }}>
-              <p style={{ fontFamily: fonts.display, fontSize: 16, fontWeight: 700, color: colors.ink, fontStyle: "italic", marginBottom: 2 }}>{pick.artist}</p>
-              <p style={{ fontSize: 11, color: colors.brownMid, marginBottom: 8 }}>{pick.venue} · {pick.date}</p>
-              <p style={{ fontSize: 12, color: colors.olive, lineHeight: 1.5, fontStyle: "italic" }}>"{pick.blurb}"</p>
-            </div>
-          </div>
-        ))}
-      </HScroll>
-
-      <Divider />
-
-      {/* Perfect Matches */}
-      <SectionHeader title="Perfect Matches" link="See All" />
-      <HScroll gap={12} style={{ marginBottom: 8 }}>
+      <HScroll gap={12} style={{ marginBottom: 26 }}>
         {perfectMatches.map((m) => (
-          <div key={m.id} style={{ minWidth: 220, background: colors.white, borderRadius: 16, overflow: "hidden", flexShrink: 0, boxShadow: "0 2px 8px rgba(28,25,21,0.06)", border: "1px solid rgba(28,25,21,0.04)" }}>
-            <div style={{ position: "relative" }}>
-              <img src={m.img} alt="" style={{ width: 220, height: 130, objectFit: "cover", display: "block" }} />
-              <MatchScore value={m.match} style={{ position: "absolute", top: 10, left: 10 }} />
-              <WishlistButton active={wishlisted[m.artist]} onClick={() => setWishlisted(p => ({ ...p, [m.artist]: !p[m.artist] }))} style={{ position: "absolute", top: 10, right: 10 }} />
+          <div key={m.id} style={{
+            minWidth: 156, flexShrink: 0,
+            background: "rgba(244,239,231,0.05)",
+            border: "1px solid rgba(244,239,231,0.10)",
+            borderRadius: 18, padding: "14px 14px 12px",
+          }}>
+            <div style={{ marginBottom: 8 }}>
+              <span style={{
+                background: "rgba(193,127,74,0.14)", border: "1px solid rgba(193,127,74,0.28)",
+                borderRadius: 20, padding: "3px 8px",
+                fontFamily: M, fontSize: 8, fontWeight: 700,
+                letterSpacing: "0.06em", textTransform: "uppercase", color: A,
+              }}>
+                ♫ {m.match}%
+              </span>
             </div>
-            <div style={{ padding: 14 }}>
-              <p style={{ fontSize: 14, fontWeight: 700, color: colors.ink, marginBottom: 3 }}>{m.artist}</p>
-              <p style={{ fontSize: 11, color: colors.brownMid, marginBottom: 8 }}>{m.venue} · {m.date}</p>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <TagPill>{m.genre}</TagPill>
-                <span style={{ fontSize: 13, fontWeight: 700, color: colors.ink }}>{m.price}</span>
-              </div>
+            <div style={{ fontFamily: D, fontSize: 15, fontWeight: 700, color: P, marginBottom: 3, lineHeight: "20px" }}>
+              {m.artist}
+            </div>
+            <div style={{ fontFamily: M, fontSize: 9, letterSpacing: "0.06em", textTransform: "uppercase", color: F, marginBottom: 6 }}>
+              {m.venue}
+            </div>
+            <div style={{ fontFamily: M, fontSize: 10, color: A, fontWeight: 600 }}>
+              {m.price}
             </div>
           </div>
         ))}
       </HScroll>
 
-      <Divider />
+      {/* ── Upcoming shows (user's saved) ─────────────────────── */}
+      {upcomingShows.length > 0 && (
+        <>
+          <HairlineRule label="Also on your calendar" style={{ marginBottom: 16 }} />
+          <HScroll gap={12} style={{ marginBottom: 26 }}>
+            {upcomingShows.map((show) => (
+              <TicketStub
+                key={show.event_id}
+                artist={show.artist}
+                venue={show.venue}
+                date={show.date}
+                time={show.time}
+                price={show.price}
+                status="going"
+              />
+            ))}
+          </HScroll>
+        </>
+      )}
 
-      {/* Friends */}
-      <SectionHeader title="Friends" link="All Activity" />
-      {friends.map((f, i) => <FriendRow key={i} {...f} />)}
+      {/* ── The Drop ─────────────────────────────────────────── */}
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 13 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <div style={{ width: 7, height: 7, borderRadius: "50%", background: E, animation: "pulse 1.4s ease-in-out infinite", flexShrink: 0 }} />
+          <div style={{ fontFamily: D, fontSize: 19, fontWeight: 700, color: P }}>The Drop</div>
+        </div>
+        <span style={{ fontFamily: M, fontSize: 9, letterSpacing: "0.1em", textTransform: "uppercase", color: A, cursor: "pointer" }}>
+          ALL PRESALES →
+        </span>
+      </div>
+
+      {/* Track viewport — edge-to-edge, edges faded with mask */}
+      <div
+        style={{
+          overflow: "hidden",
+          marginLeft: -22, marginRight: -22, marginBottom: 28,
+          WebkitMaskImage: "linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent)",
+          maskImage: "linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent)",
+        }}
+        onMouseEnter={() => setMarqPaused(true)}
+        onMouseLeave={() => setMarqPaused(false)}
+        onTouchStart={() => setMarqPaused(true)}
+        onTouchEnd={() => setMarqPaused(false)}
+      >
+        {/* Track: data doubled so the -50% translateX loops invisibly */}
+        <div style={{
+          display: "flex", gap: 12, width: "max-content",
+          padding: "4px 22px 4px",
+          animation: `marq ${dropItems.length * 3.6}s linear infinite`,
+          animationPlayState: marqPaused ? "paused" : "running",
+        }}>
+          {[...dropItems, ...dropItems].map((item, i) => (
+            <div
+              key={i}
+              aria-hidden={i >= dropItems.length ? "true" : undefined}
+              style={{
+                flexShrink: 0,
+                background: "rgba(244,239,231,0.05)",
+                border: "1px solid rgba(244,239,231,0.10)",
+                borderRadius: 4, padding: "11px 15px",
+                display: "flex", alignItems: "center", gap: 11,
+              }}
+            >
+              <span style={{ fontFamily: D, fontSize: 15, fontStyle: "italic", fontWeight: 600, color: P, whiteSpace: "nowrap" }}>
+                {item.artist}
+              </span>
+              <span style={{
+                borderLeft: "1px dashed rgba(244,239,231,0.25)", paddingLeft: 11,
+                fontFamily: M, fontSize: 8.5, letterSpacing: "0.06em", textTransform: "uppercase",
+                color: item.status === "presale" ? E : A,
+                whiteSpace: "nowrap",
+              }}>
+                {item.status === "presale" ? "PRESALE" : "ON SALE"} · {item.date}
+              </span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* ── Friends Activity ─────────────────────────────────── */}
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 14 }}>
+        <div style={{ fontFamily: D, fontSize: 22, fontWeight: 700, color: P }}>Friends</div>
+        <span style={{ fontFamily: M, fontSize: 9, letterSpacing: "0.08em", textTransform: "uppercase", color: A, cursor: "pointer" }}>All Activity →</span>
+      </div>
+
+      {friends.map((f, i) => (
+        <div key={i} style={{
+          padding: "12px 14px", marginBottom: 8,
+          background: "rgba(244,239,231,0.04)",
+          border: "1px solid rgba(244,239,231,0.08)",
+          borderRadius: 14,
+          display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8,
+        }}>
+          <div style={{ flex: 1 }}>
+            <span style={{ fontFamily: M, fontSize: 10, fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase", color: P }}>
+              {f.name.toUpperCase()}
+            </span>
+            <span style={{ fontFamily: M, fontSize: 10, color: F, letterSpacing: "0.04em" }}>
+              {" "}{f.action}{" "}
+            </span>
+            <span style={{ fontFamily: D, fontSize: 13, fontWeight: 600, color: A }}>
+              {f.event}
+            </span>
+          </div>
+          <span style={{ fontFamily: M, fontSize: 9, color: F, letterSpacing: "0.04em", flexShrink: 0 }}>
+            {f.time}
+          </span>
+        </div>
+      ))}
     </Screen>
   );
 };

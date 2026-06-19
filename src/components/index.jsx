@@ -1,235 +1,381 @@
 import React from "react";
-import { colors, fonts } from "../theme.jsx";
 
-// ============================================================
-// Phone Frame
-// ============================================================
+// ── Design tokens (After Dark) ───────────────────────────────────────────────
+const T = {
+  paper:       "#F4EFE7",   // primary text (light on dark)
+  faded:       "#8A8278",   // secondary text
+  amber:       "#C17F4A",   // accent
+  ember:       "#D94F2A",   // urgency / live
+  ink:         "#14110F",   // deepest overlays
+  glass:       "rgba(244,239,231,0.05)",
+  glassBorder: "rgba(244,239,231,0.10)",
+  display:     "'Fraunces', Georgia, serif",
+  mono:        "'JetBrains Mono', monospace",
+};
+
+// ── PhoneFrame ───────────────────────────────────────────────────────────────
 export const PhoneFrame = ({ children }) => (
   <div style={{
-    width: 375, height: 812, background: colors.cream,
-    borderRadius: 50, border: `3px solid ${colors.border}`,
+    width: 375, height: 812,
+    background: "linear-gradient(180deg, #17120e 0%, #0c0a08 100%)",
+    borderRadius: 44,
+    border: "3px solid #2e2822",
     overflow: "hidden", position: "relative",
-    boxShadow: "0 25px 80px rgba(0,0,0,0.3), 0 0 0 1px rgba(255,255,255,0.1)",
+    boxShadow: "0 40px 80px -20px rgba(0,0,0,0.8), 0 0 0 1px rgba(0,0,0,0.6), inset 0 0 0 1px rgba(255,255,255,0.04)",
+    isolation: "isolate",
   }}>
+    {/* Notch */}
     <div style={{
       position: "absolute", top: 0, left: "50%", transform: "translateX(-50%)",
-      width: 160, height: 34, background: colors.ink,
-      borderRadius: "0 0 20px 20px", zIndex: 100,
+      width: 126, height: 30,
+      background: "#0c0a08",
+      borderRadius: "0 0 18px 18px", zIndex: 100,
     }} />
     <StatusBar />
     {children}
   </div>
 );
 
-// ============================================================
-// Status Bar
-// ============================================================
+// ── StatusBar ────────────────────────────────────────────────────────────────
 export const StatusBar = () => (
   <div style={{
     display: "flex", justifyContent: "space-between", alignItems: "center",
-    padding: "14px 28px 0", fontSize: 12, fontWeight: 600,
-    color: colors.ink, position: "relative", zIndex: 50, background: colors.cream,
+    padding: "14px 24px 0",
+    fontFamily: T.mono,
+    fontSize: 11, fontWeight: 600, letterSpacing: "0.02em",
+    color: T.paper,
+    position: "relative", zIndex: 50,
+    background: "transparent",
   }}>
     <span>9:41</span>
     <span style={{ display: "flex", gap: 5, alignItems: "center" }}>
-      <svg width="15" height="11" viewBox="0 0 15 11" fill={colors.ink}><rect x="0" y="4" width="3" height="7" rx="1"/><rect x="4" y="2" width="3" height="9" rx="1"/><rect x="8" y="0" width="3" height="11" rx="1"/><rect x="12" y="3" width="3" height="8" rx="1" opacity="0.3"/></svg>
-      <svg width="15" height="11" viewBox="0 0 15 11" fill={colors.ink}><path d="M7.5 2C10.5 2 13 3.5 14 5L7.5 11 1 5C2 3.5 4.5 2 7.5 2Z" opacity="0.9"/></svg>
-      <svg width="22" height="11" viewBox="0 0 22 11" fill="none"><rect x="0" y="0" width="19" height="11" rx="2" stroke={colors.ink} strokeWidth="1"/><rect x="20" y="3" width="2" height="5" rx="1" fill={colors.ink} opacity="0.4"/><rect x="1.5" y="1.5" width="13" height="8" rx="1" fill="#4ADE80"/></svg>
+      <svg width="15" height="11" viewBox="0 0 15 11" fill={T.paper}>
+        <rect x="0" y="4" width="3" height="7" rx="0.5"/>
+        <rect x="4" y="2" width="3" height="9" rx="0.5"/>
+        <rect x="8" y="0" width="3" height="11" rx="0.5"/>
+        <rect x="12" y="3" width="3" height="8" rx="0.5" opacity="0.3"/>
+      </svg>
+      <svg width="15" height="11" viewBox="0 0 15 11" fill={T.paper}>
+        <path d="M7.5 2C10.5 2 13 3.5 14 5L7.5 11 1 5C2 3.5 4.5 2 7.5 2Z" opacity="0.9"/>
+      </svg>
+      <svg width="22" height="11" viewBox="0 0 22 11" fill="none">
+        <rect x="0" y="0" width="19" height="11" rx="2" stroke={T.paper} strokeWidth="1"/>
+        <rect x="20" y="3" width="2" height="5" rx="1" fill={T.paper} opacity="0.4"/>
+        <rect x="1.5" y="1.5" width="13" height="8" rx="1" fill="#4ADE80"/>
+      </svg>
     </span>
   </div>
 );
 
-// ============================================================
-// Scrollable Screen
-// ============================================================
-export const Screen = ({ children }) => (
+// ── Screen ───────────────────────────────────────────────────────────────────
+// Transparent — the dark gradient background comes from PhoneFrame.
+export const Screen = ({ children, noPad = false }) => (
   <div style={{
     position: "absolute", top: 0, left: 0, right: 0, bottom: 0,
     overflowY: "auto", overflowX: "hidden",
-    padding: "48px 20px 100px", background: colors.cream, scrollbarWidth: "none",
+    padding: noPad ? 0 : "52px 22px 110px",
+    background: "transparent",
+    scrollbarWidth: "none",
   }}>
     {children}
   </div>
 );
 
-// ============================================================
-// Section Header
-// ============================================================
+// ── SectionHeader ────────────────────────────────────────────────────────────
 export const SectionHeader = ({ title, link }) => (
-  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 14 }}>
-    <span style={{ fontFamily: fonts.display, fontSize: 18, fontWeight: 700, color: colors.ink, fontStyle: "italic" }}>{title}</span>
-    {link && <span style={{ fontFamily: fonts.mono, fontSize: 10, color: colors.amber, letterSpacing: 1, textTransform: "uppercase", cursor: "pointer" }}>{link}</span>}
+  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 16 }}>
+    <span style={{
+      fontFamily: T.display,
+      fontSize: 20, fontWeight: 700,
+      color: T.paper, lineHeight: "24px",
+    }}>
+      {title}
+    </span>
+    {link && (
+      <span style={{
+        fontFamily: T.mono,
+        fontSize: 9, letterSpacing: "0.08em", textTransform: "uppercase",
+        color: T.amber, cursor: "pointer", fontWeight: 600,
+      }}>
+        {link} →
+      </span>
+    )}
   </div>
 );
 
-// ============================================================
-// Divider
-// ============================================================
-export const Divider = () => <div style={{ height: 1, background: colors.border, margin: "22px 0" }} />;
+// ── Divider ──────────────────────────────────────────────────────────────────
+export const Divider = ({ style = {} }) => (
+  <div style={{ height: 1, background: "rgba(244,239,231,0.10)", margin: "24px 0", ...style }} />
+);
 
-// ============================================================
-// Horizontal Scroll
-// ============================================================
+// ── HScroll ──────────────────────────────────────────────────────────────────
 export const HScroll = ({ children, gap = 12, style = {} }) => (
-  <div style={{ display: "flex", overflowX: "auto", scrollbarWidth: "none", paddingBottom: 4, gap, ...style }}>
+  <div style={{
+    display: "flex", overflowX: "auto",
+    scrollbarWidth: "none", paddingBottom: 4, gap, ...style,
+  }}>
     {children}
   </div>
 );
 
-// ============================================================
-// Notification Bell
-// ============================================================
+// ── NotifBell ────────────────────────────────────────────────────────────────
 export const NotifBell = ({ onClick, hasUnread = true }) => (
-  <div onClick={onClick} style={{ position: "relative", cursor: "pointer" }}>
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={colors.brownMid} strokeWidth="1.5">
-      <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0"/>
+  <div onClick={onClick} style={{ position: "relative", cursor: "pointer", padding: 4 }}>
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={T.paper} strokeWidth="1.5" strokeLinecap="round">
+      <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+      <path d="M13.73 21a2 2 0 01-3.46 0"/>
     </svg>
-    {hasUnread && <div style={{ position: "absolute", top: -1, right: -1, width: 7, height: 7, background: colors.amber, borderRadius: "50%", border: `1.5px solid ${colors.cream}` }} />}
+    {hasUnread && (
+      <div style={{
+        position: "absolute", top: 2, right: 2,
+        width: 6, height: 6,
+        background: T.ember,
+        borderRadius: "50%",
+        border: "1.5px solid #0c0a08",
+      }} />
+    )}
   </div>
 );
 
-// ============================================================
-// User Avatar
-// ============================================================
-export const UserAvatar = ({ initial = "A", size = 32 }) => (
+// ── UserAvatar ───────────────────────────────────────────────────────────────
+export const UserAvatar = ({ initial = "A", size = 30 }) => (
   <div style={{
-    width: size, height: size, borderRadius: "50%", background: colors.ink,
+    width: size, height: size,
+    background: "rgba(193,127,74,0.18)",
+    border: "1px solid rgba(193,127,74,0.4)",
     display: "flex", alignItems: "center", justifyContent: "center",
+    borderRadius: "50%",
   }}>
-    <span style={{ fontFamily: fonts.display, fontSize: size * 0.44, fontWeight: 700, color: colors.gold, fontStyle: "italic" }}>{initial}</span>
+    <span style={{
+      fontFamily: T.display,
+      fontSize: size * 0.46, fontWeight: 700,
+      color: T.amber, lineHeight: 1,
+    }}>
+      {initial}
+    </span>
   </div>
 );
 
-// ============================================================
-// Countdown Badge
-// ============================================================
+// ── CountdownBadge ───────────────────────────────────────────────────────────
 export const CountdownBadge = ({ days }) => (
   <div style={{
-    width: 44, height: 44, background: colors.ink, borderRadius: 12,
-    display: "flex", flexDirection: "column", alignItems: "center",
-    justifyContent: "center", flexShrink: 0,
+    width: 40, height: 40,
+    background: T.glass,
+    border: `1px solid ${T.glassBorder}`,
+    borderRadius: 10,
+    display: "flex", flexDirection: "column",
+    alignItems: "center", justifyContent: "center", flexShrink: 0,
   }}>
-    <span style={{ fontFamily: fonts.display, fontSize: 16, fontWeight: 800, color: colors.gold, lineHeight: 1 }}>{days}</span>
-    <span style={{ fontFamily: fonts.mono, fontSize: 7, color: "#999", letterSpacing: 1, textTransform: "uppercase" }}>days</span>
+    <span style={{
+      fontFamily: T.mono,
+      fontSize: 15, fontWeight: 700,
+      color: T.amber, lineHeight: 1,
+    }}>
+      {days}
+    </span>
+    <span style={{
+      fontFamily: T.mono,
+      fontSize: 7, color: T.faded,
+      letterSpacing: "0.08em", textTransform: "uppercase", marginTop: 2,
+    }}>
+      days
+    </span>
   </div>
 );
 
-// ============================================================
-// Friend Activity Row
-// ============================================================
-export const FriendRow = ({ name, action, event, time, color }) => (
-  <div style={{ display: "flex", alignItems: "center", gap: 12, padding: "10px 0" }}>
-    <div style={{
-      width: 34, height: 34, borderRadius: "50%", background: color,
-      display: "flex", alignItems: "center", justifyContent: "center",
-      fontFamily: fonts.display, fontSize: 14, fontWeight: 700, color: "#fff",
-    }}>{name[0]}</div>
-    <p style={{ flex: 1, fontSize: 12, color: colors.ink, lineHeight: 1.5 }}>
-      <strong>{name}</strong>{" "}
-      <span style={{ color: colors.brownMid }}>{action}</span>{" "}
-      <span style={{ fontWeight: 600 }}>{event}</span>
-    </p>
-    <span style={{ fontFamily: fonts.mono, fontSize: 10, color: colors.faded }}>{time}</span>
+// ── FriendRow ────────────────────────────────────────────────────────────────
+export const FriendRow = ({ name, action, event, time }) => (
+  <div style={{
+    padding: "10px 0",
+    borderBottom: "1px solid rgba(244,239,231,0.08)",
+    display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 8,
+  }}>
+    <div style={{ flex: 1 }}>
+      <span style={{
+        fontFamily: T.mono,
+        fontSize: 11, fontWeight: 700,
+        letterSpacing: "0.06em", textTransform: "uppercase",
+        color: T.paper,
+      }}>
+        {name.toUpperCase()}
+      </span>
+      <span style={{
+        fontFamily: T.mono,
+        fontSize: 11, color: T.faded,
+        letterSpacing: "0.04em",
+      }}>
+        {" "}{action}{" "}
+      </span>
+      <span style={{
+        fontFamily: T.display,
+        fontSize: 13, fontWeight: 600,
+        color: T.amber,
+      }}>
+        {event}
+      </span>
+      <span style={{ fontFamily: T.mono, fontSize: 10, color: T.amber, marginLeft: 4 }}> ↗</span>
+    </div>
+    <span style={{
+      fontFamily: T.mono,
+      fontSize: 9, color: T.faded,
+      letterSpacing: "0.04em", flexShrink: 0,
+    }}>
+      {time}
+    </span>
   </div>
 );
 
-// ============================================================
-// Genre / Category Chip
-// ============================================================
+// ── Chip ─────────────────────────────────────────────────────────────────────
+// After Dark: pill-shaped, amber fill when active.
 export const Chip = ({ label, active, onClick }) => (
-  <button onClick={onClick} style={{
-    flexShrink: 0, padding: "7px 16px", borderRadius: 20,
-    fontFamily: fonts.body, fontSize: 12, fontWeight: 600,
-    border: `1.5px solid ${active ? colors.ink : colors.border}`,
-    background: active ? colors.ink : colors.white,
-    color: active ? colors.gold : colors.brownMid,
-    cursor: "pointer", transition: "all 0.2s", whiteSpace: "nowrap",
-  }}>
+  <button
+    onClick={onClick}
+    className="pressable"
+    style={{
+      flexShrink: 0,
+      padding: "7px 16px",
+      border: active ? "none" : `1px solid ${T.glassBorder}`,
+      background: active ? T.amber : T.glass,
+      color: active ? T.ink : T.faded,
+      fontFamily: T.mono,
+      fontSize: 10, fontWeight: 700,
+      letterSpacing: "0.06em", textTransform: "uppercase",
+      borderRadius: 30, cursor: "pointer",
+      whiteSpace: "nowrap",
+    }}
+  >
     {label}
   </button>
 );
 
-// ============================================================
-// Tag Pill
-// ============================================================
+// ── TagPill ──────────────────────────────────────────────────────────────────
 export const TagPill = ({ children }) => (
   <span style={{
-    background: colors.warmGray, color: colors.brownMid,
-    fontFamily: fonts.mono, fontSize: 9, fontWeight: 500,
-    padding: "3px 8px", borderRadius: 20, letterSpacing: 0.5,
+    background: T.glass,
+    border: `1px solid ${T.glassBorder}`,
+    color: T.faded,
+    fontFamily: T.mono,
+    fontSize: 9, fontWeight: 500,
+    padding: "2px 8px", borderRadius: 20,
+    letterSpacing: "0.06em", textTransform: "uppercase",
   }}>
     {children}
   </span>
 );
 
-// ============================================================
-// Match Score Badge
-// ============================================================
+// ── MatchScore ───────────────────────────────────────────────────────────────
 export const MatchScore = ({ value, style = {} }) => (
   <span style={{
     display: "inline-flex", alignItems: "center", gap: 4,
-    background: colors.ink, color: colors.gold,
-    fontFamily: fonts.mono, fontSize: 10, fontWeight: 600,
-    padding: "3px 8px", borderRadius: 20, ...style,
+    background: "rgba(193,127,74,0.15)",
+    border: "1px solid rgba(193,127,74,0.3)",
+    color: T.amber,
+    fontFamily: T.mono,
+    fontSize: 9, fontWeight: 700,
+    padding: "3px 8px", borderRadius: 20,
+    letterSpacing: "0.06em",
+    ...style,
   }}>
     ♫ {value}%
   </span>
 );
 
-// ============================================================
-// Wishlist Heart Button
-// ============================================================
+// ── WishlistButton ───────────────────────────────────────────────────────────
 export const WishlistButton = ({ active, onClick, style = {} }) => (
-  <button onClick={onClick} style={{
-    width: 30, height: 30, borderRadius: "50%",
-    border: `1.5px solid ${active ? colors.amber : "#E0D8CC"}`,
-    background: active ? colors.amber : colors.cream,
-    display: "flex", alignItems: "center", justifyContent: "center",
-    cursor: "pointer", transition: "all 0.2s", flexShrink: 0, ...style,
-  }}>
-    <svg width="14" height="14" viewBox="0 0 24 24" fill={active ? "#fff" : "none"} stroke={active ? "#fff" : colors.brownMid} strokeWidth="2">
+  <button
+    onClick={onClick}
+    className="pressable"
+    style={{
+      width: 32, height: 32,
+      border: `1px solid ${active ? T.amber : T.glassBorder}`,
+      background: active ? "rgba(193,127,74,0.18)" : T.glass,
+      display: "flex", alignItems: "center", justifyContent: "center",
+      cursor: "pointer", flexShrink: 0, borderRadius: "50%",
+      ...style,
+    }}
+  >
+    <svg width="13" height="13" viewBox="0 0 24 24"
+      fill={active ? T.amber : "none"}
+      stroke={active ? T.amber : T.faded}
+      strokeWidth="2"
+    >
       <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/>
     </svg>
   </button>
 );
 
-// ============================================================
-// Tab Bar
-// ============================================================
-const TAB_ICONS = {
-  home: '<path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>',
-  explore: '<circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>',
-  guide: '<path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/>',
-  calendar: '<rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>',
-  profile: '<path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/>',
-};
-
-const TAB_LABELS = { home: "Home", explore: "Explore", guide: "The Guide", calendar: "Calendar", profile: "Profile" };
+// ── TabBar (FloatingDock) ────────────────────────────────────────────────────
+// After Dark: centered glass pill, floating 22px above bottom, no labels.
+const DOCK_DEFS = [
+  {
+    id: "home",
+    icon: <><polyline points="3 10 12 3 21 10" strokeLinejoin="round"/><rect x="5" y="10" width="14" height="11" rx="1"/></>,
+  },
+  {
+    id: "explore",
+    icon: <><circle cx="11" cy="11" r="7.5"/><line x1="17" y1="17" x2="21" y2="21"/></>,
+  },
+  {
+    id: "guide",
+    icon: <><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></>,
+  },
+  {
+    id: "calendar",
+    icon: <><rect x="3" y="4" width="18" height="17" rx="1"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="16" y1="2" x2="16" y2="6"/></>,
+  },
+  {
+    id: "profile",
+    icon: <><circle cx="12" cy="8" r="4"/><path d="M4 20a8 8 0 0116 0"/></>,
+  },
+];
 
 export const TabBar = ({ activeTab, onTabChange }) => (
   <div style={{
-    position: "absolute", bottom: 0, left: 0, right: 0, height: 80,
-    background: "rgba(250,246,241,0.97)", backdropFilter: "blur(20px)",
-    borderTop: `1px solid ${colors.border}`, display: "flex",
-    alignItems: "center", justifyContent: "space-around",
-    padding: "0 12px 20px", zIndex: 90,
+    position: "absolute",
+    bottom: 22,
+    left: "50%",
+    transform: "translateX(-50%)",
+    background: "rgba(28,23,18,0.80)",
+    backdropFilter: "blur(18px)",
+    WebkitBackdropFilter: "blur(18px)",
+    border: "1px solid rgba(244,239,231,0.10)",
+    borderRadius: 32,
+    padding: "6px 8px",
+    display: "flex",
+    alignItems: "center",
+    gap: 2,
+    boxShadow: "0 14px 44px rgba(0,0,0,0.6), 0 0 0 1px rgba(0,0,0,0.4)",
+    zIndex: 90,
+    whiteSpace: "nowrap",
   }}>
-    {Object.keys(TAB_ICONS).map((id) => {
+    {DOCK_DEFS.map(({ id, icon }) => {
       const isActive = activeTab === id;
       return (
-        <button key={id} onClick={() => onTabChange(id)} style={{
-          display: "flex", flexDirection: "column", alignItems: "center",
-          gap: 4, background: "none", border: "none", cursor: "pointer",
-          color: isActive ? colors.ink : colors.faded,
-          fontFamily: fonts.body, fontSize: 10, fontWeight: 500,
-        }}>
-          <svg width="22" height="22" viewBox="0 0 24 24"
-            fill={isActive ? colors.ink : "none"}
-            stroke={isActive ? colors.ink : "currentColor"}
-            strokeWidth="1.5"
-            dangerouslySetInnerHTML={{ __html: TAB_ICONS[id] }}
-          />
-          {TAB_LABELS[id]}
+        <button
+          key={id}
+          onClick={() => onTabChange(id)}
+          className="pressable"
+          style={{
+            width: 52, height: 52,
+            display: "flex", alignItems: "center", justifyContent: "center",
+            background: isActive ? "rgba(193,127,74,0.16)" : "transparent",
+            borderRadius: 24,
+            border: "none",
+            cursor: "pointer",
+            animation: isActive ? "dockglow 3s ease-in-out infinite" : "none",
+            transition: "background 0.2s ease",
+          }}
+        >
+          <svg
+            width="22" height="22" viewBox="0 0 24 24"
+            fill="none"
+            stroke={isActive ? "#C17F4A" : "#8A8278"}
+            strokeWidth={isActive ? "1.75" : "1.25"}
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            {icon}
+          </svg>
         </button>
       );
     })}
