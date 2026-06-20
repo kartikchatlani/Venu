@@ -184,10 +184,312 @@ const ReviewsView = ({ reviews, onClose, onEdit, onDelete, editingIndex, editArt
   </>
 );
 
+// ── Crew Detail View ─────────────────────────────────────────────────────────
+
+const PLATFORMS = {
+  spotify:     { label: "Spotify",      color: "#1DB954", bg: "rgba(29,185,84,0.1)",  border: "rgba(29,185,84,0.3)" },
+  apple:       { label: "Apple Music",  color: "#FC3C44", bg: "rgba(252,60,68,0.1)",  border: "rgba(252,60,68,0.3)" },
+  youtube:     { label: "YouTube Music",color: "#FF0000", bg: "rgba(255,0,0,0.1)",    border: "rgba(255,0,0,0.3)"  },
+};
+
+const detectPlatform = (url) => {
+  if (!url) return null;
+  if (url.includes("spotify.com"))    return "spotify";
+  if (url.includes("music.apple.com"))return "apple";
+  if (url.includes("youtube.com") || url.includes("youtu.be")) return "youtube";
+  return null;
+};
+
+const CrewDetailView = ({ crew, onClose }) => {
+  const [pollVotes, setPollVotes] = useState({});
+  const [playlist, setPlaylist] = useState(crew.playlist || null);
+  const [addingPlaylist, setAddingPlaylist] = useState(false);
+  const [playlistInput, setPlaylistInput] = useState("");
+
+  const vote = (pollId, optionIdx) => {
+    if (pollVotes[pollId] != null) return;
+    setPollVotes((prev) => ({ ...prev, [pollId]: optionIdx }));
+  };
+
+  const submitPlaylist = () => {
+    const trimmed = playlistInput.trim();
+    if (!trimmed) return;
+    const platform = detectPlatform(trimmed);
+    const label = PLATFORMS[platform]?.label || "Playlist";
+    setPlaylist({ name: `${crew.name} Playlist`, url: trimmed, platform });
+    setAddingPlaylist(false);
+    setPlaylistInput("");
+  };
+
+  return (
+    <>
+      {/* Cover banner — breaks out of Screen padding */}
+      <div style={{
+        position: "relative", height: 190,
+        marginLeft: -22, marginRight: -22, marginTop: -8,
+        overflow: "hidden",
+        background: "repeating-linear-gradient(135deg, #2a221a, #2a221a 10px, #201913 10px, #201913 20px)",
+      }}>
+        {crew.cover && (
+          <img src={crew.cover} alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", opacity: 0.75 }} />
+        )}
+        <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(12,10,8,0.5) 0%, transparent 30%, rgba(12,10,8,0.85) 100%)" }} />
+        {/* Back */}
+        <button onClick={onClose} style={{
+          position: "absolute", top: 14, left: 14,
+          background: "rgba(12,10,8,0.65)", backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)",
+          border: "1px solid rgba(244,239,231,0.18)", borderRadius: 20,
+          padding: "6px 14px", cursor: "pointer",
+          display: "flex", alignItems: "center", gap: 6,
+        }}>
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke={P} strokeWidth="2"><path d="M15 18l-6-6 6-6"/></svg>
+          <span style={{ fontFamily: M, fontSize: 9, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: P }}>Back</span>
+        </button>
+        {/* Crew name */}
+        <div style={{ position: "absolute", bottom: 18, left: 18, right: 18 }}>
+          <div style={{ fontFamily: D, fontSize: 32, fontWeight: 700, color: P, lineHeight: "34px", marginBottom: 4 }}>{crew.name}</div>
+          <div style={{ fontFamily: M, fontSize: 9, color: "rgba(244,239,231,0.6)", textTransform: "uppercase", letterSpacing: "0.08em" }}>
+            {crew.memberCount} Members
+          </div>
+        </div>
+      </div>
+
+      {/* ── Members ── */}
+      <div style={{ marginTop: 22, marginBottom: 24 }}>
+        <div style={{ fontFamily: M, fontSize: 9, color: F, textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 14 }}>Members</div>
+        <div style={{ display: "flex", gap: 14, overflowX: "auto", scrollbarWidth: "none", marginLeft: -22, marginRight: -22, paddingLeft: 22, paddingRight: 22 }}>
+          {crew.members.map((mem, i) => (
+            <div key={i} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6, flexShrink: 0 }}>
+              <div style={{
+                width: 52, height: 52, borderRadius: "50%",
+                background: `${mem.color}22`,
+                border: `1.5px solid ${mem.color}88`,
+                display: "flex", alignItems: "center", justifyContent: "center",
+                fontFamily: D, fontSize: 18, fontWeight: 700, color: mem.color,
+              }}>{mem.initial}</div>
+              <div style={{ fontFamily: D, fontSize: 11, fontWeight: 700, color: P, textAlign: "center", maxWidth: 60, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{mem.name.split(" ")[0]}</div>
+              <div style={{
+                fontFamily: M, fontSize: 7.5, letterSpacing: "0.06em", textTransform: "uppercase",
+                color: mem.status === "going" ? A : mem.status === "maybe" ? F : F,
+                border: `1px solid ${mem.status === "going" ? "rgba(193,127,74,0.35)" : glassBorder}`,
+                padding: "2px 7px", borderRadius: 20,
+              }}>{mem.status || "—"}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div style={{ height: 1, background: glassBorder, marginBottom: 22 }} />
+
+      {/* ── Upcoming Together ── */}
+      <div style={{ marginBottom: 24 }}>
+        <div style={{ fontFamily: M, fontSize: 9, color: F, textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 14 }}>Upcoming Together</div>
+        {crew.upcomingEvents.map((ev, i) => (
+          <div key={i} style={{
+            display: "flex", alignItems: "center", gap: 12,
+            padding: "12px 14px", marginBottom: 8,
+            background: glass, border: `1px solid ${glassBorder}`, borderRadius: 14,
+          }}>
+            <div style={{ width: 40, height: 40, borderRadius: 10, background: "rgba(193,127,74,0.1)", border: `1px solid rgba(193,127,74,0.25)`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={A} strokeWidth="1.5"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            </div>
+            <div style={{ flex: 1 }}>
+              <div style={{ fontFamily: D, fontSize: 15, fontWeight: 700, color: P, marginBottom: 2 }}>{ev.artist}</div>
+              <div style={{ fontFamily: M, fontSize: 9, color: F, textTransform: "uppercase", letterSpacing: "0.06em" }}>{ev.venue} · {ev.date}</div>
+            </div>
+            <div style={{ textAlign: "right", flexShrink: 0 }}>
+              <div style={{ fontFamily: D, fontSize: 16, fontWeight: 700, color: A }}>{ev.goingCount}</div>
+              <div style={{ fontFamily: M, fontSize: 7.5, color: F, textTransform: "uppercase", letterSpacing: "0.06em" }}>Going</div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div style={{ height: 1, background: glassBorder, marginBottom: 22 }} />
+
+      {/* ── Activity ── */}
+      <div style={{ marginBottom: 24 }}>
+        <div style={{ fontFamily: M, fontSize: 9, color: F, textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 14 }}>Activity</div>
+        {crew.activity.map((a, i) => (
+          <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: 10, paddingBottom: 14, marginBottom: i < crew.activity.length - 1 ? 4 : 0, borderBottom: i < crew.activity.length - 1 ? `1px solid rgba(244,239,231,0.06)` : "none" }}>
+            <div style={{ width: 28, height: 28, borderRadius: "50%", background: glass, border: `1px solid ${glassBorder}`, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: D, fontSize: 11, fontWeight: 700, color: A, flexShrink: 0 }}>
+              {a.member[0]}
+            </div>
+            <div style={{ flex: 1 }}>
+              <span style={{ fontFamily: M, fontSize: 10, fontWeight: 700, color: P, textTransform: "uppercase", letterSpacing: "0.04em" }}>{a.member} </span>
+              <span style={{ fontFamily: M, fontSize: 10, color: F }}>{a.action} </span>
+              <span style={{ fontFamily: D, fontSize: 13, fontWeight: 600, color: A }}>{a.event}</span>
+            </div>
+            <div style={{ fontFamily: M, fontSize: 8.5, color: F, letterSpacing: "0.04em", flexShrink: 0, marginTop: 2 }}>{a.time}</div>
+          </div>
+        ))}
+      </div>
+
+      <div style={{ height: 1, background: glassBorder, marginBottom: 22 }} />
+
+      {/* ── Polls ── */}
+      <div style={{ marginBottom: 24 }}>
+        <div style={{ fontFamily: M, fontSize: 9, color: F, textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 14 }}>Polls</div>
+        {crew.polls.map((poll) => {
+          const voted = pollVotes[poll.id];
+          const total = poll.options.reduce((s, o) => s + o.votes + (voted != null ? 0 : 0), 0);
+          const liveTotals = poll.options.map((o, i) => o.votes + (voted === i ? 1 : 0));
+          const liveTotal = liveTotals.reduce((s, v) => s + v, 0);
+          return (
+            <div key={poll.id} style={{ background: glass, border: `1px solid ${glassBorder}`, borderRadius: 16, padding: "16px 16px 14px", marginBottom: 12 }}>
+              <div style={{ fontFamily: D, fontSize: 16, fontWeight: 700, color: P, marginBottom: 14 }}>{poll.question}</div>
+              {poll.options.map((opt, i) => {
+                const lv = liveTotals[i];
+                const pct = liveTotal > 0 ? Math.round((lv / liveTotal) * 100) : 0;
+                const isVoted = voted === i;
+                return (
+                  <button key={i} onClick={() => vote(poll.id, i)} style={{
+                    display: "flex", alignItems: "center", gap: 10,
+                    width: "100%", background: "none", border: "none", cursor: voted != null ? "default" : "pointer",
+                    padding: "8px 0", marginBottom: i < poll.options.length - 1 ? 6 : 0, textAlign: "left",
+                  }}>
+                    {/* Radio dot */}
+                    <div style={{
+                      width: 16, height: 16, borderRadius: "50%", flexShrink: 0,
+                      border: `2px solid ${isVoted ? A : glassBorder}`,
+                      background: isVoted ? "rgba(193,127,74,0.2)" : "transparent",
+                      display: "flex", alignItems: "center", justifyContent: "center",
+                    }}>
+                      {isVoted && <div style={{ width: 6, height: 6, borderRadius: "50%", background: A }} />}
+                    </div>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ fontFamily: M, fontSize: 10, color: isVoted ? A : P, fontWeight: isVoted ? 700 : 400, letterSpacing: "0.04em", marginBottom: voted != null ? 4 : 0 }}>
+                        {opt.label}
+                      </div>
+                      {voted != null && (
+                        <div style={{ height: 3, borderRadius: 2, background: glassBorder, overflow: "hidden" }}>
+                          <div style={{ height: "100%", width: `${pct}%`, background: isVoted ? A : "rgba(244,239,231,0.2)", borderRadius: 2, transition: "width 0.5s ease" }} />
+                        </div>
+                      )}
+                    </div>
+                    {voted != null && (
+                      <div style={{ fontFamily: M, fontSize: 9, color: isVoted ? A : F, fontWeight: 700, flexShrink: 0, minWidth: 32, textAlign: "right" }}>{pct}%</div>
+                    )}
+                  </button>
+                );
+              })}
+              {voted == null && (
+                <div style={{ fontFamily: M, fontSize: 8.5, color: F, textTransform: "uppercase", letterSpacing: "0.06em", marginTop: 10 }}>
+                  {total} vote{total !== 1 ? "s" : ""} · Tap to vote
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+
+      <div style={{ height: 1, background: glassBorder, marginBottom: 22 }} />
+
+      {/* ── Playlist ── */}
+      <div style={{ marginBottom: 24 }}>
+        <div style={{ fontFamily: M, fontSize: 9, color: F, textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 14 }}>Playlist</div>
+
+        {playlist ? (() => {
+          const plat = PLATFORMS[playlist.platform] || { label: "Playlist", color: A, bg: "rgba(193,127,74,0.1)", border: "rgba(193,127,74,0.3)" };
+          return (
+            <div style={{ display: "flex", alignItems: "center", gap: 12, background: plat.bg, border: `1px solid ${plat.border}`, borderRadius: 14, padding: "14px 16px" }}>
+              {/* Music note icon */}
+              <div style={{ width: 40, height: 40, borderRadius: 10, background: `${plat.color}22`, border: `1px solid ${plat.border}`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={plat.color} strokeWidth="1.8">
+                  <path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/>
+                </svg>
+              </div>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ fontFamily: D, fontSize: 15, fontWeight: 700, color: P, marginBottom: 2, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{playlist.name}</div>
+                <div style={{ fontFamily: M, fontSize: 8.5, color: plat.color, textTransform: "uppercase", letterSpacing: "0.06em" }}>{plat.label}</div>
+              </div>
+              <div style={{ display: "flex", gap: 8, flexShrink: 0 }}>
+                <a href={playlist.url} target="_blank" rel="noopener noreferrer" style={{
+                  fontFamily: M, fontSize: 8.5, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase",
+                  color: "#14110F", background: plat.color, border: "none",
+                  borderRadius: 20, padding: "6px 12px", textDecoration: "none", display: "block",
+                }}>Open</a>
+                <button onClick={() => setPlaylist(null)} style={{ background: "none", border: "none", cursor: "pointer", color: F, padding: 4 }}>
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </button>
+              </div>
+            </div>
+          );
+        })() : addingPlaylist ? (
+          <div style={{ background: glass, border: `1px solid ${glassBorder}`, borderRadius: 14, padding: "14px 16px" }}>
+            <div style={{ fontFamily: M, fontSize: 9, color: F, textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 10 }}>
+              Paste a Spotify, Apple Music, or YouTube link
+            </div>
+            <input
+              autoFocus
+              value={playlistInput}
+              onChange={(e) => setPlaylistInput(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && submitPlaylist()}
+              placeholder="https://open.spotify.com/playlist/..."
+              style={{
+                width: "100%", background: "transparent", border: "none",
+                borderBottom: "1px solid rgba(244,239,231,0.2)",
+                fontFamily: M, fontSize: 11, color: P, outline: "none",
+                padding: "6px 0", marginBottom: 14, boxSizing: "border-box",
+                letterSpacing: "0.02em",
+              }}
+            />
+            <div style={{ display: "flex", gap: 8 }}>
+              <button onClick={() => { setAddingPlaylist(false); setPlaylistInput(""); }} style={{
+                flex: 1, padding: "8px 0", borderRadius: 20,
+                border: `1px solid ${glassBorder}`, background: "transparent",
+                fontFamily: M, fontSize: 9, fontWeight: 700, letterSpacing: "0.08em",
+                textTransform: "uppercase", color: F, cursor: "pointer",
+              }}>Cancel</button>
+              <button onClick={submitPlaylist} style={{
+                flex: 2, padding: "8px 0", borderRadius: 20, border: "none",
+                background: playlistInput.trim() ? A : "rgba(193,127,74,0.2)",
+                fontFamily: M, fontSize: 9, fontWeight: 700, letterSpacing: "0.08em",
+                textTransform: "uppercase", color: "#14110F",
+                cursor: playlistInput.trim() ? "pointer" : "not-allowed",
+              }}>Link Playlist</button>
+            </div>
+          </div>
+        ) : (
+          <button onClick={() => setAddingPlaylist(true)} style={{
+            display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
+            width: "100%", padding: 14, background: "transparent",
+            border: `1px dashed rgba(244,239,231,0.15)`,
+            borderRadius: 14, cursor: "pointer",
+            fontFamily: M, fontSize: 9, fontWeight: 700,
+            letterSpacing: "0.1em", textTransform: "uppercase", color: F,
+          }}>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+            Link a Playlist
+          </button>
+        )}
+      </div>
+
+      <div style={{ height: 1, background: glassBorder, marginBottom: 22 }} />
+
+      {/* ── Photos ── */}
+      <div style={{ marginBottom: 8 }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 14 }}>
+          <div style={{ fontFamily: M, fontSize: 9, color: F, textTransform: "uppercase", letterSpacing: "0.1em" }}>Photos</div>
+          <span style={{ fontFamily: M, fontSize: 9, color: A, letterSpacing: "0.08em", textTransform: "uppercase", cursor: "pointer" }}>View All →</span>
+        </div>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 4 }}>
+          {crew.photos.map((src, i) => (
+            <div key={i} style={{ aspectRatio: "1", borderRadius: 8, overflow: "hidden", background: "repeating-linear-gradient(135deg, #2a221a, #2a221a 6px, #201913 6px, #201913 12px)" }}>
+              <img src={src} alt="" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+            </div>
+          ))}
+        </div>
+      </div>
+    </>
+  );
+};
+
 // ── Main Profile ─────────────────────────────────────────────────────────────
 
 const Profile = ({ session, savedEvents = [] }) => {
   const [view, setView] = useState("profile");
+  const [selectedCrew, setSelectedCrew] = useState(null);
   const [showReviewForm, setShowReviewForm] = useState(false);
   const [reviewArtist, setReviewArtist] = useState("");
   const [reviewStars, setReviewStars] = useState(0);
@@ -245,6 +547,9 @@ const Profile = ({ session, savedEvents = [] }) => {
     festivals: passportStats.festivals,
   };
 
+  if (view === "crewDetail" && selectedCrew) return (
+    <Screen><CrewDetailView crew={selectedCrew} onClose={() => { setView("profile"); setSelectedCrew(null); }} /></Screen>
+  );
   if (view === "addFriends") return <Screen><AddFriendsView onClose={() => setView("friends")} /></Screen>;
   if (view === "friends") return <Screen><FriendsView onClose={() => setView("profile")} onAddFriends={() => setView("addFriends")} /></Screen>;
   if (view === "reviews") return (
@@ -428,31 +733,50 @@ const Profile = ({ session, savedEvents = [] }) => {
         <span style={{ fontFamily: M, fontSize: 9, letterSpacing: "0.08em", textTransform: "uppercase", color: A, cursor: "pointer" }}>Manage →</span>
       </div>
       {crews.map((crew, i) => (
-        <div key={i} style={{ background: glass, border: `1px solid ${glassBorder}`, borderRadius: 16, padding: 16, marginBottom: 10 }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
-            <div style={{ fontFamily: D, fontSize: 16, fontWeight: 700, color: P }}>{crew.name}</div>
-            <div style={{ fontFamily: M, fontSize: 9, color: F, textTransform: "uppercase", letterSpacing: "0.06em" }}>{crew.memberCount} Members</div>
+        <div key={i} onClick={() => { setSelectedCrew(crew); setView("crewDetail"); }} style={{
+          background: glass, border: `1px solid ${glassBorder}`,
+          borderRadius: 18, overflow: "hidden", marginBottom: 12, cursor: "pointer",
+        }}>
+          {/* Cover photo */}
+          <div style={{ position: "relative", height: 110, background: "repeating-linear-gradient(135deg, #2a221a, #2a221a 8px, #201913 8px, #201913 16px)", overflow: "hidden" }}>
+            {crew.cover && (
+              <img src={crew.cover} alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", opacity: 0.7 }} />
+            )}
+            <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, transparent 20%, rgba(12,10,8,0.88) 100%)" }} />
+            {/* Name + member count overlaid */}
+            <div style={{ position: "absolute", bottom: 12, left: 14, right: 14, display: "flex", justifyContent: "space-between", alignItems: "flex-end" }}>
+              <div style={{ fontFamily: D, fontSize: 20, fontWeight: 700, color: P, lineHeight: "22px" }}>{crew.name}</div>
+              <div style={{ fontFamily: M, fontSize: 8.5, color: "rgba(244,239,231,0.55)", textTransform: "uppercase", letterSpacing: "0.08em", flexShrink: 0, marginLeft: 8 }}>{crew.memberCount} members</div>
+            </div>
           </div>
-          <div style={{ display: "flex", marginBottom: 10 }}>
-            {crew.avatars.map((a, j) => (
-              <div key={j} style={{
-                width: 28, height: 28, borderRadius: "50%",
-                background: "rgba(193,127,74,0.15)", border: "2px solid rgba(12,10,8,0.8)",
-                display: "flex", alignItems: "center", justifyContent: "center",
-                fontFamily: D, fontSize: 11, fontWeight: 700, color: A,
-                marginRight: -6, zIndex: 5 - j, position: "relative",
-              }}>{a.initial}</div>
-            ))}
-          </div>
-          <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 10 }}>
-            {crew.features.map((f, j) => (
-              <span key={j} style={{ fontFamily: M, fontSize: 9, fontWeight: 600, letterSpacing: "0.06em", textTransform: "uppercase", color: F, border: `1px solid ${glassBorder}`, padding: "3px 9px", borderRadius: 20 }}>{f.label}</span>
-            ))}
-          </div>
-          <div style={{ display: "flex", alignItems: "center", gap: 8, border: "1px solid rgba(193,127,74,0.25)", borderRadius: 20, padding: "9px 12px", cursor: "pointer" }}>
-            <div style={{ width: 5, height: 5, borderRadius: "50%", background: A, flexShrink: 0 }} />
-            <div style={{ fontFamily: M, fontSize: 10, color: A, flex: 1, letterSpacing: "0.04em", textTransform: "uppercase" }}>{crew.nextEvent}</div>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={A} strokeWidth="2"><path d="M9 18l6-6-6-6"/></svg>
+          {/* Card body */}
+          <div style={{ padding: "12px 14px 14px" }}>
+            {/* Avatar stack */}
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
+              <div style={{ display: "flex" }}>
+                {crew.avatars.map((a, j) => (
+                  <div key={j} style={{
+                    width: 26, height: 26, borderRadius: "50%",
+                    background: `${a.color}22`, border: `1.5px solid ${a.color}88`,
+                    display: "flex", alignItems: "center", justifyContent: "center",
+                    fontFamily: D, fontSize: 10, fontWeight: 700, color: a.color,
+                    marginRight: -7, zIndex: 10 - j, position: "relative",
+                  }}>{a.initial}</div>
+                ))}
+              </div>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={F} strokeWidth="1.5"><path d="M9 18l6-6-6-6"/></svg>
+            </div>
+            {/* Feature chips */}
+            <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 10 }}>
+              {crew.features.map((f, j) => (
+                <span key={j} style={{ fontFamily: M, fontSize: 8.5, fontWeight: 600, letterSpacing: "0.06em", textTransform: "uppercase", color: F, border: `1px solid ${glassBorder}`, padding: "3px 9px", borderRadius: 20 }}>{f.label}</span>
+              ))}
+            </div>
+            {/* Next event */}
+            <div style={{ display: "flex", alignItems: "center", gap: 8, border: "1px solid rgba(193,127,74,0.25)", borderRadius: 20, padding: "8px 12px" }}>
+              <div style={{ width: 5, height: 5, borderRadius: "50%", background: A, flexShrink: 0, animation: "pulse 1.5s ease-in-out infinite" }} />
+              <div style={{ fontFamily: M, fontSize: 9.5, color: A, flex: 1, letterSpacing: "0.04em", textTransform: "uppercase" }}>{crew.nextEvent}</div>
+            </div>
           </div>
         </div>
       ))}

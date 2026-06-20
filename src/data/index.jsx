@@ -255,24 +255,111 @@ export const badges = [
 
 export const crews = [
   {
-    name: "The Stubb's Squad", memberCount: 5,
+    name: "The Stubb's Squad",
+    cover: "https://images.unsplash.com/photo-1470229722913-7c0e2dbbafd3?w=800&h=300&fit=crop",
+    memberCount: 5,
     avatars: [
       { initial: "A", color: "#E07A5F" }, { initial: "M", color: "#81B29A" },
       { initial: "J", color: "#F2CC8F" }, { initial: "N", color: "#C17F4A" },
       { initial: "S", color: "#C4B8A8" },
     ],
+    members: [
+      { name: "Aaron W.", initial: "A", color: "#E07A5F", status: "going" },
+      { name: "Maria G.", initial: "M", color: "#81B29A", status: "going" },
+      { name: "Jake T.", initial: "J", color: "#F2CC8F", status: "maybe" },
+      { name: "Nina L.", initial: "N", color: "#C17F4A", status: "going" },
+      { name: "Sam P.", initial: "S", color: "#C4B8A8", status: "going" },
+    ],
     features: [{ icon: "📊", label: "2 open polls" }, { icon: "📸", label: "48 photos" }, { icon: "🎵", label: "Shared playlist" }],
     nextEvent: "Khruangbin @ Stubb's · Apr 12",
+    upcomingEvents: [
+      { artist: "Khruangbin", venue: "Stubb's Outdoor", date: "Apr 12", goingCount: 4 },
+      { artist: "Toro y Moi", venue: "Mohawk", date: "May 3", goingCount: 2 },
+    ],
+    activity: [
+      { member: "Maria", action: "saved", event: "Khruangbin @ Stubb's", time: "2h ago" },
+      { member: "Jake", action: "is interested in", event: "Toro y Moi @ Mohawk", time: "5h ago" },
+      { member: "Nina", action: "voted on", event: "the set time poll", time: "1d ago" },
+    ],
+    polls: [
+      {
+        id: "sq-1",
+        question: "Which set are we catching?",
+        options: [
+          { label: "Khruangbin (8 PM Main)", votes: 3 },
+          { label: "Tame Impala (East Stage)", votes: 1 },
+        ],
+      },
+    ],
+    photos: [
+      "https://images.unsplash.com/photo-1470229722913-7c0e2dbbafd3?w=300&h=300&fit=crop",
+      "https://images.unsplash.com/photo-1501386761578-0a55d938946b?w=300&h=300&fit=crop",
+      "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=300&h=300&fit=crop",
+      "https://images.unsplash.com/photo-1459749411175-04bf5292ceea?w=300&h=300&fit=crop",
+      "https://images.unsplash.com/photo-1506157786151-b8491531f063?w=300&h=300&fit=crop",
+      "https://images.unsplash.com/photo-1524368535928-5b5e00ddc76b?w=300&h=300&fit=crop",
+    ],
+    playlist: {
+      name: "Stubb's Squad Jams",
+      url: "https://open.spotify.com/playlist/37i9dQZF1DX4JAvHpjsfWs",
+      platform: "spotify",
+    },
   },
   {
-    name: "ACL Crew 2026", memberCount: 8,
+    name: "ACL Crew 2026",
+    cover: "https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6c3?w=800&h=300&fit=crop",
+    memberCount: 8,
     avatars: [
       { initial: "A", color: "#E07A5F" }, { initial: "M", color: "#81B29A" },
       { initial: "J", color: "#F2CC8F" }, { initial: "K", color: "#5C4F3D" },
       { initial: "+4", color: "#C4B8A8" },
     ],
-    features: [{ icon: "📊", label: "1 open poll" }, { icon: "📋", label: "Custom lineup" }],
+    members: [
+      { name: "Aaron W.", initial: "A", color: "#E07A5F", status: "going" },
+      { name: "Maria G.", initial: "M", color: "#81B29A", status: "going" },
+      { name: "Jake T.", initial: "J", color: "#F2CC8F", status: "going" },
+      { name: "Kira B.", initial: "K", color: "#5C4F3D", status: "maybe" },
+      { name: "Sam P.", initial: "S", color: "#C4B8A8", status: "going" },
+      { name: "Dani R.", initial: "D", color: "#8A8278", status: "going" },
+      { name: "Leo M.", initial: "L", color: "#D94F2A", status: "maybe" },
+      { name: "Priya S.", initial: "P", color: "#C17F4A", status: "going" },
+    ],
+    features: [{ icon: "📊", label: "2 open polls" }, { icon: "📋", label: "Custom lineup" }, { icon: "📸", label: "12 photos" }],
     nextEvent: "ACL Weekend 1 · Oct 3–5",
+    upcomingEvents: [
+      { artist: "ACL Weekend 1", venue: "Zilker Park", date: "Oct 3–5", goingCount: 6 },
+      { artist: "Pre-ACL Warmup", venue: "Stubb's Outdoor", date: "Oct 2", goingCount: 4 },
+    ],
+    activity: [
+      { member: "Kira", action: "voted on", event: "the hotel poll", time: "3h ago" },
+      { member: "Jake", action: "saved", event: "ACL Weekend 1 tickets", time: "1d ago" },
+      { member: "Maria", action: "added photos from", event: "ACL 2025", time: "3d ago" },
+    ],
+    polls: [
+      {
+        id: "acl-1",
+        question: "Weekend 1 or Weekend 2?",
+        options: [
+          { label: "Weekend 1 · Oct 3–5", votes: 5 },
+          { label: "Weekend 2 · Oct 10–12", votes: 2 },
+        ],
+      },
+      {
+        id: "acl-2",
+        question: "Hotel or Airbnb?",
+        options: [
+          { label: "Hotel downtown", votes: 3 },
+          { label: "Airbnb near Zilker", votes: 4 },
+        ],
+      },
+    ],
+    photos: [
+      "https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6c3?w=300&h=300&fit=crop",
+      "https://images.unsplash.com/photo-1429962714451-bb934ecdc4ec?w=300&h=300&fit=crop",
+      "https://images.unsplash.com/photo-1459749411175-04bf5292ceea?w=300&h=300&fit=crop",
+      "https://images.unsplash.com/photo-1506157786151-b8491531f063?w=300&h=300&fit=crop",
+    ],
+    playlist: null,
   },
 ];
 
