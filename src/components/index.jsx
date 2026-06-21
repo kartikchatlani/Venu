@@ -73,7 +73,7 @@ export const Screen = ({ children, noPad = false }) => (
   <div style={{
     position: "absolute", top: 0, left: 0, right: 0, bottom: 0,
     overflowY: "auto", overflowX: "hidden",
-    padding: noPad ? 0 : "52px 22px 110px",
+    padding: noPad ? 0 : "52px 22px 80px",
     background: "transparent",
     scrollbarWidth: "none",
   }}>
@@ -329,55 +329,99 @@ const DOCK_DEFS = [
   },
 ];
 
-export const TabBar = ({ activeTab, onTabChange }) => (
-  <div style={{
-    position: "absolute",
-    bottom: 22,
-    left: "50%",
-    transform: "translateX(-50%)",
-    background: "rgba(28,23,18,0.80)",
-    backdropFilter: "blur(18px)",
-    WebkitBackdropFilter: "blur(18px)",
-    border: "1px solid rgba(244,239,231,0.10)",
-    borderRadius: 4,
-    padding: "6px 8px",
-    display: "flex",
-    alignItems: "center",
-    gap: 2,
-    boxShadow: "0 14px 44px rgba(0,0,0,0.6), 0 0 0 1px rgba(0,0,0,0.4)",
-    zIndex: 90,
-    whiteSpace: "nowrap",
-  }}>
-    {DOCK_DEFS.map(({ id, icon }) => {
-      const isActive = activeTab === id;
-      return (
-        <button
-          key={id}
-          onClick={() => onTabChange(id)}
-          className="pressable"
-          style={{
-            width: 52, height: 52,
-            display: "flex", alignItems: "center", justifyContent: "center",
-            background: isActive ? "rgba(193,127,74,0.16)" : "transparent",
-            borderRadius: 4,
-            border: "none",
-            cursor: "pointer",
-            animation: isActive ? "dockglow 3s ease-in-out infinite" : "none",
-            transition: "background 0.2s ease",
-          }}
-        >
-          <svg
-            width="22" height="22" viewBox="0 0 24 24"
-            fill="none"
-            stroke={isActive ? "#C17F4A" : "#8A8278"}
-            strokeWidth={isActive ? "1.75" : "1.25"}
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            {icon}
-          </svg>
-        </button>
-      );
-    })}
-  </div>
-);
+export const TabBar = ({ activeTab, onTabChange }) => {
+  const [visible, setVisible] = React.useState(false);
+  const hideTimer = React.useRef(null);
+
+  const reveal = () => {
+    setVisible(true);
+    clearTimeout(hideTimer.current);
+    hideTimer.current = setTimeout(() => setVisible(false), 2000);
+  };
+
+  const keepOpen = () => clearTimeout(hideTimer.current);
+
+  const scheduleHide = () => {
+    clearTimeout(hideTimer.current);
+    hideTimer.current = setTimeout(() => setVisible(false), 600);
+  };
+
+  return (
+    <>
+      {/* Invisible trigger strip at the bottom edge */}
+      <div
+        onMouseEnter={reveal}
+        onTouchStart={reveal}
+        onTouchMove={reveal}
+        style={{
+          position: "absolute",
+          bottom: 0, left: 0, right: 0,
+          height: 56,
+          zIndex: 89,
+          pointerEvents: "auto",
+        }}
+      />
+
+      {/* Dock */}
+      <div
+        onMouseEnter={keepOpen}
+        onMouseLeave={scheduleHide}
+        style={{
+          position: "absolute",
+          bottom: 14,
+          left: "50%",
+          transform: `translateX(-50%) translateY(${visible ? 0 : 80}px)`,
+          opacity: visible ? 1 : 0,
+          transition: visible
+            ? "transform 0.18s cubic-bezier(0,0,0.2,1), opacity 0.14s ease-out"
+            : "transform 0.38s cubic-bezier(0.4,0,1,1), opacity 0.32s ease-in",
+          pointerEvents: visible ? "auto" : "none",
+          background: "rgba(28,23,18,0.85)",
+          backdropFilter: "blur(18px)",
+          WebkitBackdropFilter: "blur(18px)",
+          border: "1px solid rgba(244,239,231,0.10)",
+          borderRadius: 4,
+          padding: "3px 4px",
+          display: "flex",
+          alignItems: "center",
+          gap: 0,
+          boxShadow: "0 14px 44px rgba(0,0,0,0.6), 0 0 0 1px rgba(0,0,0,0.4)",
+          zIndex: 90,
+          whiteSpace: "nowrap",
+        }}
+      >
+        {DOCK_DEFS.map(({ id, icon }) => {
+          const isActive = activeTab === id;
+          return (
+            <button
+              key={id}
+              onClick={() => onTabChange(id)}
+              className="pressable"
+              style={{
+                width: 40, height: 38,
+                display: "flex", alignItems: "center", justifyContent: "center",
+                background: isActive ? "rgba(193,127,74,0.16)" : "transparent",
+                borderRadius: 4,
+                border: "none",
+                cursor: "pointer",
+                animation: isActive ? "dockglow 3s ease-in-out infinite" : "none",
+                transition: "background 0.2s ease",
+              }}
+            >
+              <svg
+                width="19" height="19" viewBox="0 0 24 24"
+                fill="none"
+                stroke={isActive ? "#C17F4A" : "#8A8278"}
+                strokeWidth={isActive ? "1.75" : "1.25"}
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                {icon}
+              </svg>
+            </button>
+          );
+        })}
+      </div>
+    </>
+  );
+};
