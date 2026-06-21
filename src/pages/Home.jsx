@@ -26,14 +26,274 @@ const TODAY_LABEL = (() => {
   return `${day} ${mon} ${d.getDate()}`;
 })();
 
-const dropItems = [
-  { artist: "Tyler, the Creator", date: "Jun 14", status: "presale" },
-  { artist: "Billie Eilish",       date: "Oct 18", status: "onsale" },
-  { artist: "Floating Points",     date: "Apr 25", status: "onsale" },
-  { artist: "Mdou Moctar",         date: "Apr 1",  status: "presale" },
-  { artist: "Ethel Cain",          date: "May 9",  status: "presale" },
-  { artist: "Caroline Polachek",   date: "Jun 3",  status: "onsale" },
+// Canonical presales data — marquee derives from this
+const allPresales = [
+  {
+    artist: "Turnstile", venue: "Stubb's Outdoor", city: "Austin, TX",
+    showDate: "Aug 9, 2026", saleDate: "2026-06-25", saleTime: "10:00 AM",
+    status: "presale", code: "VENU",
+    img: "https://images.unsplash.com/photo-1459749411175-04bf5292ceea?w=200&h=200&fit=crop",
+    match: 96, ticketUrl: null,
+  },
+  {
+    artist: "Mdou Moctar", venue: "Mohawk", city: "Austin, TX",
+    showDate: "Aug 14, 2026", saleDate: "2026-06-28", saleTime: "10:00 AM",
+    status: "presale", code: "DESERT",
+    img: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=200&h=200&fit=crop",
+    match: 91, ticketUrl: null,
+  },
+  {
+    artist: "Floating Points", venue: "Concourse Project", city: "Austin, TX",
+    showDate: "Aug 22, 2026", saleDate: "2026-07-05", saleTime: "10:00 AM",
+    status: "presale", code: "FLOAT",
+    img: "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=200&h=200&fit=crop",
+    match: 89, ticketUrl: null,
+  },
+  {
+    artist: "Tyler, the Creator", venue: "Moody Center", city: "Austin, TX",
+    showDate: "Sep 20, 2026", saleDate: "2026-07-14", saleTime: "10:00 AM",
+    status: "presale", code: "GOLF",
+    img: "https://images.unsplash.com/photo-1506157786151-b8491531f063?w=200&h=200&fit=crop",
+    match: 94, ticketUrl: null,
+  },
+  {
+    artist: "Ethel Cain", venue: "ACL Live", city: "Austin, TX",
+    showDate: "Sep 27, 2026", saleDate: "2026-07-22", saleTime: "12:00 PM",
+    status: "presale", code: "PREACHER",
+    img: "https://images.unsplash.com/photo-1524368535928-5b5e00ddc76b?w=200&h=200&fit=crop",
+    match: 87, ticketUrl: null,
+  },
+  {
+    artist: "Caroline Polachek", venue: "Stubb's Outdoor", city: "Austin, TX",
+    showDate: "Jul 30, 2026", saleDate: "2026-06-01", saleTime: "10:00 AM",
+    status: "onsale", code: null,
+    img: "https://images.unsplash.com/photo-1470229722913-7c0e2dbbafd3?w=200&h=200&fit=crop",
+    match: 92, ticketUrl: null,
+  },
+  {
+    artist: "Billie Eilish", venue: "Moody Center", city: "Austin, TX",
+    showDate: "Oct 18, 2026", saleDate: "2026-05-10", saleTime: "10:00 AM",
+    status: "onsale", code: null,
+    img: "https://images.unsplash.com/photo-1501386761578-0a55d938946b?w=200&h=200&fit=crop",
+    match: 85, ticketUrl: null,
+  },
+  {
+    artist: "Bon Iver", venue: "ACL Live", city: "Austin, TX",
+    showDate: "Nov 4, 2026", saleDate: "2026-05-20", saleTime: "10:00 AM",
+    status: "onsale", code: null,
+    img: "https://images.unsplash.com/photo-1429962714451-bb934ecdc4ec?w=200&h=200&fit=crop",
+    match: 88, ticketUrl: null,
+  },
 ];
+
+// Slim version for the marquee ticker
+const dropItems = allPresales.map((p) => ({
+  artist: p.artist,
+  date: new Date(p.saleDate + "T12:00:00") > new Date() ? p.saleDate.slice(5).replace("-", " / ") : "On Sale",
+  status: p.status,
+}));
+
+const getCountdown = (saleDateStr) => {
+  const now = new Date();
+  const sale = new Date(saleDateStr + "T10:00:00");
+  const diff = sale - now;
+  if (diff <= 0) return null;
+  const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+  const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+  if (days > 0) return `${days}d ${hours}h`;
+  return `${hours}h`;
+};
+
+// ── All Presales Overlay ──────────────────────────────────────────────────────
+
+const glass = "rgba(244,239,231,0.05)";
+const glassBorder = "rgba(244,239,231,0.10)";
+
+const AllPresalesPage = ({ onClose }) => {
+  const [filter, setFilter] = useState("All");
+  const [reminded, setReminded] = useState(new Set());
+
+  const filtered = allPresales.filter((p) =>
+    filter === "All" ? true : filter === "Presale" ? p.status === "presale" : p.status === "onsale"
+  );
+
+  return (
+    <div style={{
+      position: "absolute", inset: 0, zIndex: 180,
+      background: "#0C0A08",
+      display: "flex", flexDirection: "column",
+    }}>
+      {/* Header */}
+      <div style={{ padding: "52px 22px 0", flexShrink: 0 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 22 }}>
+          <button onClick={onClose} style={{
+            background: glass, border: `1px solid ${glassBorder}`,
+            borderRadius: 20, padding: "7px 14px", cursor: "pointer",
+            display: "flex", alignItems: "center", gap: 6,
+          }}>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke={P} strokeWidth="2"><path d="M15 18l-6-6 6-6"/></svg>
+            <span style={{ fontFamily: M, fontSize: 9, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: P }}>Back</span>
+          </button>
+          <div>
+            <div style={{ fontFamily: D, fontSize: 28, fontWeight: 700, color: P, lineHeight: "28px" }}>The Drop</div>
+            <div style={{ fontFamily: M, fontSize: 9, color: F, textTransform: "uppercase", letterSpacing: "0.06em", marginTop: 3 }}>
+              {allPresales.filter((p) => p.status === "presale").length} presales · {allPresales.filter((p) => p.status === "onsale").length} on sale
+            </div>
+          </div>
+        </div>
+
+        {/* Filter tabs */}
+        <div style={{ display: "flex", gap: 6, marginBottom: 20 }}>
+          {["All", "Presale", "On Sale"].map((tab) => (
+            <button key={tab} onClick={() => setFilter(tab)} style={{
+              padding: "7px 16px", borderRadius: 20, cursor: "pointer",
+              fontFamily: M, fontSize: 9, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase",
+              border: filter === tab ? "none" : `1px solid ${glassBorder}`,
+              background: filter === tab ? A : glass,
+              color: filter === tab ? "#14110F" : F,
+            }}>{tab}</button>
+          ))}
+        </div>
+      </div>
+
+      {/* Scrollable list */}
+      <div style={{ flex: 1, overflowY: "auto", scrollbarWidth: "none", padding: "0 22px 40px" }}>
+        {filtered.map((p, i) => {
+          const countdown = getCountdown(p.saleDate);
+          const isLive = !countdown;
+          const hasReminder = reminded.has(p.artist);
+
+          const saleLabel = new Date(p.saleDate + "T12:00:00").toLocaleDateString("en-US", { month: "short", day: "numeric" });
+          const salePeriod = p.saleTime.match(/AM|PM/)?.[0] ?? "";
+          const saleTimeNum = p.saleTime.replace(/ (AM|PM)$/, "");
+          const toggleRemind = () => setReminded((prev) => { const s = new Set(prev); s.has(p.artist) ? s.delete(p.artist) : s.add(p.artist); return s; });
+
+          return (
+            <div key={i} style={{
+              background: "linear-gradient(165deg, #1a1410, #0c0a08)",
+              border: "1px solid rgba(244,239,231,0.09)",
+              borderRadius: 18, padding: "14px 16px", marginBottom: 10,
+              boxShadow: "0 16px 36px -16px rgba(20,17,15,0.6)",
+              display: "flex", flexDirection: "column", gap: 12,
+            }}>
+
+              {/* Row 1: Status pill + countdown */}
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                <div style={{
+                  display: "inline-flex", alignItems: "center", gap: 6,
+                  background: isLive ? A : E,
+                  borderRadius: 30, padding: "5px 10px",
+                }}>
+                  <div style={{ width: 5, height: 5, borderRadius: "50%", background: "#fff", animation: "pulse 1.5s ease-in-out infinite" }} />
+                  <span style={{ fontFamily: M, fontSize: 9, fontWeight: 700, color: "#fff", textTransform: "uppercase", letterSpacing: "0.12em" }}>
+                    {isLive ? "On Sale" : "Presale"}
+                  </span>
+                </div>
+                {!isLive && countdown && (
+                  <div style={{ display: "flex", alignItems: "baseline", gap: 4 }}>
+                    <span style={{ fontFamily: M, fontSize: 8, fontWeight: 600, color: F, textTransform: "uppercase", letterSpacing: "0.08em" }}>Opens In</span>
+                    <span style={{ fontFamily: M, fontSize: 11, fontWeight: 700, color: A }}>{countdown}</span>
+                  </div>
+                )}
+              </div>
+
+              {/* Row 2: Thumbnail + artist info + match chip */}
+              <div style={{ display: "flex", alignItems: "flex-start", gap: 12 }}>
+                <div style={{
+                  width: 58, height: 58, borderRadius: 12, flexShrink: 0,
+                  overflow: "hidden", position: "relative",
+                  boxShadow: "0 0 0 1px rgba(244,239,231,0.1)",
+                  background: "repeating-linear-gradient(135deg, #2a221a 0 10px, #201913 10px 20px)",
+                }}>
+                  <div style={{ position: "absolute", inset: 0, background: "radial-gradient(circle at 50% 30%, rgba(217,79,42,0.18), transparent 62%)" }} />
+                  <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, transparent 50%, rgba(193,127,74,0.1))" }} />
+                  {p.img && <img src={p.img} alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />}
+                </div>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ fontFamily: D, fontSize: 20, fontWeight: 700, color: P, lineHeight: "22px", marginBottom: 4 }}>{p.artist}</div>
+                  <div style={{ fontFamily: M, fontSize: 8.5, fontWeight: 500, color: F, textTransform: "uppercase", letterSpacing: "0.06em", lineHeight: "13px", marginBottom: 2 }}>
+                    {p.venue} · {p.city}
+                  </div>
+                  <div style={{ fontFamily: M, fontSize: 8.5, fontWeight: 500, color: F, textTransform: "uppercase", letterSpacing: "0.06em" }}>
+                    Show: {p.showDate}
+                  </div>
+                </div>
+                <div style={{
+                  fontFamily: M, fontSize: 9, fontWeight: 700, color: A,
+                  background: "rgba(193,127,74,0.14)", border: "1px solid rgba(193,127,74,0.32)",
+                  padding: "4px 8px", borderRadius: 20, flexShrink: 0,
+                }}>♫ {p.match}%</div>
+              </div>
+
+              {/* Row 3: Presale moment block */}
+              <div style={{
+                background: "rgba(244,239,231,0.04)", border: "1px solid rgba(244,239,231,0.08)",
+                borderRadius: 12, padding: "11px 14px",
+                display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10,
+              }}>
+                <div>
+                  <div style={{ fontFamily: M, fontSize: 7.5, fontWeight: 600, color: F, textTransform: "uppercase", letterSpacing: "0.14em", marginBottom: 4 }}>
+                    {isLive ? "Available" : "Presale Opens"}
+                  </div>
+                  {isLive ? (
+                    <div style={{ fontFamily: D, fontSize: 17, fontWeight: 600, color: A }}>On Sale Now</div>
+                  ) : (
+                    <div style={{ fontFamily: D, fontSize: 17, fontWeight: 600, color: P }}>
+                      {saleLabel}
+                      <span style={{ color: "#5a554d" }}> · </span>
+                      {saleTimeNum}
+                      <span style={{ color: A, fontSize: 12, fontWeight: 600 }}> {salePeriod}</span>
+                    </div>
+                  )}
+                </div>
+                {isLive ? (
+                  <a href={p.ticketUrl || "#"} style={{
+                    display: "flex", alignItems: "center", gap: 6, flexShrink: 0,
+                    background: A, color: "#0c0a08", borderRadius: 30,
+                    padding: "9px 13px", textDecoration: "none",
+                    fontFamily: M, fontSize: 9, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em",
+                    boxShadow: "0 0 16px rgba(193,127,74,0.4)",
+                  }}>
+                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20 12V22H4V12"/><path d="M22 7H2v5h20V7z"/><path d="M12 22V7"/></svg>
+                    Get Tickets
+                  </a>
+                ) : (
+                  <button onClick={toggleRemind} style={{
+                    display: "flex", alignItems: "center", gap: 6, flexShrink: 0,
+                    background: hasReminder ? "transparent" : A,
+                    color: hasReminder ? A : "#0c0a08",
+                    border: hasReminder ? `1px solid ${A}` : "none",
+                    borderRadius: 30, padding: "9px 13px", cursor: "pointer",
+                    fontFamily: M, fontSize: 9, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em",
+                    boxShadow: hasReminder ? "none" : "0 0 16px rgba(193,127,74,0.4)",
+                  }}>
+                    {hasReminder ? (
+                      <><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke={A} strokeWidth="2.5"><polyline points="20 6 9 17 4 12"/></svg> Reminding</>
+                    ) : (
+                      <><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0"/></svg> Remind Me</>
+                    )}
+                  </button>
+                )}
+              </div>
+
+              {/* Row 4: Access code (presale only) */}
+              {p.code && !isLive && (
+                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  <span style={{ fontFamily: M, fontSize: 8, fontWeight: 600, color: F, textTransform: "uppercase", letterSpacing: "0.1em" }}>Access Code</span>
+                  <span style={{
+                    fontFamily: M, fontSize: 10, fontWeight: 700, color: P, letterSpacing: "0.14em", textTransform: "uppercase",
+                    background: "rgba(244,239,231,0.06)", border: "1px dashed rgba(244,239,231,0.2)",
+                    borderRadius: 5, padding: "3px 10px",
+                  }}>{p.code}</span>
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+};
 
 // Waveform: 12 bars with staggered wav animation
 const Waveform = () => (
@@ -53,6 +313,7 @@ const Waveform = () => (
 const Home = ({ savedEvents = [], savedLoading = false, onOpenNotifs, session }) => {
   const [wishlisted, setWishlisted] = useState({});
   const [marqPaused, setMarqPaused] = useState(false);
+  const [showPresales, setShowPresales] = useState(false);
 
   const email = session?.user?.email ?? "";
   const initial = email[0]?.toUpperCase() ?? "A";
@@ -78,6 +339,8 @@ const Home = ({ savedEvents = [], savedLoading = false, onOpenNotifs, session })
   })();
 
   return (
+    <>
+    {showPresales && <AllPresalesPage onClose={() => setShowPresales(false)} />}
     <Screen>
       {/* ── Header ───────────────────────────────────────────── */}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 18 }}>
@@ -237,7 +500,7 @@ const Home = ({ savedEvents = [], savedLoading = false, onOpenNotifs, session })
           <div style={{ width: 7, height: 7, borderRadius: "50%", background: E, animation: "pulse 1.4s ease-in-out infinite", flexShrink: 0 }} />
           <div style={{ fontFamily: D, fontSize: 19, fontWeight: 700, color: P }}>The Drop</div>
         </div>
-        <span style={{ fontFamily: M, fontSize: 9, letterSpacing: "0.1em", textTransform: "uppercase", color: A, cursor: "pointer" }}>
+        <span onClick={() => setShowPresales(true)} style={{ fontFamily: M, fontSize: 9, letterSpacing: "0.1em", textTransform: "uppercase", color: A, cursor: "pointer" }}>
           ALL PRESALES →
         </span>
       </div>
@@ -321,6 +584,7 @@ const Home = ({ savedEvents = [], savedLoading = false, onOpenNotifs, session })
         </div>
       ))}
     </Screen>
+    </>
   );
 };
 
