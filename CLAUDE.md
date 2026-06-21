@@ -40,3 +40,13 @@ Any `VITE_`-prefixed var is exposed to the browser via `import.meta.env`.
 
 - Saved events have `status` of `"wishlist"` or `"going"`; toggling is threaded from `App` down through pages and the bottom sheet via props.
 - All source files use `.jsx`, not `.js`.
+
+## Design System
+
+Full reference: `DESIGN_SYSTEM.md`. Key rules for any UI work:
+
+- **borderRadius spec:** cards → `4`, buttons/chips/tags/avatars → `2`, phone frame → `44` (only exception). No pills (`16–30`), no circles (`"50%"`).
+- **Fonts:** Fraunces (headlines/artist names, always italic at display sizes), JetBrains Mono (all metadata, prices, labels, buttons — uppercase + tracked), Inter (body prose and form inputs only).
+- **Colors:** `#14110F` ink, `#F4EFE7` paper, `#C17F4A` burnt amber (accent), `#D94F2A` marquee red (live/urgent), `#8A8278` faded (secondary text).
+- **No hover states** (mobile-first). Tappable elements use `.pressable` class for `:active` feedback.
+- **Profile display name** is derived from `session.user.user_metadata.full_name` or parsed from the email prefix — not hardcoded.
