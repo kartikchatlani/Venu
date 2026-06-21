@@ -2,15 +2,13 @@
 
 **To render diagrams:** Install these two VSCode extensions:
 - `Markdown Preview Mermaid Support` — renders diagrams in `Cmd+Shift+V` preview
-- `Mermaid Editor` (by tomoyukim) — opens any diagram in a zoomable/pannable panel
-
-Then press `Cmd+Shift+V` to open the preview.
+- `Mermaid Editor` (by tomoyukim) — opens each diagram in a zoomable/pannable panel
 
 ---
 
 ## 1. Full Stack — Data to Screen
 
-Data travels left → right: external APIs → lib → hooks → App → UI.
+Data travels left → right: external APIs → lib → hooks → App.jsx → UI.
 
 ```mermaid
 flowchart LR
@@ -18,17 +16,17 @@ flowchart LR
     SB(["Supabase"])
 
     subgraph LIB["src/lib/"]
-        tmLib["ticketmaster.js\nfetch + normalize"]
-        sbClient["supabase.js\nauth client"]
-        seLib["savedEvents.js\nCRUD"]
+        tmLib["ticketmaster.js"]
+        sbClient["supabase.js"]
+        seLib["savedEvents.js"]
     end
 
     subgraph HOOKS["src/hooks/"]
-        useAE["useAustinEvents\ntonight + weekend"]
-        useSE["useSavedEvents\nwishlist · going · toggles"]
+        useAE["useAustinEvents"]
+        useSE["useSavedEvents"]
     end
 
-    App["App.jsx\nSession · activeTab\nselectedEvent · notifsOpen"]
+    App(["App.jsx"])
 
     subgraph PAGES["src/pages/"]
         Home["Home"]
@@ -44,138 +42,125 @@ flowchart LR
         NP["NotificationsPanel"]
     end
 
-    TM --> tmLib --> useAE --> App
-    SB --> sbClient --> App
-    SB --> seLib --> useSE --> App
-    App --> Home & Explore & Guide & Cal & Prof
-    App --> PF & EBS & NP
+    TM --> tmLib
+    tmLib --> useAE
+    useAE --> App
+    SB --> sbClient
+    sbClient --> App
+    SB --> seLib
+    seLib --> useSE
+    useSE --> App
+    App --> Home
+    App --> Explore
+    App --> Guide
+    App --> Cal
+    App --> Prof
+    App --> PF
+    App --> EBS
+    App --> NP
 ```
 
 ---
 
 ## 2. Tab-by-Tab UI Map
 
-Each tab is a separate page file. The TabBar in `src/components/index.jsx` switches between them.
+The `TabBar` switches between 5 page files. Each page is fully self-contained.
 
 ```mermaid
 flowchart TD
-    TabBar["TabBar\nsrc/components/index.jsx"]
+    TabBar["TabBar"]
 
-    subgraph H["🏠 Home.jsx"]
+    subgraph H["Home.jsx"]
         H1["Hero Show"]
-        H2["On Your Radar\nlive TM events + match %"]
-        H3["The Drop\npresale TicketStubs"]
+        H2["On Your Radar"]
+        H3["The Drop - Presales"]
         H4["Friends Activity"]
     end
 
-    subgraph E["🔍 Explore.jsx"]
-        E1["Search + Genre Chips"]
-        E2["Discover\nTonight · Weekend · Festivals"]
-        E3["Map\nLeaflet + venue pins"]
+    subgraph E["Explore.jsx"]
+        E1["Search + Genre Filters"]
+        E2["Discover - Tonight / Weekend / Festivals"]
+        E3["Map - Leaflet + Venue List"]
     end
 
-    subgraph G["📖 Guide.jsx"]
+    subgraph G["Guide.jsx"]
         G1["Featured Article"]
         G2["Artist Spotlight"]
-        G3["The Signal\nlive updates"]
+        G3["The Signal"]
         G4["More to Read"]
     end
 
-    subgraph C["📅 Calendar.jsx"]
-        C1["Month Grid\nwishlist · going · past dots"]
+    subgraph C["Calendar.jsx"]
+        C1["Month Grid + Dots"]
         C2["Filter Strip"]
         C3["Event Rows"]
     end
 
-    subgraph P["👤 Profile.jsx"]
-        P1["Identity Card\navatar · handle · bio"]
+    subgraph P["Profile.jsx"]
+        P1["Identity Card"]
         P2["Passport + Badges"]
         P3["Crews"]
         P4["Favorite Artists + Venues"]
         P5["Reviews"]
     end
 
-    TabBar --> H & E & G & C & P
+    TabBar --> H
+    TabBar --> E
+    TabBar --> G
+    TabBar --> C
+    TabBar --> P
 ```
 
 ---
 
-## 3. Shared Components
+## 3. Shared Components — Usage by Page
 
-Which pages use which components from the shared component files.
-
-```mermaid
-flowchart LR
-    subgraph PAGES["Pages"]
-        App["App.jsx"]
-        Home["Home"]
-        Explore["Explore"]
-        Guide["Guide"]
-        Cal["Calendar"]
-        Prof["Profile"]
-    end
-
-    subgraph ATOMS["src/components/index.jsx"]
-        Chip["Chip\ngenre filter"]
-        WB["WishlistButton\n♡ heart"]
-        UA["UserAvatar\nsquare initial"]
-        HS["HScroll\nrow scroll"]
-        MS["MatchScore\n♫ 91%"]
-        NB["NotifBell"]
-    end
-
-    subgraph MARKS["src/components/marks/"]
-        TS["TicketStub"]
-        LB["LiveBadge\n● LIVE NOW"]
-        Kicker["Kicker"]
-        EH["EditorialHeadline"]
-        Stamp["Stamp"]
-        FD["FlipDigits"]
-    end
-
-    subgraph OVERLAY["Overlays"]
-        EBS["EventBottomSheet"]
-        NP["NotificationsPanel"]
-        VM["VenuMap\nLeaflet map"]
-    end
-
-    Home --> Chip & WB & MS & TS & LB
-    Explore --> Chip & HS & MS & VM
-    Guide --> Kicker & EH & LB
-    Cal --> WB
-    Prof --> UA & NB & HS & Stamp & FD
-    App --> EBS & NP
-```
+| Component | File | Home | Explore | Guide | Calendar | Profile |
+|---|---|:---:|:---:|:---:|:---:|:---:|
+| `Chip` | components/index.jsx | ✓ | ✓ | ✓ | | |
+| `WishlistButton` | components/index.jsx | ✓ | | | ✓ | |
+| `MatchScore` | components/index.jsx | ✓ | ✓ | | | |
+| `HScroll` | components/index.jsx | ✓ | ✓ | ✓ | | ✓ |
+| `UserAvatar` | components/index.jsx | | | | | ✓ |
+| `NotifBell` | components/index.jsx | ✓ | | | | |
+| `CountdownBadge` | components/index.jsx | ✓ | | | | |
+| `TicketStub` | components/marks/ | ✓ | | | | |
+| `LiveBadge` | components/marks/ | ✓ | | ✓ | | |
+| `Kicker` | components/marks/ | | | ✓ | | |
+| `EditorialHeadline` | components/marks/ | ✓ | | ✓ | | |
+| `Stamp` | components/marks/ | | | | | ✓ |
+| `FlipDigits` | components/marks/ | ✓ | | | | |
+| `EventBottomSheet` | components/ | ← rendered by App.jsx, opens over any tab | | | | |
+| `NotificationsPanel` | components/ | ← rendered by App.jsx, slides in from right | | | | |
+| `VenuMap` | components/ | | ✓ | | | |
 
 ---
 
 ## 4. Saved-Event State Flow
 
-How wishlist/going state flows from Supabase down to every interactive element.
+How wishlist/going data moves from Supabase to every interactive element.
+`Home` and `Explore` also send events back up to `App` via `onEventSelect` to open the bottom sheet.
 
 ```mermaid
 flowchart TD
-    SB[("Supabase\nsaved_events table")]
+    SB[("Supabase")]
+    useSE["useSavedEvents"]
+    App["App.jsx"]
 
-    useSE["useSavedEvents\n──────────────\nsavedEvents[]\nwishlistIds Set\ngoingIds Set\ntoggleWishlist\ntoggleGoing"]
+    subgraph UI["UI Layer"]
+        Home["Home"]
+        Explore["Explore"]
+        Cal["Calendar"]
+        Prof["Profile"]
+        EBS["EventBottomSheet"]
+    end
 
-    App["App.jsx\npasses all props down"]
-
-    Home["Home"]
-    Explore["Explore"]
-    Cal["Calendar"]
-    Prof["Profile"]
-    EBS["EventBottomSheet"]
-
-    SB <-->|"CRUD"| useSE
+    SB <-->|"CRUD via savedEvents.js"| useSE
     useSE --> App
-
-    App -->|"wishlistIds · toggleWishlist\ngoingIds · toggleGoing"| Home
-    App -->|"wishlistIds · toggleWishlist\ngoingIds · toggleGoing"| Explore
+    App -->|"wishlistIds + toggleWishlist"| Home
+    App -->|"wishlistIds + toggleWishlist"| Explore
     App -->|"savedEvents"| Cal
     App -->|"savedEvents"| Prof
-    App -->|"wishlistIds · goingIds\ntoggleWishlist · toggleGoing"| EBS
-
-    Home & Explore -->|"onEventSelect"| App
+    App -->|"wishlistIds + toggleWishlist"| EBS
     App -->|"selectedEvent"| EBS
 ```
