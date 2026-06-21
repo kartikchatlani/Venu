@@ -50,13 +50,13 @@ const Guide = ({ onOpenNotifs }) => {
       </HScroll>
 
       {/* ── Featured Article ─────────────────────────────────── */}
-      <div style={{ borderRadius: 22, overflow: "hidden", marginBottom: 26, background: glass, border: `1px solid ${glassBorder}` }}>
+      <div style={{ borderRadius: 4, overflow: "hidden", marginBottom: 26, background: glass, border: `1px solid ${glassBorder}` }}>
         <div style={{ position: "relative", height: 210 }}>
           <PlaceholderImg height={210} />
           {/* Category pill */}
           <div style={{ position: "absolute", top: 14, left: 14 }}>
             <span style={{
-              background: "rgba(193,127,74,0.88)", borderRadius: 20, padding: "5px 12px",
+              background: "rgba(193,127,74,0.88)", borderRadius: 2, padding: "5px 12px",
               fontFamily: M, fontSize: 9, fontWeight: 700, letterSpacing: "0.1em",
               textTransform: "uppercase", color: "#14110F",
             }}>
@@ -73,7 +73,7 @@ const Guide = ({ onOpenNotifs }) => {
           </div>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
             <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-              <div style={{ width: 24, height: 24, borderRadius: "50%", background: "rgba(193,127,74,0.15)", border: "1px solid rgba(193,127,74,0.3)", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: D, fontSize: 11, fontWeight: 700, color: A }}>
+              <div style={{ width: 24, height: 24, borderRadius: 2, background: "rgba(193,127,74,0.15)", border: "1px solid rgba(193,127,74,0.3)", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: D, fontSize: 11, fontWeight: 700, color: A }}>
                 {featuredArticle.author[0]}
               </div>
               <div>
@@ -93,7 +93,7 @@ const Guide = ({ onOpenNotifs }) => {
                   width: 30, height: 30, border: `1px solid ${bookmarked.featured ? A : glassBorder}`,
                   background: bookmarked.featured ? "rgba(193,127,74,0.15)" : glass,
                   display: "flex", alignItems: "center", justifyContent: "center",
-                  cursor: "pointer", borderRadius: "50%",
+                  cursor: "pointer", borderRadius: 2,
                 }}
               >
                 <svg width="12" height="12" viewBox="0 0 24 24"
@@ -114,11 +114,11 @@ const Guide = ({ onOpenNotifs }) => {
         <span style={{ fontFamily: M, fontSize: 9, letterSpacing: "0.08em", textTransform: "uppercase", color: A, cursor: "pointer" }}>All Spotlights →</span>
       </div>
 
-      <div style={{ background: glass, border: `1px solid ${glassBorder}`, borderRadius: 18, overflow: "hidden", marginBottom: 26 }}>
+      <div style={{ background: glass, border: `1px solid ${glassBorder}`, borderRadius: 4, overflow: "hidden", marginBottom: 26 }}>
         <div style={{ position: "relative", height: 140 }}>
           <PlaceholderImg height={140} />
           <div style={{ position: "absolute", top: 12, left: 14, right: 14, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-            <span style={{ background: "rgba(217,79,42,0.85)", borderRadius: 20, padding: "4px 10px", fontFamily: M, fontSize: 8, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "#fff" }}>
+            <span style={{ background: "rgba(217,79,42,0.85)", borderRadius: 2, padding: "4px 10px", fontFamily: M, fontSize: 8, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "#fff" }}>
               Artist Spotlight
             </span>
             <div style={{ fontFamily: M, fontSize: 8, color: F, textTransform: "uppercase", letterSpacing: "0.06em" }}>Playing this week</div>
@@ -134,7 +134,7 @@ const Guide = ({ onOpenNotifs }) => {
           <div style={{ fontFamily: D, fontSize: 13, fontStyle: "italic", color: F, lineHeight: "18px", marginBottom: 16 }}>
             {spotlightArticle.excerpt}
           </div>
-          <div style={{ display: "flex", alignItems: "center", gap: 8, border: "1px solid rgba(193,127,74,0.28)", borderRadius: 20, padding: "9px 14px", cursor: "pointer" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8, border: "1px solid rgba(193,127,74,0.28)", borderRadius: 2, padding: "9px 14px", cursor: "pointer" }}>
             <div style={{ width: 5, height: 5, borderRadius: "50%", background: A, flexShrink: 0 }} />
             <div style={{ fontFamily: M, fontSize: 10, color: A, flex: 1, letterSpacing: "0.04em", textTransform: "uppercase" }}>
               {spotlightArticle.showLink}
@@ -157,7 +157,7 @@ const Guide = ({ onOpenNotifs }) => {
         <div key={i} style={{
           display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12,
           padding: "12px 14px", marginBottom: 8,
-          background: glass, border: `1px solid ${glassBorder}`, borderRadius: 14,
+          background: glass, border: `1px solid ${glassBorder}`, borderRadius: 4,
         }}>
           <div style={{ flex: 1 }}>
             {s.hot && <div style={{ marginBottom: 6 }}><LiveBadge /></div>}
@@ -175,7 +175,7 @@ const Guide = ({ onOpenNotifs }) => {
       <div style={{ height: 1, background: glassBorder, margin: "22px 0" }} />
 
       {/* ── Sponsored ────────────────────────────────────────── */}
-      <div style={{ background: glass, border: `1px solid ${glassBorder}`, borderRadius: 18, overflow: "hidden", marginBottom: 4 }}>
+      <div style={{ background: glass, border: `1px solid ${glassBorder}`, borderRadius: 4, overflow: "hidden", marginBottom: 4 }}>
         <div style={{ position: "relative", height: 100 }}>
           <PlaceholderImg height={100} />
         </div>
@@ -200,7 +200,7 @@ const Guide = ({ onOpenNotifs }) => {
         {moreArticles.map((a, i) => (
           <div key={i} style={{
             minWidth: 195, background: glass, border: `1px solid ${glassBorder}`,
-            borderRadius: 18, overflow: "hidden", flexShrink: 0,
+            borderRadius: 4, overflow: "hidden", flexShrink: 0,
           }}>
             <div style={{ height: 110, position: "relative", background: "repeating-linear-gradient(135deg, #2a221a, #2a221a 8px, #201913 8px, #201913 16px)" }}>
               <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, transparent 40%, rgba(12,10,8,0.9))" }} />

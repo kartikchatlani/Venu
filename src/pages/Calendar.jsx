@@ -103,7 +103,7 @@ const Calendar = ({ savedEvents = [], savedLoading: loading = false, toggleWishl
         {/* Glass event card */}
         <div style={{
           flex: 1, background: glass, border: `1px solid ${glassBorder}`,
-          borderRadius: 16, padding: "12px 14px",
+          borderRadius: 4, padding: "12px 14px",
           display: "flex", alignItems: "flex-start", gap: 10,
         }}>
           <div style={{ flex: 1 }}>
@@ -116,7 +116,7 @@ const Calendar = ({ savedEvents = [], savedLoading: loading = false, toggleWishl
             <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
               <span style={{
                 fontFamily: M, fontSize: 8, fontWeight: 700, letterSpacing: "0.08em",
-                textTransform: "uppercase", padding: "3px 9px", borderRadius: 20,
+                textTransform: "uppercase", padding: "3px 9px", borderRadius: 2,
                 background: isPast ? "rgba(138,130,120,0.12)" : "rgba(193,127,74,0.14)",
                 color: isPast ? F : A,
                 border: `1px solid ${isPast ? "rgba(138,130,120,0.2)" : "rgba(193,127,74,0.3)"}`,
@@ -160,7 +160,7 @@ const Calendar = ({ savedEvents = [], savedLoading: loading = false, toggleWishl
         {/* Month nav */}
         <div style={{ display: "flex", alignItems: "center", gap: 6, paddingTop: 6 }}>
           <button onClick={() => navigateMonth(-1)} style={{
-            width: 30, height: 30, borderRadius: "50%",
+            width: 30, height: 30, borderRadius: 4,
             border: `1px solid ${glassBorder}`, background: glass,
             display: "flex", alignItems: "center", justifyContent: "center",
             cursor: "pointer", color: F, fontSize: 12,
@@ -169,7 +169,7 @@ const Calendar = ({ savedEvents = [], savedLoading: loading = false, toggleWishl
             {monthName.slice(0, 3).toUpperCase()} {currentYear}
           </span>
           <button onClick={() => navigateMonth(1)} style={{
-            width: 30, height: 30, borderRadius: "50%",
+            width: 30, height: 30, borderRadius: 4,
             border: `1px solid ${glassBorder}`, background: glass,
             display: "flex", alignItems: "center", justifyContent: "center",
             cursor: "pointer", color: F, fontSize: 12,
@@ -182,7 +182,7 @@ const Calendar = ({ savedEvents = [], savedLoading: loading = false, toggleWishl
         {filters.map((f) => (
           <button key={f.id} onClick={() => setFilter(f.id)} style={{
             display: "flex", alignItems: "center", gap: 6, padding: "7px 16px",
-            border: "none", cursor: "pointer", borderRadius: 30,
+            border: "none", cursor: "pointer", borderRadius: 2,
             background: filter === f.id ? A : glass,
             border: filter === f.id ? "none" : `1px solid ${glassBorder}`,
             fontFamily: M, fontSize: 10, fontWeight: 700,
@@ -193,7 +193,7 @@ const Calendar = ({ savedEvents = [], savedLoading: loading = false, toggleWishl
             {f.label}
             <span style={{
               fontFamily: M, fontSize: 9, fontWeight: 700, lineHeight: 1.4,
-              padding: "1px 6px", borderRadius: 20,
+              padding: "1px 6px", borderRadius: 2,
               background: filter === f.id ? "rgba(20,17,15,0.2)" : "rgba(244,239,231,0.08)",
               color: filter === f.id ? "#14110F" : F,
             }}>

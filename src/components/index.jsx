@@ -144,7 +144,7 @@ export const UserAvatar = ({ initial = "A", size = 30 }) => (
     background: "rgba(193,127,74,0.18)",
     border: "1px solid rgba(193,127,74,0.4)",
     display: "flex", alignItems: "center", justifyContent: "center",
-    borderRadius: "50%",
+    borderRadius: 2,
   }}>
     <span style={{
       fontFamily: T.display,
@@ -162,7 +162,7 @@ export const CountdownBadge = ({ days }) => (
     width: 40, height: 40,
     background: T.glass,
     border: `1px solid ${T.glassBorder}`,
-    borderRadius: 10,
+    borderRadius: 4,
     display: "flex", flexDirection: "column",
     alignItems: "center", justifyContent: "center", flexShrink: 0,
   }}>
@@ -240,7 +240,7 @@ export const Chip = ({ label, active, onClick }) => (
       fontFamily: T.mono,
       fontSize: 10, fontWeight: 700,
       letterSpacing: "0.06em", textTransform: "uppercase",
-      borderRadius: 30, cursor: "pointer",
+      borderRadius: 2, cursor: "pointer",
       whiteSpace: "nowrap",
     }}
   >
@@ -256,7 +256,7 @@ export const TagPill = ({ children }) => (
     color: T.faded,
     fontFamily: T.mono,
     fontSize: 9, fontWeight: 500,
-    padding: "2px 8px", borderRadius: 20,
+    padding: "2px 8px", borderRadius: 2,
     letterSpacing: "0.06em", textTransform: "uppercase",
   }}>
     {children}
@@ -272,7 +272,7 @@ export const MatchScore = ({ value, style = {} }) => (
     color: T.amber,
     fontFamily: T.mono,
     fontSize: 9, fontWeight: 700,
-    padding: "3px 8px", borderRadius: 20,
+    padding: "3px 8px", borderRadius: 2,
     letterSpacing: "0.06em",
     ...style,
   }}>
@@ -290,7 +290,7 @@ export const WishlistButton = ({ active, onClick, style = {} }) => (
       border: `1px solid ${active ? T.amber : T.glassBorder}`,
       background: active ? "rgba(193,127,74,0.18)" : T.glass,
       display: "flex", alignItems: "center", justifyContent: "center",
-      cursor: "pointer", flexShrink: 0, borderRadius: "50%",
+      cursor: "pointer", flexShrink: 0, borderRadius: 2,
       ...style,
     }}
   >

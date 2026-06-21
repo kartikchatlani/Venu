@@ -214,7 +214,7 @@ export const TicketStub = ({
     style={{
       background: "rgba(244,239,231,0.05)",
       border: "1px solid rgba(244,239,231,0.10)",
-      borderRadius: 16,
+      borderRadius: 4,
       position: "relative",
       padding: "12px 14px 12px 20px",
       cursor: onClick ? "pointer" : "default",

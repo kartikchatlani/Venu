@@ -128,7 +128,7 @@ const AllPresalesPage = ({ onClose }) => {
         <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 22 }}>
           <button onClick={onClose} style={{
             background: glass, border: `1px solid ${glassBorder}`,
-            borderRadius: 20, padding: "7px 14px", cursor: "pointer",
+            borderRadius: 2, padding: "7px 14px", cursor: "pointer",
             display: "flex", alignItems: "center", gap: 6,
           }}>
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke={P} strokeWidth="2"><path d="M15 18l-6-6 6-6"/></svg>
@@ -146,11 +146,12 @@ const AllPresalesPage = ({ onClose }) => {
         <div style={{ display: "flex", gap: 6, marginBottom: 20 }}>
           {["All", "Presale", "On Sale"].map((tab) => (
             <button key={tab} onClick={() => setFilter(tab)} style={{
-              padding: "7px 16px", borderRadius: 20, cursor: "pointer",
+              padding: "7px 16px", cursor: "pointer",
               fontFamily: M, fontSize: 9, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase",
               border: filter === tab ? "none" : `1px solid ${glassBorder}`,
               background: filter === tab ? A : glass,
               color: filter === tab ? "#14110F" : F,
+              borderRadius: 2,
             }}>{tab}</button>
           ))}
         </div>
@@ -172,7 +173,7 @@ const AllPresalesPage = ({ onClose }) => {
             <div key={i} style={{
               background: "linear-gradient(165deg, #1a1410, #0c0a08)",
               border: "1px solid rgba(244,239,231,0.09)",
-              borderRadius: 18, padding: "14px 16px", marginBottom: 10,
+              borderRadius: 4, padding: "14px 16px", marginBottom: 10,
               boxShadow: "0 16px 36px -16px rgba(20,17,15,0.6)",
               display: "flex", flexDirection: "column", gap: 12,
             }}>
@@ -182,7 +183,7 @@ const AllPresalesPage = ({ onClose }) => {
                 <div style={{
                   display: "inline-flex", alignItems: "center", gap: 6,
                   background: isLive ? A : E,
-                  borderRadius: 30, padding: "5px 10px",
+                  borderRadius: 2, padding: "5px 10px",
                 }}>
                   <div style={{ width: 5, height: 5, borderRadius: "50%", background: "#fff", animation: "pulse 1.5s ease-in-out infinite" }} />
                   <span style={{ fontFamily: M, fontSize: 9, fontWeight: 700, color: "#fff", textTransform: "uppercase", letterSpacing: "0.12em" }}>
@@ -200,7 +201,7 @@ const AllPresalesPage = ({ onClose }) => {
               {/* Row 2: Thumbnail + artist info + match chip */}
               <div style={{ display: "flex", alignItems: "flex-start", gap: 12 }}>
                 <div style={{
-                  width: 58, height: 58, borderRadius: 12, flexShrink: 0,
+                  width: 58, height: 58, borderRadius: 4, flexShrink: 0,
                   overflow: "hidden", position: "relative",
                   boxShadow: "0 0 0 1px rgba(244,239,231,0.1)",
                   background: "repeating-linear-gradient(135deg, #2a221a 0 10px, #201913 10px 20px)",
@@ -221,14 +222,14 @@ const AllPresalesPage = ({ onClose }) => {
                 <div style={{
                   fontFamily: M, fontSize: 9, fontWeight: 700, color: A,
                   background: "rgba(193,127,74,0.14)", border: "1px solid rgba(193,127,74,0.32)",
-                  padding: "4px 8px", borderRadius: 20, flexShrink: 0,
+                  padding: "4px 8px", borderRadius: 2, flexShrink: 0,
                 }}>♫ {p.match}%</div>
               </div>
 
               {/* Row 3: Presale moment block */}
               <div style={{
                 background: "rgba(244,239,231,0.04)", border: "1px solid rgba(244,239,231,0.08)",
-                borderRadius: 12, padding: "11px 14px",
+                borderRadius: 4, padding: "11px 14px",
                 display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10,
               }}>
                 <div>
@@ -249,7 +250,7 @@ const AllPresalesPage = ({ onClose }) => {
                 {isLive ? (
                   <a href={p.ticketUrl || "#"} style={{
                     display: "flex", alignItems: "center", gap: 6, flexShrink: 0,
-                    background: A, color: "#0c0a08", borderRadius: 30,
+                    background: A, color: "#0c0a08", borderRadius: 2,
                     padding: "9px 13px", textDecoration: "none",
                     fontFamily: M, fontSize: 9, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em",
                     boxShadow: "0 0 16px rgba(193,127,74,0.4)",
@@ -263,7 +264,7 @@ const AllPresalesPage = ({ onClose }) => {
                     background: hasReminder ? "transparent" : A,
                     color: hasReminder ? A : "#0c0a08",
                     border: hasReminder ? `1px solid ${A}` : "none",
-                    borderRadius: 30, padding: "9px 13px", cursor: "pointer",
+                    borderRadius: 2, padding: "9px 13px", cursor: "pointer",
                     fontFamily: M, fontSize: 9, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em",
                     boxShadow: hasReminder ? "none" : "0 0 16px rgba(193,127,74,0.4)",
                   }}>
@@ -310,7 +311,7 @@ const Waveform = () => (
   </div>
 );
 
-const Home = ({ savedEvents = [], savedLoading = false, onOpenNotifs, session }) => {
+const Home = ({ savedEvents = [], savedLoading = false, onOpenNotifs, session, wishlistIds = new Set(), toggleWishlist }) => {
   const [wishlisted, setWishlisted] = useState({});
   const [marqPaused, setMarqPaused] = useState(false);
   const [showPresales, setShowPresales] = useState(false);
@@ -352,7 +353,7 @@ const Home = ({ savedEvents = [], savedLoading = false, onOpenNotifs, session })
         </div>
         <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
           <NotifBell onClick={onOpenNotifs} />
-          <div style={{ width: 30, height: 30, borderRadius: "50%", background: "rgba(193,127,74,0.18)", border: "1.5px solid rgba(193,127,74,0.4)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <div style={{ width: 30, height: 30, borderRadius: 2, background: "rgba(193,127,74,0.18)", border: "1.5px solid rgba(193,127,74,0.4)", display: "flex", alignItems: "center", justifyContent: "center" }}>
             <span style={{ fontFamily: D, fontSize: 13, fontWeight: 700, color: A }}>{initial}</span>
           </div>
         </div>
@@ -370,7 +371,7 @@ const Home = ({ savedEvents = [], savedLoading = false, onOpenNotifs, session })
 
       {/* ── Hero Card ────────────────────────────────────────── */}
       <div style={{
-        borderRadius: 22, overflow: "hidden", marginBottom: 26,
+        borderRadius: 4, overflow: "hidden", marginBottom: 26,
         animation: "breathe 5s ease-in-out infinite",
       }}>
         {/* Image area */}
@@ -391,10 +392,10 @@ const Home = ({ savedEvents = [], savedLoading = false, onOpenNotifs, session })
 
           {/* Tonight pill */}
           <div style={{ position: "absolute", top: 14, left: 14 }}>
-            <div style={{ display: "inline-flex", alignItems: "center", gap: 6, background: "rgba(217,79,42,0.88)", borderRadius: 30, padding: "5px 12px" }}>
+            <div style={{ display: "inline-flex", alignItems: "center", gap: 6, background: "rgba(217,79,42,0.88)", borderRadius: 2, padding: "5px 12px" }}>
               <div style={{ width: 6, height: 6, borderRadius: "50%", background: "#fff", animation: "pulse 1.4s ease-in-out infinite" }} />
               <span style={{ fontFamily: M, fontSize: 9, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "#fff" }}>
-                Tonight · Doors 8PM
+                Tonight · {heroShow?.time || "8 PM"}
               </span>
             </div>
           </div>
@@ -414,7 +415,7 @@ const Home = ({ savedEvents = [], savedLoading = false, onOpenNotifs, session })
         <div style={{ background: "rgba(20,17,15,0.92)", padding: "14px 18px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
           <button style={{
             background: A, color: "#14110F", border: "none",
-            borderRadius: 30, padding: "10px 24px",
+            borderRadius: 2, padding: "10px 24px",
             fontFamily: M, fontSize: 10, fontWeight: 700,
             letterSpacing: "0.06em", textTransform: "uppercase", cursor: "pointer",
           }}>
@@ -422,11 +423,11 @@ const Home = ({ savedEvents = [], savedLoading = false, onOpenNotifs, session })
           </button>
           <div style={{ display: "flex", gap: 10 }}>
             <WishlistButton
-              active={wishlisted.hero}
-              onClick={() => setWishlisted(p => ({ ...p, hero: !p.hero }))}
+              active={heroShow ? wishlistIds.has(heroShow.id) : false}
+              onClick={() => heroShow && toggleWishlist({ ...heroShow, id: heroShow.event_id })}
             />
             <button style={{
-              width: 32, height: 32, borderRadius: "50%",
+              width: 32, height: 32, borderRadius: 2,
               border: "1px solid rgba(244,239,231,0.15)", background: "transparent",
               display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer",
             }}>
@@ -449,12 +450,12 @@ const Home = ({ savedEvents = [], savedLoading = false, onOpenNotifs, session })
             minWidth: 156, flexShrink: 0,
             background: "rgba(244,239,231,0.05)",
             border: "1px solid rgba(244,239,231,0.10)",
-            borderRadius: 18, padding: "14px 14px 12px",
+            borderRadius: 4, padding: "14px 14px 12px",
           }}>
             <div style={{ marginBottom: 8 }}>
               <span style={{
                 background: "rgba(193,127,74,0.14)", border: "1px solid rgba(193,127,74,0.28)",
-                borderRadius: 20, padding: "3px 8px",
+                borderRadius: 2, padding: "3px 8px",
                 fontFamily: M, fontSize: 8, fontWeight: 700,
                 letterSpacing: "0.06em", textTransform: "uppercase", color: A,
               }}>
@@ -564,7 +565,7 @@ const Home = ({ savedEvents = [], savedLoading = false, onOpenNotifs, session })
           padding: "12px 14px", marginBottom: 8,
           background: "rgba(244,239,231,0.04)",
           border: "1px solid rgba(244,239,231,0.08)",
-          borderRadius: 14,
+          borderRadius: 4,
           display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8,
         }}>
           <div style={{ flex: 1 }}>

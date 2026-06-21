@@ -41,7 +41,7 @@ const TypeIcon = ({ type, unread }) => {
 
   return (
     <div style={{
-      width: 38, height: 38, borderRadius: 10, flexShrink: 0,
+      width: 38, height: 38, borderRadius: 4, flexShrink: 0,
       background: bg, border,
       display: "flex", alignItems: "center", justifyContent: "center",
     }}>
@@ -116,7 +116,7 @@ export const NotificationsPanel = ({ isOpen, onClose }) => {
               </button>
             )}
             <button onClick={onClose} style={{
-              width: 32, height: 32, borderRadius: "50%",
+              width: 32, height: 32, borderRadius: 2,
               border: `1px solid ${glassBorder}`, background: glass,
               display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer",
             }}>

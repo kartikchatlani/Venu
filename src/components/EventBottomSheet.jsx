@@ -235,7 +235,7 @@ export const EventBottomSheet = ({ event, onClose, wishlistIds, goingIds, toggle
                 <a href={event.ticketUrl} target="_blank" rel="noopener noreferrer" style={{
                   flex: 1, height: 52, display: "flex", alignItems: "center", justifyContent: "space-between",
                   padding: "0 20px",
-                  background: "#14110F", borderRadius: 30, textDecoration: "none",
+                  background: "#14110F", borderRadius: 2, textDecoration: "none",
                   border: `1px solid ${glassBorder}`,
                 }}>
                   <span style={{ fontFamily: M, fontSize: 12, letterSpacing: "0.1em", textTransform: "uppercase", color: P, fontWeight: 700 }}>
@@ -248,7 +248,7 @@ export const EventBottomSheet = ({ event, onClose, wishlistIds, goingIds, toggle
               ) : (
                 <div style={{
                   flex: 1, height: 52, display: "flex", alignItems: "center", justifyContent: "center",
-                  background: glass, borderRadius: 30, border: `1px solid ${glassBorder}`,
+                  background: glass, borderRadius: 2, border: `1px solid ${glassBorder}`,
                 }}>
                   <span style={{ fontFamily: M, fontSize: 12, letterSpacing: "0.1em", textTransform: "uppercase", color: F }}>
                     TICKETS UNAVAILABLE

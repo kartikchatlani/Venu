@@ -12,7 +12,7 @@ const glassBorder = "rgba(244,239,231,0.12)";
 
 const inputStyle = {
   width: "100%", padding: "13px 16px",
-  borderRadius: 14,
+  borderRadius: 4,
   border: `1px solid ${glassBorder}`,
   background: glass,
   fontFamily: "'Inter', system-ui, sans-serif",
@@ -87,7 +87,7 @@ const Auth = () => {
             {error && <div style={{ fontFamily: "'Inter', sans-serif", fontSize: 12, color: "#D94F2A" }}>{error}</div>}
             {message && <div style={{ fontFamily: "'Inter', sans-serif", fontSize: 12, color: A }}>{message}</div>}
             <button type="submit" disabled={loading} style={{
-              marginTop: 6, padding: "13px 0", borderRadius: 14, border: "none",
+              marginTop: 6, padding: "13px 0", borderRadius: 2, border: "none",
               background: loading ? "rgba(193,127,74,0.3)" : A,
               color: "#14110F", fontFamily: "'Inter', sans-serif", fontSize: 14,
               fontWeight: 700, cursor: loading ? "not-allowed" : "pointer",
@@ -106,10 +106,10 @@ const Auth = () => {
       ) : (
         <>
           {/* Toggle */}
-          <div style={{ display: "flex", background: glass, border: `1px solid ${glassBorder}`, borderRadius: 14, padding: 4, marginBottom: 28 }}>
+          <div style={{ display: "flex", background: glass, border: `1px solid ${glassBorder}`, borderRadius: 4, padding: 4, marginBottom: 28 }}>
             {["login", "signup"].map((m) => (
               <button key={m} onClick={() => switchMode(m)} style={{
-                flex: 1, padding: "9px 0", borderRadius: 10, border: "none",
+                flex: 1, padding: "9px 0", borderRadius: 2, border: "none",
                 background: mode === m ? A : "transparent",
                 color: mode === m ? "#14110F" : F,
                 fontFamily: "'Inter', sans-serif", fontSize: 13, fontWeight: 600,
@@ -126,7 +126,7 @@ const Auth = () => {
             {error && <div style={{ fontFamily: "'Inter', sans-serif", fontSize: 12, color: "#D94F2A" }}>{error}</div>}
             {message && <div style={{ fontFamily: "'Inter', sans-serif", fontSize: 12, color: A }}>{message}</div>}
             <button type="submit" disabled={loading} style={{
-              marginTop: 6, padding: "13px 0", borderRadius: 14, border: "none",
+              marginTop: 6, padding: "13px 0", borderRadius: 2, border: "none",
               background: loading ? "rgba(193,127,74,0.3)" : A,
               color: "#14110F", fontFamily: "'Inter', sans-serif", fontSize: 14,
               fontWeight: 700, cursor: loading ? "not-allowed" : "pointer", transition: "all 0.2s",
