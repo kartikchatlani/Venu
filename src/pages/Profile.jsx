@@ -756,14 +756,13 @@ const Profile = ({ session, savedEvents = [] }) => {
           <div style={{ padding: "12px 14px 14px" }}>
             {/* Avatar stack */}
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
-              <div style={{ display: "flex" }}>
+              <div style={{ display: "flex", gap: 4 }}>
                 {crew.avatars.map((a, j) => (
                   <div key={j} style={{
                     width: 26, height: 26, borderRadius: 2,
                     background: `${a.color}22`, border: `1.5px solid ${a.color}88`,
                     display: "flex", alignItems: "center", justifyContent: "center",
                     fontFamily: D, fontSize: 10, fontWeight: 700, color: a.color,
-                    marginRight: -7, zIndex: 10 - j, position: "relative",
                   }}>{a.initial}</div>
                 ))}
               </div>
