@@ -164,3 +164,71 @@ flowchart TD
     App -->|"wishlistIds + toggleWishlist"| EBS
     App -->|"selectedEvent"| EBS
 ```
+
+---
+
+---
+
+# UI Screenshot Index
+
+A visual reference for every major screen and overlay. All screenshots taken from the live dev server at `localhost:5173`.
+
+---
+
+### Home Tab — `src/pages/Home.jsx`
+
+**Top** — Hero show with tonight pill, Get Tickets CTA, On Your Radar match cards
+
+![Home tab top](screenshots/tab-home.png)
+
+**Scrolled** — The Drop presale tickets (HScroll of TicketStubs) + Friends activity feed
+
+![Home tab scrolled](screenshots/tab-home-scroll.png)
+
+---
+
+### Explore Tab — `src/pages/Explore.jsx`
+
+Underline search, Genre Chip filters, Discover view (promoted card → Tonight → Weekend → Festivals)
+
+![Explore tab](screenshots/tab-explore.png)
+
+---
+
+### Guide Tab — `src/pages/Guide.jsx`
+
+Featured article, Artist Spotlight (ink background), The Signal live updates, More to Read cards
+
+![Guide tab](screenshots/tab-guide.png)
+
+---
+
+### Calendar Tab — `src/pages/Calendar.jsx`
+
+Month grid with wishlist/going/past dots, filter strip, event rows with amber left stripe
+
+![Calendar tab](screenshots/tab-calendar.png)
+
+---
+
+### Profile Tab — `src/pages/Profile.jsx`
+
+Identity card (square avatar, handle, bio), stats strip, Passport badges
+
+![Profile tab](screenshots/tab-profile.png)
+
+---
+
+### EventBottomSheet — `src/components/EventBottomSheet.jsx`
+
+Slides up over any tab when an event is selected. Shows artist, venue, date, lineup, and Get Tickets CTA. Wired to `useSavedEvents` for the wishlist toggle.
+
+![EventBottomSheet overlay](screenshots/overlay-bottom-sheet.png)
+
+---
+
+### NotificationsPanel — `src/components/NotificationsPanel.jsx`
+
+Slides in from the right when the bell icon is tapped. Rendered by `App.jsx` so it floats above all tabs.
+
+![Notifications panel](screenshots/overlay-notifications.png)
