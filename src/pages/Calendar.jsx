@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Screen } from "../components/index.jsx";
 import { MonoMeta } from "../components/marks/index.jsx";
+import { SetlistStep } from "../components/SetlistStep.jsx";
 
 const P = "#F4EFE7";
 const A = "#C17F4A";
@@ -26,6 +27,7 @@ const parseDate = (dateStr) => {
 
 const Calendar = ({ savedEvents = [], savedLoading: loading = false, toggleWishlist, toggleGoing }) => {
   const [filter, setFilter] = useState("all");
+  const [setlistEvent, setSetlistEvent] = useState(null);
 
   const now = new Date();
   const [currentYear, setCurrentYear] = useState(now.getFullYear());
@@ -72,9 +74,9 @@ const Calendar = ({ savedEvents = [], savedLoading: loading = false, toggleWishl
     const removeEvent = () => e.status === "going" ? toggleGoing(normalized) : toggleWishlist(normalized);
 
     return (
-      <div key={e.event_id} style={{ display: "flex", gap: 14, marginBottom: 14, opacity: isPast ? 0.55 : 1 }}>
-        {/* Date node */}
-        <div style={{ width: 56, flexShrink: 0, display: "flex", flexDirection: "column", alignItems: "center", paddingTop: 4 }}>
+      <div key={e.event_id} style={{ display: "flex", gap: 14, marginBottom: 14 }}>
+        {/* Date node — dimmed for past */}
+        <div style={{ width: 56, flexShrink: 0, display: "flex", flexDirection: "column", alignItems: "center", paddingTop: 4, opacity: isPast ? 0.55 : 1 }}>
           <div style={{ fontFamily: M, fontSize: 9, letterSpacing: "0.08em", textTransform: "uppercase", color: accentColor, marginBottom: 2 }}>
             {e.parsed.weekday}
           </div>
@@ -84,14 +86,9 @@ const Calendar = ({ savedEvents = [], savedLoading: loading = false, toggleWishl
           <div style={{ fontFamily: M, fontSize: 9, letterSpacing: "0.06em", textTransform: "uppercase", color: F }}>
             {e.parsed.monthShort}
           </div>
-          {/* Timeline dot */}
           <div style={{ marginTop: 8 }}>
             {isToday(e.date) ? (
-              <div style={{
-                width: 10, height: 10, borderRadius: "50%", background: A,
-                boxShadow: "0 0 0 3px rgba(193,127,74,0.25)",
-                animation: "dockglow 3s ease-in-out infinite",
-              }} />
+              <div style={{ width: 10, height: 10, borderRadius: "50%", background: A, boxShadow: "0 0 0 3px rgba(193,127,74,0.25)", animation: "dockglow 3s ease-in-out infinite" }} />
             ) : isPast ? (
               <div style={{ width: 8, height: 8, borderRadius: "50%", background: F }} />
             ) : (
@@ -104,48 +101,67 @@ const Calendar = ({ savedEvents = [], savedLoading: loading = false, toggleWishl
         <div style={{
           flex: 1, background: glass, border: `1px solid ${glassBorder}`,
           borderRadius: 16, padding: "12px 14px",
-          display: "flex", alignItems: "flex-start", gap: 10,
         }}>
-          <div style={{ flex: 1 }}>
-            <div style={{ fontFamily: D, fontSize: 16, fontWeight: 700, color: P, marginBottom: 3, lineHeight: "20px" }}>
-              {e.artist}
+          {/* Card content — dimmed for past */}
+          <div style={{ display: "flex", alignItems: "flex-start", gap: 10, opacity: isPast ? 0.55 : 1 }}>
+            <div style={{ flex: 1 }}>
+              <div style={{ fontFamily: D, fontSize: 16, fontWeight: 700, color: P, marginBottom: 3, lineHeight: "20px" }}>
+                {e.artist}
+              </div>
+              <div style={{ fontFamily: M, fontSize: 9, letterSpacing: "0.06em", textTransform: "uppercase", color: F, marginBottom: 8 }}>
+                {e.venue} · {e.time}
+              </div>
+              <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                <span style={{
+                  fontFamily: M, fontSize: 8, fontWeight: 700, letterSpacing: "0.08em",
+                  textTransform: "uppercase", padding: "3px 9px", borderRadius: 20,
+                  background: isPast ? "rgba(138,130,120,0.12)" : "rgba(193,127,74,0.14)",
+                  color: isPast ? F : A,
+                  border: `1px solid ${isPast ? "rgba(138,130,120,0.2)" : "rgba(193,127,74,0.3)"}`,
+                }}>
+                  {isPast
+                    ? e.status === "going" ? "✓ Went" : "Passed"
+                    : e.status === "going" ? "✓ Going" : "♡ Wishlist"}
+                </span>
+                {e.price && (
+                  <span style={{ fontFamily: M, fontSize: 10, color: A, fontWeight: 700 }}>{e.price}</span>
+                )}
+              </div>
             </div>
-            <div style={{ fontFamily: M, fontSize: 9, letterSpacing: "0.06em", textTransform: "uppercase", color: F, marginBottom: 8 }}>
-              {e.venue} · {e.time}
-            </div>
-            <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-              <span style={{
-                fontFamily: M, fontSize: 8, fontWeight: 700, letterSpacing: "0.08em",
-                textTransform: "uppercase", padding: "3px 9px", borderRadius: 20,
-                background: isPast ? "rgba(138,130,120,0.12)" : "rgba(193,127,74,0.14)",
-                color: isPast ? F : A,
-                border: `1px solid ${isPast ? "rgba(138,130,120,0.2)" : "rgba(193,127,74,0.3)"}`,
-              }}>
-                {isPast
-                  ? e.status === "going" ? "✓ Went" : "Passed"
-                  : e.status === "going" ? "✓ Going" : "♡ Wishlist"}
-              </span>
-              {e.price && (
-                <span style={{ fontFamily: M, fontSize: 10, color: A, fontWeight: 700 }}>{e.price}</span>
-              )}
-            </div>
+            <button onClick={removeEvent} style={{
+              flexShrink: 0, width: 24, height: 24, borderRadius: 8,
+              border: `1px solid ${glassBorder}`,
+              background: "transparent", cursor: "pointer",
+              display: "flex", alignItems: "center", justifyContent: "center",
+            }}>
+              <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke={F} strokeWidth="2.5">
+                <path d="M18 6L6 18M6 6l12 12"/>
+              </svg>
+            </button>
           </div>
-          <button onClick={removeEvent} style={{
-            flexShrink: 0, width: 24, height: 24, borderRadius: 8,
-            border: `1px solid ${glassBorder}`,
-            background: "transparent", cursor: "pointer",
-            display: "flex", alignItems: "center", justifyContent: "center",
-          }}>
-            <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke={F} strokeWidth="2.5">
-              <path d="M18 6L6 18M6 6l12 12"/>
-            </svg>
-          </button>
+
+          {/* Relive the Night — outside dimmed wrapper, always full opacity */}
+          {isPast && e.status === "going" && (
+            <button onClick={() => setSetlistEvent(e)} style={{
+              display: "inline-flex", alignItems: "center", gap: 6,
+              background: A, border: "none", cursor: "pointer",
+              borderRadius: 20, padding: "6px 14px", marginTop: 10,
+              boxShadow: "0 0 14px rgba(193,127,74,0.45)",
+            }}>
+              <svg width="9" height="9" viewBox="0 0 24 24" fill="#14110F"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+              <span style={{ fontFamily: M, fontSize: 8, fontWeight: 700, color: "#14110F", textTransform: "uppercase", letterSpacing: "0.08em" }}>
+                Relive the Night
+              </span>
+            </button>
+          )}
         </div>
       </div>
     );
   };
 
   return (
+    <>
+    {setlistEvent && <SetlistStep event={setlistEvent} onClose={() => setSetlistEvent(null)} />}
     <Screen>
       {/* ── Masthead ─────────────────────────────────────────── */}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 22 }}>
@@ -241,6 +257,7 @@ const Calendar = ({ savedEvents = [], savedLoading: loading = false, toggleWishl
         </>
       )}
     </Screen>
+    </>
   );
 };
 

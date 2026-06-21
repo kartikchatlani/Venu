@@ -361,7 +361,7 @@ const Home = ({ savedEvents = [], savedLoading = false, onOpenNotifs, session })
       {/* ── Tonight headline ─────────────────────────────────── */}
       <div style={{ marginBottom: 20 }}>
         <div style={{ fontFamily: D, fontSize: 48, fontWeight: 700, color: P, lineHeight: "48px", letterSpacing: "-0.02em" }}>
-          Tonight.
+          Your Stage.
         </div>
         <div style={{ fontFamily: M, fontSize: 10, letterSpacing: "0.06em", textTransform: "uppercase", color: F, marginTop: 8 }}>
           {weeklyPicks.length + 4} shows within 25 miles · {TODAY_LABEL}

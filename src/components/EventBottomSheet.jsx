@@ -20,7 +20,7 @@ const parseEventDate = (dateStr) => {
 
 const GlassBtn = ({ onClick, children }) => (
   <button onClick={onClick} style={{
-    width: 38, height: 38, borderRadius: 2,
+    width: 38, height: 38, borderRadius: "50%",
     background: "rgba(20,17,15,0.4)",
     backdropFilter: "blur(6px)", WebkitBackdropFilter: "blur(6px)",
     border: "1px solid rgba(244,239,231,0.18)",
@@ -43,6 +43,7 @@ const ActThumb = ({ img, size = 42 }) => (
 export const EventBottomSheet = ({ event, onClose, wishlistIds, goingIds, toggleWishlist, toggleGoing }) => {
   const isVisible = !!event;
   const isWishlisted = event ? wishlistIds.has(event.id) : false;
+  const isGoing = event ? goingIds.has(event.id) : false;
   const parsed = event ? parseEventDate(event.date) : null;
 
 
@@ -217,7 +218,7 @@ export const EventBottomSheet = ({ event, onClose, wishlistIds, goingIds, toggle
               {/* Wishlist toggle */}
               <button onClick={() => toggleWishlist(event)} style={{
                 width: 52, height: 52, flexShrink: 0,
-                borderRadius: 4, border: `1px solid ${isWishlisted ? A : glassBorder}`,
+                borderRadius: "50%", border: `1px solid ${isWishlisted ? A : glassBorder}`,
                 background: isWishlisted ? "rgba(193,127,74,0.12)" : glass,
                 display: "flex", alignItems: "center", justifyContent: "center",
                 cursor: "pointer",
@@ -227,6 +228,21 @@ export const EventBottomSheet = ({ event, onClose, wishlistIds, goingIds, toggle
                   stroke={isWishlisted ? A : P}
                   strokeWidth="1.5">
                   <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z" />
+                </svg>
+              </button>
+
+              {/* Going toggle */}
+              <button onClick={() => toggleGoing(event)} style={{
+                width: 52, height: 52, flexShrink: 0,
+                borderRadius: "50%", border: `1px solid ${isGoing ? "#5a9e6f" : glassBorder}`,
+                background: isGoing ? "rgba(90,158,111,0.14)" : glass,
+                display: "flex", alignItems: "center", justifyContent: "center",
+                cursor: "pointer",
+              }}>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+                  stroke={isGoing ? "#5a9e6f" : P}
+                  strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                  <polyline points="20 6 9 17 4 12"/>
                 </svg>
               </button>
 

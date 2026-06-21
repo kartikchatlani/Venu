@@ -304,6 +304,31 @@ export const WishlistButton = ({ active, onClick, style = {} }) => (
   </button>
 );
 
+// ── GoingButton ──────────────────────────────────────────────────────────────
+export const GoingButton = ({ active, onClick, style = {} }) => (
+  <button
+    onClick={onClick}
+    className="pressable"
+    style={{
+      width: 32, height: 32,
+      border: `1px solid ${active ? "#5a9e6f" : T.glassBorder}`,
+      background: active ? "rgba(90,158,111,0.18)" : T.glass,
+      display: "flex", alignItems: "center", justifyContent: "center",
+      cursor: "pointer", flexShrink: 0, borderRadius: "50%",
+      ...style,
+    }}
+  >
+    <svg width="13" height="13" viewBox="0 0 24 24"
+      fill="none"
+      stroke={active ? "#5a9e6f" : T.faded}
+      strokeWidth="2.5"
+      strokeLinecap="round" strokeLinejoin="round"
+    >
+      <polyline points="20 6 9 17 4 12"/>
+    </svg>
+  </button>
+);
+
 // ── TabBar (FloatingDock) ────────────────────────────────────────────────────
 // After Dark: centered glass pill, floating 22px above bottom, no labels.
 const DOCK_DEFS = [

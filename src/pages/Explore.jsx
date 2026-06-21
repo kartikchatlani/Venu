@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Screen, HScroll, Chip, WishlistButton } from "../components/index.jsx";
+import { Screen, HScroll, Chip, WishlistButton, GoingButton } from "../components/index.jsx";
 import { Kicker, MonoMeta } from "../components/marks/index.jsx";
 import { VenuMap } from "../components/VenuMap.jsx";
 import { genres, promotedEvent, festivals, mapVenues } from "../data/index.jsx";
@@ -24,7 +24,7 @@ const PlaceholderImg = ({ height = 130 }) => (
   </div>
 );
 
-const Explore = ({ wishlistIds, toggleWishlist, onSelectEvent }) => {
+const Explore = ({ wishlistIds, goingIds, toggleWishlist, toggleGoing, onSelectEvent }) => {
   const [activeGenre, setActiveGenre] = useState("All");
   const [viewMode, setViewMode] = useState("discover");
   const [focusVenueIdx, setFocusVenueIdx] = useState(null);
@@ -177,10 +177,16 @@ const Explore = ({ wishlistIds, toggleWishlist, onSelectEvent }) => {
               </div>
               <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 6, flexShrink: 0 }}>
                 <span style={{ fontFamily: M, fontSize: 11, color: A, fontWeight: 700 }}>{s.price || ""}</span>
-                <WishlistButton
-                  active={wishlistIds.has(s.id)}
-                  onClick={(e) => { e.stopPropagation(); toggleWishlist(s); }}
-                />
+                <div style={{ display: "flex", gap: 6 }}>
+                  <GoingButton
+                    active={goingIds.has(s.id)}
+                    onClick={(e) => { e.stopPropagation(); toggleGoing(s); }}
+                  />
+                  <WishlistButton
+                    active={wishlistIds.has(s.id)}
+                    onClick={(e) => { e.stopPropagation(); toggleWishlist(s); }}
+                  />
+                </div>
               </div>
             </div>
           ))}
@@ -225,6 +231,10 @@ const Explore = ({ wishlistIds, toggleWishlist, onSelectEvent }) => {
                         <span style={{ fontFamily: M, fontSize: 11, color: A, fontWeight: 700 }}>
                           {filteredWeekend[0].price || ""}
                         </span>
+                        <GoingButton
+                          active={goingIds.has(filteredWeekend[0].id)}
+                          onClick={(e) => { e.stopPropagation(); toggleGoing(filteredWeekend[0]); }}
+                        />
                         <WishlistButton
                           active={wishlistIds.has(filteredWeekend[0].id)}
                           onClick={(e) => { e.stopPropagation(); toggleWishlist(filteredWeekend[0]); }}

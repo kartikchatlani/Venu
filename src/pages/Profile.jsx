@@ -3,7 +3,7 @@ import { Screen, HScroll } from "../components/index.jsx";
 import { MonoMeta } from "../components/marks/index.jsx";
 import {
   userProfile, passportStats, badges, crews,
-  favoriteArtists, favoriteVenues, recentReviews,
+  favoriteArtists, recentReviews,
   friendsList, friendSearchResults,
 } from "../data/index.jsx";
 
@@ -487,9 +487,19 @@ const CrewDetailView = ({ crew, onClose }) => {
 
 // ── Main Profile ─────────────────────────────────────────────────────────────
 
+// Hardcoded fallback shows for when the user has no real saved events yet
+const FALLBACK_SHOWS = [
+  { event_id: "fb-1", artist: "Khruangbin", venue: "Stubb's Outdoor", date: "2026-04-12", status: "going" },
+  { event_id: "fb-2", artist: "Toro y Moi",  venue: "Mohawk",         date: "2026-04-18", status: "going" },
+];
+const PHOTO_LIMIT = 8;
+
 const Profile = ({ session, savedEvents = [] }) => {
   const [view, setView] = useState("profile");
   const [selectedCrew, setSelectedCrew] = useState(null);
+  // showPhotos: { [event_id]: [dataUrl, ...] }
+  const [showPhotos, setShowPhotos] = useState({});
+  const [showAllShows, setShowAllShows] = useState(false);
   const [showReviewForm, setShowReviewForm] = useState(false);
   const [reviewArtist, setReviewArtist] = useState("");
   const [reviewStars, setReviewStars] = useState(0);
@@ -690,7 +700,31 @@ const Profile = ({ session, savedEvents = [] }) => {
         ))}
       </div>
 
+      {/* ── Favorite Artists ─────────────────────────────────── */}
+      <div style={{ height: 1, background: glassBorder, margin: "24px 0" }} />
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 14 }}>
+        <div style={{ fontFamily: D, fontSize: 22, fontWeight: 700, color: P }}>Favorite Artists</div>
+        <span style={{ fontFamily: M, fontSize: 9, letterSpacing: "0.08em", textTransform: "uppercase", color: A, cursor: "pointer" }}>Edit →</span>
+      </div>
+      <HScroll gap={14} style={{ marginBottom: 8 }}>
+        {favoriteArtists.map((a, i) => (
+          <div key={i} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6, minWidth: 70, flexShrink: 0 }}>
+            <div style={{
+              width: 64, height: 64, borderRadius: "50%",
+              background: "repeating-linear-gradient(135deg, #2a221a, #2a221a 6px, #201913 6px, #201913 12px)",
+              border: "1px solid rgba(193,127,74,0.3)",
+              overflow: "hidden",
+            }}>
+              <img src={a.img} alt="" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+            </div>
+            <div style={{ fontFamily: D, fontSize: 11, fontWeight: 700, color: P, textAlign: "center", maxWidth: 70, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{a.name}</div>
+            <div style={{ fontFamily: M, fontSize: 8, color: F, textTransform: "uppercase", letterSpacing: "0.06em" }}>Seen {a.seen}×</div>
+          </div>
+        ))}
+      </HScroll>
+
       {/* ── Passport badges ──────────────────────────────────── */}
+      <div style={{ height: 1, background: glassBorder, margin: "24px 0" }} />
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 14 }}>
         <div style={{ fontFamily: D, fontSize: 22, fontWeight: 700, color: P }}>Passport</div>
         <span style={{ fontFamily: M, fontSize: 9, letterSpacing: "0.08em", textTransform: "uppercase", color: A, cursor: "pointer" }}>Full History →</span>
@@ -726,6 +760,77 @@ const Profile = ({ session, savedEvents = [] }) => {
           ))}
         </div>
       </div>
+
+      {/* ── Your Shows ────────────────────────────────────────── */}
+      <div style={{ height: 1, background: glassBorder, margin: "22px 0" }} />
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
+        <div style={{ fontFamily: D, fontSize: 22, fontWeight: 700, color: P }}>Your Shows</div>
+        <span
+          onClick={() => setShowAllShows((v) => !v)}
+          style={{ fontFamily: M, fontSize: 9, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: A, cursor: "pointer" }}
+        >
+          {showAllShows ? "Show Less ↑" : "All Shows →"}
+        </span>
+      </div>
+      {(goingEvents.length > 0 ? goingEvents : FALLBACK_SHOWS).slice(0, showAllShows ? undefined : 3).map((e) => {
+        const photos = showPhotos[e.event_id] || [];
+        const canAdd = photos.length < PHOTO_LIMIT;
+        const inputId = `photo-input-${e.event_id}`;
+        const parsed = e.date ? new Date(e.date + "T12:00:00").toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : null;
+
+        const handlePhotoAdd = (evt) => {
+          const files = Array.from(evt.target.files || []);
+          files.slice(0, PHOTO_LIMIT - photos.length).forEach((file) => {
+            const reader = new FileReader();
+            reader.onload = (ev) => {
+              setShowPhotos((prev) => ({
+                ...prev,
+                [e.event_id]: [...(prev[e.event_id] || []), ev.target.result].slice(0, PHOTO_LIMIT),
+              }));
+            };
+            reader.readAsDataURL(file);
+          });
+          evt.target.value = "";
+        };
+
+        return (
+          <div key={e.event_id} style={{
+            background: glass, border: `1px solid ${glassBorder}`,
+            borderRadius: 16, padding: "14px 14px 12px", marginBottom: 12,
+          }}>
+            <div style={{ marginBottom: 12 }}>
+              <div style={{ fontFamily: D, fontSize: 17, fontWeight: 700, color: P, marginBottom: 3 }}>{e.artist}</div>
+              <div style={{ fontFamily: M, fontSize: 9, color: F, textTransform: "uppercase", letterSpacing: "0.06em" }}>
+                {e.venue}{parsed ? ` · ${parsed}` : ""}
+              </div>
+            </div>
+            <div style={{ display: "flex", gap: 8, overflowX: "auto", scrollbarWidth: "none" }}>
+              {photos.map((src, i) => (
+                <div key={i} style={{ width: 72, height: 72, borderRadius: 10, flexShrink: 0, overflow: "hidden", position: "relative", border: `1px solid ${glassBorder}` }}>
+                  <img src={src} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                  <button onClick={() => setShowPhotos((prev) => ({ ...prev, [e.event_id]: prev[e.event_id].filter((_, j) => j !== i) }))} style={{ position: "absolute", top: 3, right: 3, width: 16, height: 16, borderRadius: "50%", background: "rgba(12,10,8,0.75)", border: "none", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}>
+                    <svg width="7" height="7" viewBox="0 0 24 24" fill="none" stroke={P} strokeWidth="3"><path d="M18 6L6 18M6 6l12 12"/></svg>
+                  </button>
+                </div>
+              ))}
+              {canAdd && (
+                <>
+                  <input id={inputId} type="file" accept="image/*" multiple onChange={handlePhotoAdd} style={{ display: "none" }} />
+                  <label htmlFor={inputId} style={{ width: 72, height: 72, borderRadius: 10, flexShrink: 0, border: `1px dashed rgba(193,127,74,0.4)`, background: "rgba(193,127,74,0.05)", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 4, cursor: "pointer" }}>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={A} strokeWidth="1.8"><path d="M12 5v14M5 12h14"/></svg>
+                    <span style={{ fontFamily: M, fontSize: 7, color: A, textTransform: "uppercase", letterSpacing: "0.08em" }}>{photos.length === 0 ? "Add" : `${photos.length}/${PHOTO_LIMIT}`}</span>
+                  </label>
+                </>
+              )}
+              {!canAdd && (
+                <div style={{ display: "flex", alignItems: "center" }}>
+                  <span style={{ fontFamily: M, fontSize: 8, color: F, textTransform: "uppercase", letterSpacing: "0.06em", paddingLeft: 4 }}>{PHOTO_LIMIT}/{PHOTO_LIMIT}</span>
+                </div>
+              )}
+            </div>
+          </div>
+        );
+      })}
 
       {/* ── Crews ─────────────────────────────────────────────── */}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 14 }}>
@@ -791,47 +896,6 @@ const Profile = ({ session, savedEvents = [] }) => {
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 5v14M5 12h14"/></svg>
         Create New Crew
       </button>
-
-      {/* ── Favorite Artists ─────────────────────────────────── */}
-      <div style={{ height: 1, background: glassBorder, margin: "24px 0" }} />
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 14 }}>
-        <div style={{ fontFamily: D, fontSize: 22, fontWeight: 700, color: P }}>Favorite Artists</div>
-        <span style={{ fontFamily: M, fontSize: 9, letterSpacing: "0.08em", textTransform: "uppercase", color: A, cursor: "pointer" }}>Edit →</span>
-      </div>
-      <HScroll gap={14} style={{ marginBottom: 8 }}>
-        {favoriteArtists.map((a, i) => (
-          <div key={i} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6, minWidth: 70, flexShrink: 0 }}>
-            <div style={{
-              width: 64, height: 64, borderRadius: "50%",
-              background: "repeating-linear-gradient(135deg, #2a221a, #2a221a 6px, #201913 6px, #201913 12px)",
-              border: "1px solid rgba(193,127,74,0.3)",
-              overflow: "hidden",
-            }}>
-              <img src={a.img} alt="" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
-            </div>
-            <div style={{ fontFamily: D, fontSize: 11, fontWeight: 700, color: P, textAlign: "center", maxWidth: 70, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{a.name}</div>
-            <div style={{ fontFamily: M, fontSize: 8, color: F, textTransform: "uppercase", letterSpacing: "0.06em" }}>Seen {a.seen}×</div>
-          </div>
-        ))}
-      </HScroll>
-
-      {/* ── Favorite Venues ───────────────────────────────────── */}
-      <div style={{ height: 1, background: glassBorder, margin: "22px 0" }} />
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 14 }}>
-        <div style={{ fontFamily: D, fontSize: 22, fontWeight: 700, color: P }}>Favorite Venues</div>
-        <span style={{ fontFamily: M, fontSize: 9, letterSpacing: "0.08em", textTransform: "uppercase", color: A, cursor: "pointer" }}>All →</span>
-      </div>
-      <HScroll gap={14} style={{ marginBottom: 8 }}>
-        {favoriteVenues.map((v, i) => (
-          <div key={i} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6, minWidth: 70, flexShrink: 0 }}>
-            <div style={{ width: 64, height: 64, borderRadius: 14, background: "repeating-linear-gradient(135deg, #2a221a, #2a221a 6px, #201913 6px, #201913 12px)", overflow: "hidden", border: `1px solid ${glassBorder}` }}>
-              <img src={v.img} alt="" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
-            </div>
-            <div style={{ fontFamily: D, fontSize: 11, fontWeight: 700, color: P, textAlign: "center", maxWidth: 70, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{v.name}</div>
-            <div style={{ fontFamily: M, fontSize: 8, color: F, textTransform: "uppercase", letterSpacing: "0.06em" }}>{v.shows} shows</div>
-          </div>
-        ))}
-      </HScroll>
 
       {/* ── Reviews ──────────────────────────────────────────── */}
       <div style={{ height: 1, background: glassBorder, margin: "22px 0" }} />
