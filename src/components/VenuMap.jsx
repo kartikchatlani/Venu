@@ -286,16 +286,16 @@ export const VenuMap = ({ venues, tonightShows = [], wishlistIds = new Set(), on
   }, []);
 
   return (
-    <div style={{ borderRadius: 16, overflow: "hidden", border: `1px solid ${colors.border}`, marginBottom: 16, position: "relative", isolation: "isolate" }}>
+    <div style={{ borderRadius: 4, overflow: "hidden", border: `1px solid ${colors.border}`, marginBottom: 16, position: "relative", isolation: "isolate" }}>
       <div ref={containerRef} style={{ height: 420, width: "100%" }} />
 
       {/* Location pill */}
-      <div style={{ position: "absolute", top: 12, left: 12, zIndex: 1000, display: "flex", alignItems: "center", gap: 6, background: "rgba(250,246,241,0.92)", backdropFilter: "blur(8px)", padding: "7px 14px", borderRadius: 20, border: `1px solid ${colors.border}`, fontSize: 12, fontWeight: 600, color: colors.ink, pointerEvents: "none" }}>
+      <div style={{ position: "absolute", top: 12, left: 12, zIndex: 1000, display: "flex", alignItems: "center", gap: 6, background: "rgba(250,246,241,0.92)", backdropFilter: "blur(8px)", padding: "7px 14px", borderRadius: 2, border: `1px solid ${colors.border}`, fontSize: 12, fontWeight: 600, color: colors.ink, pointerEvents: "none" }}>
         <div style={{ width: 6, height: 6, borderRadius: "50%", background: colors.sage }} />Austin, TX
       </div>
 
       {/* Legend */}
-      <div style={{ position: "absolute", bottom: 12, left: 12, zIndex: 1000, display: "flex", gap: 10, background: "rgba(250,246,241,0.92)", backdropFilter: "blur(8px)", padding: "8px 14px", borderRadius: 10, border: `1px solid ${colors.border}`, pointerEvents: "none" }}>
+      <div style={{ position: "absolute", bottom: 12, left: 12, zIndex: 1000, display: "flex", gap: 10, background: "rgba(250,246,241,0.92)", backdropFilter: "blur(8px)", padding: "8px 14px", borderRadius: 4, border: `1px solid ${colors.border}`, pointerEvents: "none" }}>
         {[{ color: colors.amber, label: "Show Tonight" }, { color: "#B0A090", label: "Venue" }, { color: colors.terracotta, label: "Festival" }].map(({ color, label }) => (
           <div key={label} style={{ display: "flex", alignItems: "center", gap: 5, fontFamily: fonts.mono, fontSize: 8, letterSpacing: 1, textTransform: "uppercase", color: colors.brownMid }}>
             <div style={{ width: 8, height: 8, borderRadius: "50%", background: color }} />{label}

@@ -73,7 +73,7 @@ export const Screen = ({ children, noPad = false }) => (
   <div style={{
     position: "absolute", top: 0, left: 0, right: 0, bottom: 0,
     overflowY: "auto", overflowX: "hidden",
-    padding: noPad ? 0 : "52px 22px 110px",
+    padding: noPad ? 0 : "52px 22px 72px",
     background: "transparent",
     scrollbarWidth: "none",
   }}>
@@ -144,7 +144,7 @@ export const UserAvatar = ({ initial = "A", size = 30 }) => (
     background: "rgba(193,127,74,0.18)",
     border: "1px solid rgba(193,127,74,0.4)",
     display: "flex", alignItems: "center", justifyContent: "center",
-    borderRadius: "50%",
+    borderRadius: 2,
   }}>
     <span style={{
       fontFamily: T.display,
@@ -162,7 +162,7 @@ export const CountdownBadge = ({ days }) => (
     width: 40, height: 40,
     background: T.glass,
     border: `1px solid ${T.glassBorder}`,
-    borderRadius: 10,
+    borderRadius: 4,
     display: "flex", flexDirection: "column",
     alignItems: "center", justifyContent: "center", flexShrink: 0,
   }}>
@@ -240,7 +240,7 @@ export const Chip = ({ label, active, onClick }) => (
       fontFamily: T.mono,
       fontSize: 10, fontWeight: 700,
       letterSpacing: "0.06em", textTransform: "uppercase",
-      borderRadius: 30, cursor: "pointer",
+      borderRadius: 2, cursor: "pointer",
       whiteSpace: "nowrap",
     }}
   >
@@ -256,7 +256,7 @@ export const TagPill = ({ children }) => (
     color: T.faded,
     fontFamily: T.mono,
     fontSize: 9, fontWeight: 500,
-    padding: "2px 8px", borderRadius: 20,
+    padding: "2px 8px", borderRadius: 2,
     letterSpacing: "0.06em", textTransform: "uppercase",
   }}>
     {children}
@@ -272,7 +272,7 @@ export const MatchScore = ({ value, style = {} }) => (
     color: T.amber,
     fontFamily: T.mono,
     fontSize: 9, fontWeight: 700,
-    padding: "3px 8px", borderRadius: 20,
+    padding: "3px 8px", borderRadius: 2,
     letterSpacing: "0.06em",
     ...style,
   }}>
@@ -290,7 +290,7 @@ export const WishlistButton = ({ active, onClick, style = {} }) => (
       border: `1px solid ${active ? T.amber : T.glassBorder}`,
       background: active ? "rgba(193,127,74,0.18)" : T.glass,
       display: "flex", alignItems: "center", justifyContent: "center",
-      cursor: "pointer", flexShrink: 0, borderRadius: "50%",
+      cursor: "pointer", flexShrink: 0, borderRadius: 2,
       ...style,
     }}
   >
@@ -357,21 +357,17 @@ const DOCK_DEFS = [
 export const TabBar = ({ activeTab, onTabChange }) => (
   <div style={{
     position: "absolute",
-    bottom: 22,
-    left: "50%",
-    transform: "translateX(-50%)",
-    background: "rgba(28,23,18,0.80)",
-    backdropFilter: "blur(18px)",
-    WebkitBackdropFilter: "blur(18px)",
-    border: "1px solid rgba(244,239,231,0.10)",
-    borderRadius: 32,
-    padding: "6px 8px",
+    bottom: 0, left: 0, right: 0,
+    background: "rgba(20,17,14,0.96)",
+    backdropFilter: "blur(20px)",
+    WebkitBackdropFilter: "blur(20px)",
+    borderTop: "1px solid rgba(244,239,231,0.07)",
+    paddingTop: 8,
+    paddingBottom: 18,
     display: "flex",
+    justifyContent: "space-around",
     alignItems: "center",
-    gap: 2,
-    boxShadow: "0 14px 44px rgba(0,0,0,0.6), 0 0 0 1px rgba(0,0,0,0.4)",
     zIndex: 90,
-    whiteSpace: "nowrap",
   }}>
     {DOCK_DEFS.map(({ id, icon }) => {
       const isActive = activeTab === id;
@@ -381,23 +377,30 @@ export const TabBar = ({ activeTab, onTabChange }) => (
           onClick={() => onTabChange(id)}
           className="pressable"
           style={{
-            width: 52, height: 52,
-            display: "flex", alignItems: "center", justifyContent: "center",
-            background: isActive ? "rgba(193,127,74,0.16)" : "transparent",
-            borderRadius: 24,
+            width: 44, height: 36,
+            display: "flex", flexDirection: "column",
+            alignItems: "center", justifyContent: "center",
+            gap: 5,
+            background: "transparent",
             border: "none",
             cursor: "pointer",
-            animation: isActive ? "dockglow 3s ease-in-out infinite" : "none",
-            transition: "background 0.2s ease",
           }}
         >
+          {/* Active indicator line above icon */}
+          <div style={{
+            width: 18, height: 2,
+            borderRadius: 1,
+            background: isActive ? "#C17F4A" : "transparent",
+            transition: "background 0.2s ease",
+          }} />
           <svg
-            width="22" height="22" viewBox="0 0 24 24"
+            width="20" height="20" viewBox="0 0 24 24"
             fill="none"
             stroke={isActive ? "#C17F4A" : "#8A8278"}
             strokeWidth={isActive ? "1.75" : "1.25"}
             strokeLinecap="round"
             strokeLinejoin="round"
+            style={{ transition: "stroke 0.2s ease" }}
           >
             {icon}
           </svg>

@@ -68,8 +68,9 @@ const Explore = ({ wishlistIds, goingIds, toggleWishlist, toggleGoing, onSelectE
       {/* ── Glass search bar ─────────────────────────────────── */}
       <div style={{
         display: "flex", alignItems: "center", gap: 10,
-        background: glass, border: `1px solid ${glassBorder}`,
-        borderRadius: 30, padding: "10px 16px", marginBottom: 16,
+        background: "transparent", border: "none",
+        borderBottom: "1px solid rgba(244,239,231,0.2)",
+        padding: "10px 0", marginBottom: 16,
       }}>
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={F} strokeWidth="1.5">
           <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
@@ -92,14 +93,15 @@ const Explore = ({ wishlistIds, goingIds, toggleWishlist, toggleGoing, onSelectE
       </HScroll>
 
       {/* ── View toggle ──────────────────────────────────────── */}
-      <div style={{ display: "flex", gap: 4, marginBottom: 24, background: glass, border: `1px solid ${glassBorder}`, borderRadius: 30, padding: "4px" }}>
+      <div style={{ display: "flex", gap: 4, marginBottom: 24, background: glass, border: `1px solid ${glassBorder}`, borderRadius: 4, padding: "4px" }}>
         {[["discover", "Discover"], ["map", "Map"]].map(([mode, label]) => (
           <button key={mode} onClick={() => setViewMode(mode)} style={{
             flex: 1, padding: "7px 0", border: "none", cursor: "pointer",
             fontFamily: M, fontSize: 10, fontWeight: 700, letterSpacing: "0.08em",
-            textTransform: "uppercase", borderRadius: 26,
+            textTransform: "uppercase", borderRadius: 2,
             background: viewMode === mode ? A : "transparent",
             color: viewMode === mode ? "#14110F" : F,
+            borderRadius: 2,
             transition: "all 0.2s ease",
           }}>
             {label}
@@ -110,10 +112,10 @@ const Explore = ({ wishlistIds, goingIds, toggleWishlist, toggleGoing, onSelectE
       {viewMode === "discover" ? (
         <>
           {/* ── Promoted card ─────────────────────────────────── */}
-          <div style={{ borderRadius: 18, overflow: "hidden", marginBottom: 4, position: "relative" }}>
+          <div style={{ borderRadius: 4, overflow: "hidden", marginBottom: 4, position: "relative" }}>
             <PlaceholderImg height={150} />
             <div style={{ position: "absolute", top: 12, left: 14 }}>
-              <div style={{ display: "inline-flex", alignItems: "center", gap: 5, background: "rgba(193,127,74,0.9)", borderRadius: 20, padding: "4px 10px" }}>
+              <div style={{ display: "inline-flex", alignItems: "center", gap: 5, background: "rgba(193,127,74,0.9)", borderRadius: 2, padding: "4px 10px" }}>
                 <span style={{ fontFamily: M, fontSize: 8, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "#14110F" }}>
                   Promoted · {promotedEvent.date}
                 </span>
@@ -159,10 +161,10 @@ const Explore = ({ wishlistIds, goingIds, toggleWishlist, toggleGoing, onSelectE
               display: "flex", alignItems: "center", gap: 12,
               padding: "12px 14px", marginBottom: 8,
               background: glass, border: `1px solid ${glassBorder}`,
-              borderRadius: 16, cursor: "pointer",
+              borderRadius: 4, cursor: "pointer",
             }}>
               <div style={{
-                width: 52, height: 52, borderRadius: 12, flexShrink: 0, overflow: "hidden", position: "relative",
+                width: 52, height: 52, borderRadius: 4, flexShrink: 0, overflow: "hidden", position: "relative",
                 background: "repeating-linear-gradient(135deg, #2a221a, #2a221a 6px, #201913 6px, #201913 12px)",
               }}>
                 {s.img && <img src={s.img} alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />}
@@ -208,7 +210,7 @@ const Explore = ({ wishlistIds, goingIds, toggleWishlist, toggleGoing, onSelectE
               {filteredWeekend[0] && (
                 <div onClick={() => onSelectEvent(filteredWeekend[0])} style={{
                   background: glass, border: `1px solid ${glassBorder}`,
-                  borderRadius: 18, overflow: "hidden", marginBottom: 12, cursor: "pointer",
+                  borderRadius: 4, overflow: "hidden", marginBottom: 12, cursor: "pointer",
                 }}>
                   <div style={{ position: "relative", height: 120, background: "repeating-linear-gradient(135deg, #2a221a, #2a221a 10px, #201913 10px, #201913 20px)", overflow: "hidden" }}>
                     {filteredWeekend[0].img && (
@@ -249,7 +251,7 @@ const Explore = ({ wishlistIds, goingIds, toggleWishlist, toggleGoing, onSelectE
                   {filteredWeekend.slice(1).map((w) => (
                     <div key={w.id} onClick={() => onSelectEvent(w)} style={{
                       minWidth: 190, background: glass, border: `1px solid ${glassBorder}`,
-                      borderRadius: 16, overflow: "hidden", flexShrink: 0, cursor: "pointer",
+                      borderRadius: 4, overflow: "hidden", flexShrink: 0, cursor: "pointer",
                     }}>
                       <div style={{ height: 90, background: "repeating-linear-gradient(135deg, #2a221a, #2a221a 8px, #201913 8px, #201913 16px)", position: "relative", overflow: "hidden" }}>
                         {w.img && <img src={w.img} alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", opacity: 0.85 }} />}
@@ -284,7 +286,7 @@ const Explore = ({ wishlistIds, goingIds, toggleWishlist, toggleGoing, onSelectE
           {festivals.map((f, i) => (
             <div key={i} style={{
               background: glass, border: `1px solid ${glassBorder}`,
-              borderRadius: 18, overflow: "hidden", marginBottom: 12,
+              borderRadius: 4, overflow: "hidden", marginBottom: 12,
             }}>
               <div style={{ position: "relative", height: 90, background: "repeating-linear-gradient(135deg, #2a221a, #2a221a 8px, #201913 8px, #201913 16px)" }}>
                 {f.img && (
@@ -299,7 +301,7 @@ const Explore = ({ wishlistIds, goingIds, toggleWishlist, toggleGoing, onSelectE
                   <span style={{
                     fontFamily: M, fontSize: 9, fontWeight: 700, color: A,
                     background: "rgba(193,127,74,0.15)", border: "1px solid rgba(193,127,74,0.3)",
-                    padding: "3px 8px", borderRadius: 20, letterSpacing: "0.06em",
+                    padding: "3px 8px", borderRadius: 2, letterSpacing: "0.06em",
                   }}>
                     ♫ {f.match}%
                   </span>
@@ -313,7 +315,7 @@ const Explore = ({ wishlistIds, goingIds, toggleWishlist, toggleGoing, onSelectE
                       fontFamily: M, fontSize: 8, fontWeight: 600, letterSpacing: "0.06em",
                       textTransform: "uppercase", color: F,
                       border: `1px solid ${glassBorder}`,
-                      padding: "3px 8px", borderRadius: 20,
+                      padding: "3px 8px", borderRadius: 2,
                     }}>{a}</span>
                   ))}
                 </div>
@@ -343,7 +345,7 @@ const Explore = ({ wishlistIds, goingIds, toggleWishlist, toggleGoing, onSelectE
               borderBottom: i < mapVenues.length - 1 ? `1px solid ${glassBorder}` : "none",
               cursor: "pointer",
             }}>
-              <div style={{ width: 32, height: 32, borderRadius: 10, background: glass, border: `1px solid ${glassBorder}`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 15, flexShrink: 0 }}>
+              <div style={{ width: 32, height: 32, borderRadius: 4, background: glass, border: `1px solid ${glassBorder}`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 15, flexShrink: 0 }}>
                 {v.type === "festival" ? "🎪" : "🎸"}
               </div>
               <div style={{ flex: 1 }}>
@@ -361,7 +363,7 @@ const Explore = ({ wishlistIds, goingIds, toggleWishlist, toggleGoing, onSelectE
                     fontFamily: M, fontSize: 8, fontWeight: 700, letterSpacing: "0.08em",
                     textTransform: "uppercase", color: A,
                     border: `1px solid rgba(193,127,74,0.4)`,
-                    padding: "3px 8px", borderRadius: 20, flexShrink: 0,
+                    padding: "3px 8px", borderRadius: 2, flexShrink: 0,
                   }}>
                     Tonight
                   </span>

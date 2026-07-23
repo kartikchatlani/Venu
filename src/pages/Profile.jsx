@@ -52,7 +52,7 @@ const AddFriendsView = ({ onClose }) => {
       <div style={{ display: "flex", gap: 6, marginBottom: 20, paddingBottom: 16, borderBottom: "1px solid rgba(244,239,231,0.1)" }}>
         {searchFilters.map((f) => (
           <button key={f} onClick={() => setFilter(f)} style={{
-            padding: "5px 12px", borderRadius: 20, cursor: "pointer",
+            padding: "5px 12px", borderRadius: 2, cursor: "pointer",
             fontFamily: M, fontSize: 9, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase",
             background: filter === f ? A : glass,
             border: filter === f ? "none" : `1px solid ${glassBorder}`,
@@ -66,13 +66,13 @@ const AddFriendsView = ({ onClose }) => {
             const isRequested = requested.has(f.name);
             return (
               <div key={f.name} style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                <div style={{ width: 36, height: 36, borderRadius: "50%", background: "rgba(193,127,74,0.15)", border: "1px solid rgba(193,127,74,0.35)", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: D, fontSize: 14, fontWeight: 700, color: A, flexShrink: 0 }}>{f.initials[0]}</div>
+                <div style={{ width: 36, height: 36, borderRadius: 2, background: "rgba(193,127,74,0.15)", border: "1px solid rgba(193,127,74,0.35)", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: D, fontSize: 14, fontWeight: 700, color: A, flexShrink: 0 }}>{f.initials[0]}</div>
                 <div style={{ flex: 1 }}>
                   <div style={{ fontFamily: D, fontSize: 15, fontWeight: 700, color: P, marginBottom: 2 }}>{f.name}</div>
                   <div style={{ fontFamily: M, fontSize: 9, color: F, textTransform: "uppercase", letterSpacing: "0.06em" }}>{f.username} · {f.mutual}</div>
                 </div>
                 <button onClick={() => toggleRequest(f.name)} style={{
-                  padding: "6px 14px", borderRadius: 20, fontSize: 9, fontWeight: 700,
+                  padding: "6px 14px", borderRadius: 2, fontSize: 9, fontWeight: 700,
                   fontFamily: M, letterSpacing: "0.08em", textTransform: "uppercase", cursor: "pointer",
                   border: isRequested ? `1px solid ${glassBorder}` : "none",
                   background: isRequested ? glass : A,
@@ -87,8 +87,8 @@ const AddFriendsView = ({ onClose }) => {
           <div style={{ fontFamily: M, fontSize: 10, color: F, textTransform: "uppercase", letterSpacing: "0.06em" }}>Start typing to find friends</div>
         </div>
       )}
-      <div style={{ background: glass, border: `1px solid ${glassBorder}`, borderRadius: 16, padding: "14px 16px", display: "flex", gap: 14, alignItems: "center" }}>
-        <div style={{ width: 36, height: 36, borderRadius: "50%", background: "rgba(193,127,74,0.15)", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
+      <div style={{ background: glass, border: `1px solid ${glassBorder}`, borderRadius: 4, padding: "14px 16px", display: "flex", gap: 14, alignItems: "center" }}>
+        <div style={{ width: 36, height: 36, borderRadius: 4, background: "rgba(193,127,74,0.15)", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={A} strokeWidth="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75M9 11a4 4 0 100-8 4 4 0 000 8z"/></svg>
         </div>
         <div>
@@ -111,7 +111,7 @@ const FriendsView = ({ onClose, onAddFriends }) => {
       </div>
       <button onClick={onAddFriends} style={{
         display: "flex", alignItems: "center", gap: 6, background: A, color: "#14110F",
-        border: "none", padding: "8px 16px", borderRadius: 20,
+        border: "none", padding: "8px 16px", borderRadius: 2,
         fontFamily: M, fontSize: 9, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase",
         cursor: "pointer", marginBottom: 20,
       }}>
@@ -127,7 +127,7 @@ const FriendsView = ({ onClose, onAddFriends }) => {
           <div style={{ fontFamily: M, fontSize: 10, color: F, textTransform: "uppercase", letterSpacing: "0.06em" }}>No friends found.</div>
         ) : filtered.map((f, i) => (
           <div key={f.name} style={{ display: "flex", alignItems: "center", gap: 12, padding: "10px 0", borderBottom: i < filtered.length - 1 ? "1px solid rgba(244,239,231,0.08)" : "none" }}>
-            <div style={{ width: 36, height: 36, borderRadius: "50%", background: "rgba(193,127,74,0.15)", border: "1px solid rgba(193,127,74,0.3)", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: D, fontSize: 14, fontWeight: 700, color: A, flexShrink: 0 }}>{f.initials[0]}</div>
+            <div style={{ width: 36, height: 36, borderRadius: 2, background: "rgba(193,127,74,0.15)", border: "1px solid rgba(193,127,74,0.3)", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: D, fontSize: 14, fontWeight: 700, color: A, flexShrink: 0 }}>{f.initials[0]}</div>
             <div style={{ flex: 1 }}>
               <div style={{ fontFamily: D, fontSize: 15, fontWeight: 700, color: P, marginBottom: 2 }}>{f.name}</div>
               <div style={{ fontFamily: M, fontSize: 9, color: F, textTransform: "uppercase", letterSpacing: "0.06em" }}>{f.status}</div>
@@ -157,8 +157,8 @@ const ReviewsView = ({ reviews, onClose, onEdit, onDelete, editingIndex, editArt
             </div>
             <textarea value={editText} onChange={(e) => setEditText(e.target.value)} rows={3} style={{ width: "100%", padding: "8px 0", background: "transparent", border: "none", borderBottom: "1px solid rgba(244,239,231,0.2)", fontFamily: D, fontSize: 13, color: P, outline: "none", resize: "none", marginBottom: 12, boxSizing: "border-box", lineHeight: 1.5 }} />
             <div style={{ display: "flex", gap: 8 }}>
-              <button onClick={onCancelEdit} style={{ flex: 1, padding: "8px 0", borderRadius: 20, border: `1px solid ${glassBorder}`, background: "transparent", fontFamily: M, fontSize: 9, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: F, cursor: "pointer" }}>Cancel</button>
-              <button onClick={onSaveEdit} style={{ flex: 2, padding: "8px 0", borderRadius: 20, border: "none", background: A, fontFamily: M, fontSize: 9, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: "#14110F", cursor: "pointer" }}>Save Changes</button>
+              <button onClick={onCancelEdit} style={{ flex: 1, padding: "8px 0", borderRadius: 2, border: `1px solid ${glassBorder}`, background: "transparent", fontFamily: M, fontSize: 9, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: F, cursor: "pointer" }}>Cancel</button>
+              <button onClick={onSaveEdit} style={{ flex: 2, padding: "8px 0", borderRadius: 2, border: "none", background: A, fontFamily: M, fontSize: 9, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: "#14110F", cursor: "pointer" }}>Save Changes</button>
             </div>
           </>
         ) : (
@@ -238,7 +238,7 @@ const CrewDetailView = ({ crew, onClose }) => {
         <button onClick={onClose} style={{
           position: "absolute", top: 14, left: 14,
           background: "rgba(12,10,8,0.65)", backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)",
-          border: "1px solid rgba(244,239,231,0.18)", borderRadius: 20,
+          border: "1px solid rgba(244,239,231,0.18)", borderRadius: 2,
           padding: "6px 14px", cursor: "pointer",
           display: "flex", alignItems: "center", gap: 6,
         }}>
@@ -261,7 +261,7 @@ const CrewDetailView = ({ crew, onClose }) => {
           {crew.members.map((mem, i) => (
             <div key={i} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6, flexShrink: 0 }}>
               <div style={{
-                width: 52, height: 52, borderRadius: "50%",
+                width: 52, height: 52, borderRadius: 2,
                 background: `${mem.color}22`,
                 border: `1.5px solid ${mem.color}88`,
                 display: "flex", alignItems: "center", justifyContent: "center",
@@ -272,7 +272,7 @@ const CrewDetailView = ({ crew, onClose }) => {
                 fontFamily: M, fontSize: 7.5, letterSpacing: "0.06em", textTransform: "uppercase",
                 color: mem.status === "going" ? A : mem.status === "maybe" ? F : F,
                 border: `1px solid ${mem.status === "going" ? "rgba(193,127,74,0.35)" : glassBorder}`,
-                padding: "2px 7px", borderRadius: 20,
+                padding: "2px 7px", borderRadius: 2,
               }}>{mem.status || "—"}</div>
             </div>
           ))}
@@ -288,9 +288,9 @@ const CrewDetailView = ({ crew, onClose }) => {
           <div key={i} style={{
             display: "flex", alignItems: "center", gap: 12,
             padding: "12px 14px", marginBottom: 8,
-            background: glass, border: `1px solid ${glassBorder}`, borderRadius: 14,
+            background: glass, border: `1px solid ${glassBorder}`, borderRadius: 4,
           }}>
-            <div style={{ width: 40, height: 40, borderRadius: 10, background: "rgba(193,127,74,0.1)", border: `1px solid rgba(193,127,74,0.25)`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+            <div style={{ width: 40, height: 40, borderRadius: 4, background: "rgba(193,127,74,0.1)", border: `1px solid rgba(193,127,74,0.25)`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={A} strokeWidth="1.5"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
             </div>
             <div style={{ flex: 1 }}>
@@ -312,7 +312,7 @@ const CrewDetailView = ({ crew, onClose }) => {
         <div style={{ fontFamily: M, fontSize: 9, color: F, textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 14 }}>Activity</div>
         {crew.activity.map((a, i) => (
           <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: 10, paddingBottom: 14, marginBottom: i < crew.activity.length - 1 ? 4 : 0, borderBottom: i < crew.activity.length - 1 ? `1px solid rgba(244,239,231,0.06)` : "none" }}>
-            <div style={{ width: 28, height: 28, borderRadius: "50%", background: glass, border: `1px solid ${glassBorder}`, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: D, fontSize: 11, fontWeight: 700, color: A, flexShrink: 0 }}>
+            <div style={{ width: 28, height: 28, borderRadius: 2, background: glass, border: `1px solid ${glassBorder}`, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: D, fontSize: 11, fontWeight: 700, color: A, flexShrink: 0 }}>
               {a.member[0]}
             </div>
             <div style={{ flex: 1 }}>
@@ -336,7 +336,7 @@ const CrewDetailView = ({ crew, onClose }) => {
           const liveTotals = poll.options.map((o, i) => o.votes + (voted === i ? 1 : 0));
           const liveTotal = liveTotals.reduce((s, v) => s + v, 0);
           return (
-            <div key={poll.id} style={{ background: glass, border: `1px solid ${glassBorder}`, borderRadius: 16, padding: "16px 16px 14px", marginBottom: 12 }}>
+            <div key={poll.id} style={{ background: glass, border: `1px solid ${glassBorder}`, borderRadius: 4, padding: "16px 16px 14px", marginBottom: 12 }}>
               <div style={{ fontFamily: D, fontSize: 16, fontWeight: 700, color: P, marginBottom: 14 }}>{poll.question}</div>
               {poll.options.map((opt, i) => {
                 const lv = liveTotals[i];
@@ -392,9 +392,9 @@ const CrewDetailView = ({ crew, onClose }) => {
         {playlist ? (() => {
           const plat = PLATFORMS[playlist.platform] || { label: "Playlist", color: A, bg: "rgba(193,127,74,0.1)", border: "rgba(193,127,74,0.3)" };
           return (
-            <div style={{ display: "flex", alignItems: "center", gap: 12, background: plat.bg, border: `1px solid ${plat.border}`, borderRadius: 14, padding: "14px 16px" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 12, background: plat.bg, border: `1px solid ${plat.border}`, borderRadius: 4, padding: "14px 16px" }}>
               {/* Music note icon */}
-              <div style={{ width: 40, height: 40, borderRadius: 10, background: `${plat.color}22`, border: `1px solid ${plat.border}`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+              <div style={{ width: 40, height: 40, borderRadius: 4, background: `${plat.color}22`, border: `1px solid ${plat.border}`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={plat.color} strokeWidth="1.8">
                   <path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/>
                 </svg>
@@ -407,7 +407,7 @@ const CrewDetailView = ({ crew, onClose }) => {
                 <a href={playlist.url} target="_blank" rel="noopener noreferrer" style={{
                   fontFamily: M, fontSize: 8.5, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase",
                   color: "#14110F", background: plat.color, border: "none",
-                  borderRadius: 20, padding: "6px 12px", textDecoration: "none", display: "block",
+                  borderRadius: 2, padding: "6px 12px", textDecoration: "none", display: "block",
                 }}>Open</a>
                 <button onClick={() => setPlaylist(null)} style={{ background: "none", border: "none", cursor: "pointer", color: F, padding: 4 }}>
                   <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
@@ -416,7 +416,7 @@ const CrewDetailView = ({ crew, onClose }) => {
             </div>
           );
         })() : addingPlaylist ? (
-          <div style={{ background: glass, border: `1px solid ${glassBorder}`, borderRadius: 14, padding: "14px 16px" }}>
+          <div style={{ background: glass, border: `1px solid ${glassBorder}`, borderRadius: 4, padding: "14px 16px" }}>
             <div style={{ fontFamily: M, fontSize: 9, color: F, textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 10 }}>
               Paste a Spotify, Apple Music, or YouTube link
             </div>
@@ -436,13 +436,13 @@ const CrewDetailView = ({ crew, onClose }) => {
             />
             <div style={{ display: "flex", gap: 8 }}>
               <button onClick={() => { setAddingPlaylist(false); setPlaylistInput(""); }} style={{
-                flex: 1, padding: "8px 0", borderRadius: 20,
+                flex: 1, padding: "8px 0", borderRadius: 2,
                 border: `1px solid ${glassBorder}`, background: "transparent",
                 fontFamily: M, fontSize: 9, fontWeight: 700, letterSpacing: "0.08em",
                 textTransform: "uppercase", color: F, cursor: "pointer",
               }}>Cancel</button>
               <button onClick={submitPlaylist} style={{
-                flex: 2, padding: "8px 0", borderRadius: 20, border: "none",
+                flex: 2, padding: "8px 0", borderRadius: 2, border: "none",
                 background: playlistInput.trim() ? A : "rgba(193,127,74,0.2)",
                 fontFamily: M, fontSize: 9, fontWeight: 700, letterSpacing: "0.08em",
                 textTransform: "uppercase", color: "#14110F",
@@ -455,7 +455,7 @@ const CrewDetailView = ({ crew, onClose }) => {
             display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
             width: "100%", padding: 14, background: "transparent",
             border: `1px dashed rgba(244,239,231,0.15)`,
-            borderRadius: 14, cursor: "pointer",
+            borderRadius: 4, cursor: "pointer",
             fontFamily: M, fontSize: 9, fontWeight: 700,
             letterSpacing: "0.1em", textTransform: "uppercase", color: F,
           }}>
@@ -548,6 +548,9 @@ const Profile = ({ session, savedEvents = [] }) => {
   const email = session?.user?.email ?? "";
   const userHandle = "@" + (email.split("@")[0] || "you");
   const userInitial = email[0]?.toUpperCase() ?? "?";
+  const rawName = email.split("@")[0].replace(/\d+$/, "").replace(/[._]/g, " ").trim();
+  const displayName = session?.user?.user_metadata?.full_name
+    || (rawName ? rawName.split(" ").map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(" ") : userProfile.name);
 
   const goingEvents = savedEvents.filter((e) => e.status === "going");
   const uniqueVenues = new Set(goingEvents.map((e) => e.venue).filter(Boolean)).size;
@@ -614,7 +617,7 @@ const Profile = ({ session, savedEvents = [] }) => {
           background: "rgba(12,10,8,0.72)",
           backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)",
           border: "1px solid rgba(244,239,231,0.18)",
-          borderRadius: 20, padding: "5px 11px",
+          borderRadius: 2, padding: "5px 11px",
           cursor: "pointer",
         }}>
           <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke={P} strokeWidth="2">
@@ -632,7 +635,7 @@ const Profile = ({ session, savedEvents = [] }) => {
       <div style={{ display: "flex", flexDirection: "column", alignItems: "center", marginBottom: 28 }}>
         {/* Avatar — pulled up to overlap the banner */}
         <div style={{
-          width: 88, height: 88, borderRadius: "50%",
+          width: 88, height: 88, borderRadius: 4,
           background: "rgba(193,127,74,0.15)",
           border: "3px solid #0C0A08",
           boxShadow: "0 0 0 2px rgba(193,127,74,0.45), 0 0 28px rgba(193,127,74,0.2)",
@@ -646,7 +649,7 @@ const Profile = ({ session, savedEvents = [] }) => {
         </div>
 
         <div style={{ fontFamily: D, fontSize: 24, fontWeight: 700, color: P, marginBottom: 2 }}>
-          {userProfile.name}
+          {displayName}
         </div>
         <div style={{ fontFamily: M, fontSize: 10, letterSpacing: "0.08em", textTransform: "uppercase", color: A, marginBottom: 4 }}>
           {userHandle}
@@ -661,7 +664,7 @@ const Profile = ({ session, savedEvents = [] }) => {
         )}
         <button style={{
           background: glass, border: `1px solid rgba(193,127,74,0.3)`,
-          borderRadius: 20, padding: "7px 22px",
+          borderRadius: 2, padding: "7px 22px",
           fontFamily: M, fontSize: 9, fontWeight: 700,
           letterSpacing: "0.08em", textTransform: "uppercase", color: A, cursor: "pointer",
         }}>
@@ -672,7 +675,7 @@ const Profile = ({ session, savedEvents = [] }) => {
       {/* ── Stats strip ───────────────────────────────────────── */}
       <div style={{
         display: "flex", background: glass, border: `1px solid ${glassBorder}`,
-        borderRadius: 18, overflow: "hidden", marginBottom: 28,
+        borderRadius: 4, overflow: "hidden", marginBottom: 28,
       }}>
         {[
           { label: "Shows", value: liveStats.shows, onClick: null },
@@ -731,7 +734,7 @@ const Profile = ({ session, savedEvents = [] }) => {
       </div>
       <div style={{
         background: glass, border: `1px solid ${glassBorder}`,
-        borderRadius: 18, padding: "18px 18px 20px", marginBottom: 28,
+        borderRadius: 4, padding: "18px 18px 20px", marginBottom: 28,
       }}>
         <div style={{ fontFamily: M, fontSize: 9, color: F, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 14 }}>
           2026 Season · Earned Badges
@@ -745,7 +748,7 @@ const Profile = ({ session, savedEvents = [] }) => {
               animationDelay: `${i * 0.5}s`,
             }}>
               <div style={{
-                width: 48, height: 48, borderRadius: "50%",
+                width: 48, height: 48, borderRadius: 4,
                 background: b.tier !== "locked" ? "rgba(193,127,74,0.14)" : glass,
                 border: `1px solid ${b.tier !== "locked" ? "rgba(193,127,74,0.35)" : glassBorder}`,
                 display: "flex", alignItems: "center", justifyContent: "center",
@@ -840,7 +843,7 @@ const Profile = ({ session, savedEvents = [] }) => {
       {crews.map((crew, i) => (
         <div key={i} onClick={() => { setSelectedCrew(crew); setView("crewDetail"); }} style={{
           background: glass, border: `1px solid ${glassBorder}`,
-          borderRadius: 18, overflow: "hidden", marginBottom: 12, cursor: "pointer",
+          borderRadius: 4, overflow: "hidden", marginBottom: 12, cursor: "pointer",
         }}>
           {/* Cover photo */}
           <div style={{ position: "relative", height: 110, background: "repeating-linear-gradient(135deg, #2a221a, #2a221a 8px, #201913 8px, #201913 16px)", overflow: "hidden" }}>
@@ -858,14 +861,13 @@ const Profile = ({ session, savedEvents = [] }) => {
           <div style={{ padding: "12px 14px 14px" }}>
             {/* Avatar stack */}
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
-              <div style={{ display: "flex" }}>
+              <div style={{ display: "flex", gap: 4 }}>
                 {crew.avatars.map((a, j) => (
                   <div key={j} style={{
-                    width: 26, height: 26, borderRadius: "50%",
+                    width: 26, height: 26, borderRadius: 2,
                     background: `${a.color}22`, border: `1.5px solid ${a.color}88`,
                     display: "flex", alignItems: "center", justifyContent: "center",
                     fontFamily: D, fontSize: 10, fontWeight: 700, color: a.color,
-                    marginRight: -7, zIndex: 10 - j, position: "relative",
                   }}>{a.initial}</div>
                 ))}
               </div>
@@ -874,11 +876,11 @@ const Profile = ({ session, savedEvents = [] }) => {
             {/* Feature chips */}
             <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 10 }}>
               {crew.features.map((f, j) => (
-                <span key={j} style={{ fontFamily: M, fontSize: 8.5, fontWeight: 600, letterSpacing: "0.06em", textTransform: "uppercase", color: F, border: `1px solid ${glassBorder}`, padding: "3px 9px", borderRadius: 20 }}>{f.label}</span>
+                <span key={j} style={{ fontFamily: M, fontSize: 8.5, fontWeight: 600, letterSpacing: "0.06em", textTransform: "uppercase", color: F, border: `1px solid ${glassBorder}`, padding: "3px 9px", borderRadius: 2 }}>{f.label}</span>
               ))}
             </div>
             {/* Next event */}
-            <div style={{ display: "flex", alignItems: "center", gap: 8, border: "1px solid rgba(193,127,74,0.25)", borderRadius: 20, padding: "8px 12px" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 8, border: "1px solid rgba(193,127,74,0.25)", borderRadius: 2, padding: "8px 12px" }}>
               <div style={{ width: 5, height: 5, borderRadius: "50%", background: A, flexShrink: 0, animation: "pulse 1.5s ease-in-out infinite" }} />
               <div style={{ fontFamily: M, fontSize: 9.5, color: A, flex: 1, letterSpacing: "0.04em", textTransform: "uppercase" }}>{crew.nextEvent}</div>
             </div>
@@ -889,13 +891,54 @@ const Profile = ({ session, savedEvents = [] }) => {
         display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
         width: "100%", padding: 14, background: "transparent",
         border: `1px dashed rgba(244,239,231,0.15)`,
-        borderRadius: 16, cursor: "pointer",
+        borderRadius: 4, cursor: "pointer",
         fontFamily: M, fontSize: 9, fontWeight: 700,
         letterSpacing: "0.1em", textTransform: "uppercase", color: F,
       }}>
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 5v14M5 12h14"/></svg>
         Create New Crew
       </button>
+
+      {/* ── Favorite Artists ─────────────────────────────────── */}
+      <div style={{ height: 1, background: glassBorder, margin: "24px 0" }} />
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 14 }}>
+        <div style={{ fontFamily: D, fontSize: 22, fontWeight: 700, color: P }}>Favorite Artists</div>
+        <span style={{ fontFamily: M, fontSize: 9, letterSpacing: "0.08em", textTransform: "uppercase", color: A, cursor: "pointer" }}>Edit →</span>
+      </div>
+      <HScroll gap={14} style={{ marginBottom: 8 }}>
+        {favoriteArtists.map((a, i) => (
+          <div key={i} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6, minWidth: 70, flexShrink: 0 }}>
+            <div style={{
+              width: 64, height: 64, borderRadius: 4,
+              background: "repeating-linear-gradient(135deg, #2a221a, #2a221a 6px, #201913 6px, #201913 12px)",
+              border: "1px solid rgba(193,127,74,0.3)",
+              overflow: "hidden",
+            }}>
+              <img src={a.img} alt="" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+            </div>
+            <div style={{ fontFamily: D, fontSize: 11, fontWeight: 700, color: P, textAlign: "center", maxWidth: 70, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{a.name}</div>
+            <div style={{ fontFamily: M, fontSize: 8, color: F, textTransform: "uppercase", letterSpacing: "0.06em" }}>Seen {a.seen}×</div>
+          </div>
+        ))}
+      </HScroll>
+
+      {/* ── Favorite Venues ───────────────────────────────────── */}
+      <div style={{ height: 1, background: glassBorder, margin: "22px 0" }} />
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 14 }}>
+        <div style={{ fontFamily: D, fontSize: 22, fontWeight: 700, color: P }}>Favorite Venues</div>
+        <span style={{ fontFamily: M, fontSize: 9, letterSpacing: "0.08em", textTransform: "uppercase", color: A, cursor: "pointer" }}>All →</span>
+      </div>
+      <HScroll gap={14} style={{ marginBottom: 8 }}>
+        {favoriteVenues.map((v, i) => (
+          <div key={i} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6, minWidth: 70, flexShrink: 0 }}>
+            <div style={{ width: 64, height: 64, borderRadius: 4, background: "repeating-linear-gradient(135deg, #2a221a, #2a221a 6px, #201913 6px, #201913 12px)", overflow: "hidden", border: `1px solid ${glassBorder}` }}>
+              <img src={v.img} alt="" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+            </div>
+            <div style={{ fontFamily: D, fontSize: 11, fontWeight: 700, color: P, textAlign: "center", maxWidth: 70, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{v.name}</div>
+            <div style={{ fontFamily: M, fontSize: 8, color: F, textTransform: "uppercase", letterSpacing: "0.06em" }}>{v.shows} shows</div>
+          </div>
+        ))}
+      </HScroll>
 
       {/* ── Reviews ──────────────────────────────────────────── */}
       <div style={{ height: 1, background: glassBorder, margin: "22px 0" }} />
@@ -905,7 +948,7 @@ const Profile = ({ session, savedEvents = [] }) => {
           <button onClick={() => setShowReviewForm(true)} style={{
             display: "flex", alignItems: "center", gap: 6,
             background: A, color: "#14110F", border: "none",
-            padding: "7px 14px", borderRadius: 20,
+            padding: "7px 14px", borderRadius: 2,
             fontFamily: M, fontSize: 9, fontWeight: 700,
             letterSpacing: "0.08em", textTransform: "uppercase", cursor: "pointer",
           }}>
@@ -916,7 +959,7 @@ const Profile = ({ session, savedEvents = [] }) => {
       </div>
 
       {showReviewForm && (
-        <div style={{ background: glass, border: `1px solid ${glassBorder}`, borderRadius: 16, padding: 16, marginBottom: 16 }}>
+        <div style={{ background: glass, border: `1px solid ${glassBorder}`, borderRadius: 4, padding: 16, marginBottom: 16 }}>
           <div style={{ fontFamily: D, fontSize: 16, fontWeight: 700, color: P, marginBottom: 12 }}>Write a Review</div>
           <input value={reviewArtist} onChange={(e) => setReviewArtist(e.target.value)} placeholder="Artist · Venue" style={{ width: "100%", padding: "8px 0", background: "transparent", border: "none", borderBottom: "1px solid rgba(244,239,231,0.2)", fontFamily: D, fontSize: 14, fontStyle: "italic", color: P, outline: "none", marginBottom: 12, boxSizing: "border-box" }} />
           <div style={{ display: "flex", gap: 6, marginBottom: 10 }}>
@@ -924,8 +967,8 @@ const Profile = ({ session, savedEvents = [] }) => {
           </div>
           <textarea value={reviewText} onChange={(e) => setReviewText(e.target.value)} placeholder="What made it memorable?" rows={3} style={{ width: "100%", padding: "8px 0", background: "transparent", border: "none", borderBottom: "1px solid rgba(244,239,231,0.2)", fontFamily: D, fontSize: 13, fontStyle: "italic", color: P, outline: "none", resize: "none", marginBottom: 14, boxSizing: "border-box", lineHeight: 1.5 }} />
           <div style={{ display: "flex", gap: 8 }}>
-            <button onClick={() => { setShowReviewForm(false); setReviewArtist(""); setReviewStars(0); setReviewText(""); }} style={{ flex: 1, padding: "9px 0", borderRadius: 20, border: `1px solid ${glassBorder}`, background: "transparent", fontFamily: M, fontSize: 9, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: F, cursor: "pointer" }}>Cancel</button>
-            <button onClick={submitReview} style={{ flex: 2, padding: "9px 0", borderRadius: 20, border: "none", background: reviewArtist.trim() && reviewStars > 0 ? A : "rgba(193,127,74,0.2)", fontFamily: M, fontSize: 9, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: "#14110F", cursor: reviewArtist.trim() && reviewStars > 0 ? "pointer" : "not-allowed" }}>Post Review</button>
+            <button onClick={() => { setShowReviewForm(false); setReviewArtist(""); setReviewStars(0); setReviewText(""); }} style={{ flex: 1, padding: "9px 0", borderRadius: 2, border: `1px solid ${glassBorder}`, background: "transparent", fontFamily: M, fontSize: 9, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: F, cursor: "pointer" }}>Cancel</button>
+            <button onClick={submitReview} style={{ flex: 2, padding: "9px 0", borderRadius: 2, border: "none", background: reviewArtist.trim() && reviewStars > 0 ? A : "rgba(193,127,74,0.2)", fontFamily: M, fontSize: 9, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: "#14110F", cursor: reviewArtist.trim() && reviewStars > 0 ? "pointer" : "not-allowed" }}>Post Review</button>
           </div>
         </div>
       )}
@@ -940,8 +983,8 @@ const Profile = ({ session, savedEvents = [] }) => {
               </div>
               <textarea value={editText} onChange={(e) => setEditText(e.target.value)} rows={3} style={{ width: "100%", padding: "6px 0", background: "transparent", border: "none", borderBottom: "1px solid rgba(244,239,231,0.2)", fontFamily: D, fontSize: 13, fontStyle: "italic", color: P, outline: "none", resize: "none", marginBottom: 12, boxSizing: "border-box", lineHeight: 1.5 }} />
               <div style={{ display: "flex", gap: 8 }}>
-                <button onClick={() => setEditingIndex(null)} style={{ flex: 1, padding: "8px 0", borderRadius: 20, border: `1px solid ${glassBorder}`, background: "transparent", fontFamily: M, fontSize: 9, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: F, cursor: "pointer" }}>Cancel</button>
-                <button onClick={saveEdit} style={{ flex: 2, padding: "8px 0", borderRadius: 20, border: "none", background: A, fontFamily: M, fontSize: 9, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: "#14110F", cursor: "pointer" }}>Save Changes</button>
+                <button onClick={() => setEditingIndex(null)} style={{ flex: 1, padding: "8px 0", borderRadius: 2, border: `1px solid ${glassBorder}`, background: "transparent", fontFamily: M, fontSize: 9, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: F, cursor: "pointer" }}>Cancel</button>
+                <button onClick={saveEdit} style={{ flex: 2, padding: "8px 0", borderRadius: 2, border: "none", background: A, fontFamily: M, fontSize: 9, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: "#14110F", cursor: "pointer" }}>Save Changes</button>
               </div>
             </>
           ) : (
@@ -970,7 +1013,7 @@ const Profile = ({ session, savedEvents = [] }) => {
       <div style={{ display: "flex", gap: 10 }}>
         {["Share Profile", "Share Passport"].map((label, i) => (
           <button key={i} style={{
-            flex: 1, padding: 12, borderRadius: 20,
+            flex: 1, padding: 12, borderRadius: 2,
             border: `1px solid ${glassBorder}`, background: glass,
             fontFamily: M, fontSize: 9, fontWeight: 700,
             letterSpacing: "0.06em", textTransform: "uppercase", color: P,
