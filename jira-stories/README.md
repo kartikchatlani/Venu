@@ -1,12 +1,12 @@
 # Venu — Jira Stories Index
 
-**61 stories**, each scoped to a single deliverable, split by type: **5 Spikes**, **4 Infra**, **17 API**, **35 UI**. Every file has: header (Type · Epic · Depends on · Refs), **Deliverable**, Purpose, Description, Notes/Questions, Acceptance Criteria — ready to copy into Jira.
+**62 stories**, each scoped to a single deliverable, split by type: **6 Spikes**, **4 Infra**, **17 API**, **35 UI**. Every file has: header (Type · Epic · Depends on · Refs), **Deliverable**, Purpose, Description, Notes/Questions, Acceptance Criteria — ready to copy into Jira.
 
 Sources: `venu_frontend_technical_list.md`, wireframes in `docs/screenshots/`, `INTENT.md`, `DESIGN_SYSTEM.md`, and the prototype source.
 
 ## Recommended sequencing
 
-1. **Spikes first (sprint 0):** SPIKE-01/02/03 unblock everything; SPIKE-04 unblocks the events API; SPIKE-05 can wait.
+1. **Spikes first (sprint 0):** SPIKE-01/02/03 unblock everything; SPIKE-04 unblocks the events API; SPIKE-06 (web vs native app) must close before any UI story starts — its outcome largely answers SPIKE-05's channel question.
 2. **Platform + foundation in parallel:** INFRA-01..04 (per spike outcomes) while frontend builds UI-01..11 against mocked services and backend builds API-04, API-01..03.
 3. **Auth:** API-04 → UI-12/13 — required before any `/me/*` feature works end-to-end.
 4. **Pages:** each page's UI stories consume their API stories; pairs are noted in each file's Depends-on line.
@@ -21,6 +21,7 @@ Sources: `venu_frontend_technical_list.md`, wireframes in `docs/screenshots/`, `
 | SPIKE-03 | CI/CD, IaC & Environments |
 | SPIKE-04 | Ticketmaster Ingestion & Caching Strategy |
 | SPIKE-05 | Push Notification & Reminder Delivery |
+| SPIKE-06 | Mobile Platform Strategy (Web/PWA vs Native App) |
 
 ## Infra
 

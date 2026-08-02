@@ -1,22 +1,57 @@
 # Venu
 
-Interactive prototype for a music event discovery & booking app, scoped to Austin, TX.
-Presented as a phone mockup (`PhoneFrame`) with a five-tab UI.
+Music event discovery & booking app, launching in Austin, TX. The wireframe/POC phase is done;
+the team is now rebuilding for production from the Jira stories. `src/` is a bare placeholder
+scaffold awaiting the rebuild — the full prototype lives in `archived-src/` as reference only
+(excluded from ESLint; don't extend it, but do consult it as the visual/behavioral spec).
 
-## Stack
+## Team & how to work with us
 
-- **React 19** + **Vite 8** (note: README says React 18 — it's stale)
-- **React Router DOM 7** (installed; navigation currently done via tab state in `App.jsx`, not routes)
-- **Supabase** — auth + `saved_events` table
-- **Ticketmaster Discovery API** — live Austin music events
-- Styling: inline CSS-in-JS (no framework); theme in `src/theme.jsx`
+- Three people: **Aaron** (product lead / PO), **Kartik** and **Jake** (devs). All devs are junior
+  (a few years' experience); Jake comes from Angular and is learning React.
+- Claude's role: technical advisor, reviewer, idea generator, and acting stakeholder. When
+  discussing any design decision, **explain the feature's impact on Venu and what the choice costs
+  or enables down the road** — not just what to do, but why and what happens if we're wrong.
+- Prefer industry-standard, transferable patterns over clever ones; this codebase is also how the
+  team levels up.
+
+## Current phase
+
+Sprint 1 (Aug 3–17, 2026): close the architecture spikes. SPIKE-01 (AWS architecture, VENU-66)
+and SPIKE-06 (web vs native app, VENU-76) are both **In Review** — research drafts in
+`docs/spikes/`, awaiting team sign-off. SPIKE-06 recommends React Native + Expo; if adopted,
+UI story specs get re-pointed before UI-01 starts. Story sequencing and the full index:
+`jira-stories/README.md`.
+
+- **Jira:** https://aeweinbach.atlassian.net — project key `VENU` (14 epics, ~61 stories mirroring
+  the `jira-stories/` folder; spikes are issue type "Spike").
+- Planned production stack: React SPA (S3 + CloudFront) · Java Spring Boot API (ECS Fargate) ·
+  Postgres (Supabase now, RDS later) · Supabase Auth (JWT validation in Spring) · Ticketmaster
+  ingested server-side. Pending team sign-off on SPIKE-01.
+
+## Key documents
+
+- `Venu-Feature-List.md` — product intent doc + phased feature list (Phase 1 = core loop)
+- `INTENT.md` — product vision, problems, guiding principles
+- `jira-stories/` — all 61 story specs (UI/API/INFRA/SPIKE), ready-to-copy into Jira (already imported)
+- `venu_frontend_technical_list.md` — global vs page-specific component inventory
+- `docs/architecture.md` — prototype UI map + screenshots + React-for-Angular-devs primer
+- `docs/spikes/` — spike research docs / ADR drafts
+- `DESIGN_SYSTEM.md` — After Dark design system reference
+- `CLAUDE_CONTEXT.md` — detailed prototype behavior notes (describes `archived-src/`, not `src/`)
+
+## Stack (current scaffold)
+
+- **React 19** + **Vite 8** (README says React 18 — stale)
+- **React Router DOM 7** installed; production shell uses real routes (UI-01)
+- Styling: inline CSS-in-JS (no framework)
 
 ## Commands
 
 - `npm run dev` — start Vite dev server (http://localhost:5173)
 - `npm run build` — production build
 - `npm run preview` — preview production build
-- `npm run lint` — ESLint
+- `npm run lint` — ESLint (ignores `dist/` and `archived-src/`)
 
 ## Environment
 
@@ -24,21 +59,12 @@ Requires a `.env` at repo root (gitignored — never commit it):
 
 - `VITE_SUPABASE_URL`
 - `VITE_SUPABASE_ANON_KEY`
-- `VITE_TICKETMASTER_API_KEY`
-
-Any `VITE_`-prefixed var is exposed to the browser via `import.meta.env`.
-
-## Architecture
-
-- `src/App.jsx` — root; manages Supabase auth session, active tab, selected event (bottom sheet), notifications panel. Renders `Auth` when logged out, otherwise the active page + shared chrome.
-- `src/pages/` — Home, Explore, Guide, Calendar, Profile, Auth.
-- `src/components/` — shared UI: `PhoneFrame`, `TabBar`, `EventBottomSheet`, `NotificationsPanel`.
-- `src/lib/` — `supabase.js` (client), `ticketmaster.js` (fetch + normalize TM events), `savedEvents.js` (CRUD on `saved_events`).
-- `src/hooks/` — `useSavedEvents` (single source of truth for saved events; derives `wishlistIds`/`goingIds`; optimistic updates with rollback), `useAustinEvents` (tonight + weekend shows).
+- `VITE_TICKETMASTER_API_KEY` (prototype-era; production moves this server-side — never add new
+  secrets as `VITE_` vars, they ship to the browser)
 
 ## Conventions
 
-- Saved events have `status` of `"wishlist"` or `"going"`; toggling is threaded from `App` down through pages and the bottom sheet via props.
+- Saved events have `status` of `"wishlist"` or `"going"` — two mutually exclusive intent states.
 - All source files use `.jsx`, not `.js`.
 
 ## Design System
